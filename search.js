@@ -11,4 +11,4 @@ function findOccurrences(fileContent, fileName, searchStr) {
     });
 }
 
-findOccurrences(appJs, 'app.js', 'function detectDeviceLayout');
+findOccurrences(appJs, 'app.js', 'function connectSupabaseClient');
