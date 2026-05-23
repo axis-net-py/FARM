@@ -4713,6 +4713,31 @@ function renderSeedsGrains() {
     
     // 2. Render in dedicated Grãos & Sementes table
     const gsTbody = document.getElementById('seeds-grains-table-body');
+    let boughtSum = 0;
+    let treatedSum = 0;
+    let harvestedSum = 0;
+
+    if (db.seedsGrains && db.seedsGrains.length > 0) {
+        db.seedsGrains.forEach(item => {
+            const qty = parseFloat(item.quantity) || 0;
+            if (item.type === 'Semente Comprada') {
+                boughtSum += qty;
+            } else if (item.type === 'Semente Tratada') {
+                treatedSum += qty;
+            } else if (item.type === 'Grão Colhido') {
+                harvestedSum += qty;
+            }
+        });
+    }
+
+    // Update KPIs
+    const kpiBought = document.getElementById('gs-kpi-seeds-bought');
+    const kpiTreated = document.getElementById('gs-kpi-seeds-treated');
+    const kpiHarvested = document.getElementById('gs-kpi-grains-harvested');
+    if (kpiBought) kpiBought.textContent = `${boughtSum.toLocaleString()} sc`;
+    if (kpiTreated) kpiTreated.textContent = `${treatedSum.toLocaleString()} sc`;
+    if (kpiHarvested) kpiHarvested.textContent = `${harvestedSum.toLocaleString()} sc`;
+
     if (gsTbody) {
         gsTbody.innerHTML = '';
         if (!db.seedsGrains || db.seedsGrains.length === 0) {
@@ -4751,6 +4776,96 @@ function renderSeedsGrains() {
                     </td>
                 `;
                 gsTbody.appendChild(tr);
+            });
+        }
+    }
+
+    // 3. Render type distribution progress bars
+    const typeContainer = document.getElementById('gs-type-distribution');
+    if (typeContainer) {
+        typeContainer.innerHTML = '';
+        const totalQty = boughtSum + treatedSum + harvestedSum;
+        if (totalQty === 0) {
+            typeContainer.innerHTML = `<p class="text-xs text-on-surface-variant opacity-60 text-center py-4">Sem dados para exibir</p>`;
+        } else {
+            const types = [
+                { name: currentLanguage === 'pt-BR' ? 'Sementes Compradas' : 'Semillas Compradas', qty: boughtSum, color: 'bg-primary', icon: 'shopping_cart', textColor: 'text-primary' },
+                { name: currentLanguage === 'pt-BR' ? 'Sementes Tratadas' : 'Semillas Tratadas', qty: treatedSum, color: 'bg-tertiary', icon: 'science', textColor: 'text-tertiary' },
+                { name: currentLanguage === 'pt-BR' ? 'Grãos Colhidos' : 'Granos Cosechados', qty: harvestedSum, color: 'bg-secondary', icon: 'agriculture', textColor: 'text-secondary' }
+            ].sort((a, b) => b.qty - a.qty);
+
+            types.forEach(t => {
+                const pct = (t.qty / totalQty) * 100;
+                const row = document.createElement('div');
+                row.className = 'flex flex-col gap-1.5';
+                row.innerHTML = `
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="flex items-center gap-1.5 font-bold text-on-surface">
+                           <span class="material-symbols-outlined text-[16px] ${t.textColor}">${t.icon}</span>
+                           <span>${t.name}</span>
+                        </span>
+                        <span class="font-data-numeral font-bold text-on-surface-variant">
+                            ${t.qty.toLocaleString()} sc <span class="text-[10px] opacity-70 font-semibold">(${pct.toFixed(0)}%)</span>
+                        </span>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+                        <div class="h-full rounded-full ${t.color} transition-all duration-1000 ease-out" style="width: 0%" id="bar-gs-type-${t.icon}"></div>
+                    </div>
+                `;
+                typeContainer.appendChild(row);
+                setTimeout(() => {
+                    const bar = document.getElementById(`bar-gs-type-${t.icon}`);
+                    if (bar) bar.style.width = `${pct}%`;
+                }, 100);
+            });
+        }
+    }
+
+    // 4. Render product distribution progress bars (top 5)
+    const productContainer = document.getElementById('gs-product-distribution');
+    if (productContainer) {
+        productContainer.innerHTML = '';
+        const prodTotals = {};
+        let totalProdQty = 0;
+        if (db.seedsGrains) {
+            db.seedsGrains.forEach(item => {
+                const qty = parseFloat(item.quantity) || 0;
+                prodTotals[item.name] = (prodTotals[item.name] || 0) + qty;
+                totalProdQty += qty;
+            });
+        }
+
+        if (totalProdQty === 0) {
+            productContainer.innerHTML = `<p class="text-xs text-on-surface-variant opacity-60 text-center py-4">Sem dados para exibir</p>`;
+        } else {
+            const sortedProds = Object.keys(prodTotals).map(name => {
+                return { name, qty: prodTotals[name], pct: (prodTotals[name] / totalProdQty) * 100 };
+            }).sort((a, b) => b.qty - a.qty).slice(0, 5);
+
+            sortedProds.forEach((p, idx) => {
+                const row = document.createElement('div');
+                row.className = 'flex flex-col gap-1.5';
+                const colors = ['bg-primary', 'bg-secondary', 'bg-tertiary', 'bg-amber-500', 'bg-blue-500'];
+                const color = colors[idx % colors.length];
+                row.innerHTML = `
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="flex items-center gap-1.5 font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-[16px] text-primary">grain</span>
+                            <span>${p.name}</span>
+                        </span>
+                        <span class="font-data-numeral font-bold text-on-surface-variant">
+                            ${p.qty.toLocaleString()} sc <span class="text-[10px] opacity-70 font-semibold">(${p.pct.toFixed(0)}%)</span>
+                        </span>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+                        <div class="h-full rounded-full ${color} transition-all duration-1000 ease-out" style="width: 0%" id="bar-gs-prod-${idx}"></div>
+                    </div>
+                `;
+                productContainer.appendChild(row);
+                setTimeout(() => {
+                    const bar = document.getElementById(`bar-gs-prod-${idx}`);
+                    if (bar) bar.style.width = `${p.pct}%`;
+                }, 100);
             });
         }
     }

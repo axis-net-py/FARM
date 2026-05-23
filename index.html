@@ -1078,34 +1078,110 @@
                     </div>
                 </div>
 
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 pb-2 border-b border-outline-variant/30">
-                        <h3 class="font-headline-md font-bold text-on-surface text-lg flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary text-[20px]">grain</span>
-                            <span data-i18n="inv_sect_seeds_grains">Sementes & Grãos em Estoque</span>
-                        </h3>
-                        <button class="btn btn-primary btn-sm flex items-center justify-center gap-1.5 shrink-0 shadow-sm hover:shadow" onclick="openModal('modal-add-semente-grao')">
-                            <span class="material-symbols-outlined text-[18px]">add</span>
-                            <span data-i18n="btn_add_seed_grain">Novo Registro</span>
-                        </button>
+                <!-- Subnav Tabs -->
+                <div class="tabs-subnav flex gap-2 border-b border-outline-variant pb-2">
+                    <button class="tab-subnav-btn active px-4 py-2 font-label-md text-xs rounded-lg transition-all" onclick="switchSubTab('sub-estoque-graos', this)">Estoque Geral</button>
+                    <button class="tab-subnav-btn px-4 py-2 font-label-md text-xs rounded-lg transition-all" onclick="switchSubTab('sub-metricas-graos', this)">Resumo da Produção</button>
+                </div>
+
+                <!-- Sub-tab 1: Estoque Geral -->
+                <div id="sub-estoque-graos" class="sub-tab-content active flex flex-col gap-6">
+                    <!-- KPI Cards at top of stock tab -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- KPI 1: Sementes Compradas -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 flex items-center gap-4 hover:scale-[1.02] transition-all">
+                            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-primary text-2xl">shopping_cart</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-on-surface-variant uppercase">Sementes Compradas</p>
+                                <p class="font-data-numeral text-xl font-bold text-primary" id="gs-kpi-seeds-bought">0 sc</p>
+                                <p class="text-[10px] text-on-surface-variant opacity-75">Bolsas / Sacos em estoque</p>
+                            </div>
+                        </div>
+
+                        <!-- KPI 2: Sementes Tratadas -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 flex items-center gap-4 hover:scale-[1.02] transition-all">
+                            <div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-tertiary text-2xl">science</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-on-surface-variant uppercase">Sementes Tratadas</p>
+                                <p class="font-data-numeral text-xl font-bold text-tertiary" id="gs-kpi-seeds-treated">0 sc</p>
+                                <p class="text-[10px] text-on-surface-variant opacity-75">Prontas para plantio</p>
+                            </div>
+                        </div>
+
+                        <!-- KPI 3: Grãos Colhidos -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 flex items-center gap-4 hover:scale-[1.02] transition-all">
+                            <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-secondary text-2xl">agriculture</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-on-surface-variant uppercase">Grãos Colhidos</p>
+                                <p class="font-data-numeral text-xl font-bold text-secondary" id="gs-kpi-grains-harvested">0 sc</p>
+                                <p class="text-[10px] text-on-surface-variant opacity-75">Volume total produzido</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs min-w-[600px]">
-                            <thead>
-                                <tr class="border-b border-outline-variant font-label-md text-on-surface-variant uppercase tracking-wider">
-                                    <th class="p-4" data-i18n="th_date">Data</th>
-                                    <th class="p-4" data-i18n="label_seed_grain_type">Tipo de Registro</th>
-                                    <th class="p-4" data-i18n="inv_item_name">Produto / Variedade</th>
-                                    <th class="p-4" data-i18n="inv_item_qty">Quantidade</th>
-                                    <th class="p-4" data-i18n="label_seed_grain_safra">Safra Relacionada</th>
-                                    <th class="p-4 text-right" data-i18n="th_cost">Custo / Valor</th>
-                                    <th class="p-4 text-center" data-i18n="th_actions">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="seeds-grains-table-body" class="divide-y divide-outline-variant">
-                                <!-- Dinamicamente preenchido pelo app.js -->
-                            </tbody>
-                        </table>
+
+                    <!-- Main Table Card -->
+                    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 pb-2 border-b border-outline-variant/30">
+                            <h3 class="font-headline-md font-bold text-on-surface text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary text-[20px]">grain</span>
+                                <span>Lançamentos de Grãos & Sementes</span>
+                            </h3>
+                            <button class="btn btn-primary btn-sm flex items-center justify-center gap-1.5 shrink-0 shadow-sm hover:shadow" onclick="openModal('modal-add-semente-grao')">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                                <span data-i18n="btn_add_seed_grain">Novo Registro</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[600px]">
+                                <thead>
+                                    <tr class="border-b border-outline-variant font-label-md text-on-surface-variant uppercase tracking-wider">
+                                        <th class="p-4" data-i18n="th_date">Data</th>
+                                        <th class="p-4" data-i18n="label_seed_grain_type">Tipo de Registro</th>
+                                        <th class="p-4" data-i18n="inv_item_name">Produto / Variedade</th>
+                                        <th class="p-4" data-i18n="inv_item_qty">Quantidade</th>
+                                        <th class="p-4" data-i18n="label_seed_grain_safra">Safra Relacionada</th>
+                                        <th class="p-4 text-right" data-i18n="th_cost">Custo / Valor</th>
+                                        <th class="p-4 text-center" data-i18n="th_actions">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="seeds-grains-table-body" class="divide-y divide-outline-variant">
+                                    <!-- Dinamicamente preenchido pelo app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 2: Resumo da Produção -->
+                <div id="sub-metricas-graos" class="sub-tab-content flex flex-col gap-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Card: Resumo Geral por Categoria -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 flex flex-col">
+                            <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2 text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
+                                <span>Distribuição por Tipo de Estoque</span>
+                            </h3>
+                            <div class="flex flex-col gap-4" id="gs-type-distribution">
+                                <!-- Preenchido dinamicamente pelo app.js -->
+                            </div>
+                        </div>
+
+                        <!-- Card: Top Variedades de Safra -->
+                        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 flex flex-col">
+                            <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2 text-on-surface">
+                                <span class="material-symbols-outlined text-primary text-[20px]">bar_chart</span>
+                                <span>Principais Produtos / Variedades</span>
+                            </h3>
+                            <div class="flex flex-col gap-4" id="gs-product-distribution">
+                                <!-- Preenchido dinamicamente pelo app.js -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
