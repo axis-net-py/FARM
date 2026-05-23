@@ -1291,7 +1291,7 @@ function switchTab(tabId) {
     
     // Match Sidebar Buttons
     document.querySelectorAll('#desktop-sidebar nav button').forEach((btn, index) => {
-        const tabs = ['dashboard', 'safras', 'talhoes', 'recursos', 'insumos', 'financeiro', 'inventario', 'graos_sementes'];
+        const tabs = ['dashboard', 'safras', 'talhoes', 'recursos', 'insumos', 'graos_sementes', 'financeiro', 'inventario'];
         if (tabs[index] === tabId) {
             btn.classList.add('active');
         }
@@ -1321,6 +1321,8 @@ function switchTab(tabId) {
     // Close mobile side menu if open
     const sidebar = document.getElementById('desktop-sidebar');
     if (sidebar) sidebar.classList.remove('mobile-open');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop) backdrop.classList.add('hidden');
 }
 
 function switchSubTab(subTabId, element) {
@@ -1341,7 +1343,17 @@ function switchSubTab(subTabId, element) {
 
 function toggleSidebarMobile() {
     const sidebar = document.getElementById('desktop-sidebar');
-    if (sidebar) sidebar.classList.toggle('mobile-open');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (sidebar) {
+        const isOpen = sidebar.classList.toggle('mobile-open');
+        if (backdrop) {
+            if (isOpen) {
+                backdrop.classList.remove('hidden');
+            } else {
+                backdrop.classList.add('hidden');
+            }
+        }
+    }
 }
 
 // ==================== GPS PERMISSION MODAL ====================

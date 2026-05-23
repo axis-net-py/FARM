@@ -188,8 +188,8 @@
     <div id="app-container" class="hidden min-h-screen flex flex-col">
         
         <!-- SIDEBAR NAVIGATION (Desktop View) -->
-        <aside id="desktop-sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 bg-surface-container-low border-r border-outline-variant flex flex-col p-6 z-40 transition-all duration-300 overflow-y-auto custom-scrollbar">
-            <div class="mb-8 flex items-center justify-between">
+        <aside id="desktop-sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 bg-surface-container-low border-r border-outline-variant flex flex-col p-3 z-50 transition-all duration-300 overflow-y-auto lg:overflow-y-hidden custom-scrollbar">
+            <div class="mb-3 flex items-center justify-between">
                 <div>
                     <h1 class="font-headline-md text-primary font-extrabold flex items-center gap-2">
                         <span class="material-symbols-outlined text-2xl">agriculture</span>
@@ -199,53 +199,53 @@
                 </div>
             </div>
             
-            <nav class="flex-grow flex flex-col gap-1">
-                <button class="nav-item active flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('dashboard')">
+            <nav class="flex-grow flex flex-col gap-0.5">
+                <button class="nav-item active flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('dashboard')">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="font-label-md text-label-md" data-i18n="nav_dashboard">Painel Geral</span>
                 </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('safras')">
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('safras')">
                     <span class="material-symbols-outlined">calendar_today</span>
                     <span class="font-label-md text-label-md" data-i18n="nav_safras">Safras & Ciclos</span>
                 </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('talhoes')">
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('talhoes')">
                     <span class="material-symbols-outlined">potted_plant</span>
                     <span class="font-label-md text-label-md" data-i18n="nav_talhoes">Áreas & Talhões</span>
                 </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('recursos')">
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('recursos')">
                     <span class="material-symbols-outlined">construction</span>
                     <span class="font-label-md text-label-md" data-i18n="nav_recursos">Recursos & Frotas</span>
                 </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('insumos')">
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('insumos')">
                     <span class="material-symbols-outlined">science</span>
                     <span class="font-label-md text-label-md" data-i18n="nav_insumos">Insumos & Clima</span>
                 </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('financeiro')">
-                    <span class="material-symbols-outlined">payments</span>
-                    <span class="font-label-md text-label-md" data-i18n="nav_financeiro">Finanças & Motor</span>
-                </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('inventario')">
-                    <span class="material-symbols-outlined">inventory_2</span>
-                    <span class="font-label-md text-label-md" data-i18n="nav_inventario">Inventário</span>
-                </button>
-                <button class="nav-item flex items-center gap-3 w-full text-left px-4 py-3 rounded-full transition-all" onclick="switchTab('graos_sementes')">
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('graos_sementes')">
                     <span class="material-symbols-outlined">grain</span>
                     <span class="font-label-md text-label-md" data-i18n="nav_graos_sementes">Grãos & Sementes</span>
                 </button>
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('financeiro')">
+                    <span class="material-symbols-outlined">payments</span>
+                    <span class="font-label-md text-label-md" data-i18n="nav_financeiro">Finanças & Motor</span>
+                </button>
+                <button class="nav-item flex items-center gap-3 w-full text-left px-3 py-1.5 rounded-full transition-all" onclick="switchTab('inventario')">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    <span class="font-label-md text-label-md" data-i18n="nav_inventario">Inventário</span>
+                </button>
             </nav>
             
-            <div class="mt-auto pt-4 border-t border-outline-variant flex flex-col gap-2">
-                <button class="btn btn-secondary w-full py-2.5 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" onclick="openModal('modal-add-insumo-aplicacao')">
+            <div class="mt-auto pt-2 border-t border-outline-variant flex flex-col gap-1">
+                <button class="btn btn-secondary w-full py-1.5 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" onclick="openModal('modal-add-insumo-aplicacao')">
                     <span class="material-symbols-outlined text-[18px]">add_circle</span>
                     <span data-i18n="btn_quick_apply">Aplicar Defensivo</span>
                 </button>
-                <button class="btn btn-primary w-full py-2.5 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" onclick="openModal('modal-add-financa')">
+                <button class="btn btn-primary w-full py-1.5 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" onclick="openModal('modal-add-financa')">
                     <span class="material-symbols-outlined text-[18px]">payments</span>
                     <span data-i18n="btn_quick_expense">Lançar Caixa</span>
                 </button>
                 
-                <div class="sidebar-user mt-4 p-3 bg-surface-container rounded-xl flex items-center gap-3 border border-outline-variant">
-                    <img id="user-avatar" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-primary-container" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=100"/>
+                <div class="sidebar-user mt-2 p-2 bg-surface-container rounded-xl flex items-center gap-2 border border-outline-variant">
+                    <img id="user-avatar" alt="Avatar" class="w-7 h-7 rounded-full object-cover border border-primary-container" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=100"/>
                     <div class="overflow-hidden">
                         <p id="user-name" class="font-label-md font-bold text-on-surface truncate">Produtor Rural</p>
                         <p class="text-[10px] text-on-surface-variant uppercase tracking-widest" data-i18n="role_owner">Gestor Principal</p>
@@ -256,6 +256,9 @@
                 </div>
             </div>
         </aside>
+
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebarMobile()"></div>
 
         <!-- TOP BAR / HEADER -->
         <header class="top-bar fixed top-0 right-0 h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-3 sm:px-6 z-30 transition-all duration-300">

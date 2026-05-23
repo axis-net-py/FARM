@@ -740,6 +740,7 @@ body.layout-mobile .tab-bar-mobile {
 body.layout-desktop .sidebar {
     transform: translateX(0) !important;
     box-shadow: none !important;
+    overflow-y: hidden !important;
 }
 body.layout-desktop .top-bar {
     left: 256px !important;
@@ -765,6 +766,12 @@ body.layout-desktop #mobile-menu-btn {
 @media (max-width: 1023px) {
     #ai-chat-container {
         bottom: 80px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sidebar {
+        overflow-y: hidden !important;
     }
 }
 
