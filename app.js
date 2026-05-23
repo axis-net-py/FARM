@@ -3531,6 +3531,19 @@ function clearAIChat() {
     `;
 }
 
+function escapeHTML(str) {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
 function addMessageToChat(text, isSentByMe = false, customHtml = '') {
     const chatMsgs = document.getElementById('ai-chat-messages');
     const wrapper = document.createElement('div');
@@ -3545,7 +3558,7 @@ function addMessageToChat(text, isSentByMe = false, customHtml = '') {
         `;
     }
     
-    const bubbleContent = customHtml ? customHtml : `<p>${text}</p>`;
+    const bubbleContent = customHtml ? customHtml : `<p>${escapeHTML(text)}</p>`;
     const bubbleBg = isSentByMe 
         ? 'bg-primary-container text-on-primary-container border border-primary'
         : 'bg-primary-container/20 border border-primary-container/30 dark:bg-surface-container-high';
@@ -4057,10 +4070,8 @@ function processAICommand(text) {
 
     cleanText = text.toLowerCase();
     
-    // Regular Expressions for multi-currency values and commands
-    // Ex: "gasto de 50 dolares" or "gasto de cien mil guaranies" or "despesa de 300 reais"
-    // Quantity regex to parse double-numbers: e.g. money amount and pesticide qty
-    const qtyRegex = /(\d+[\d\.,]*)\s*(litros|litro|l|kg|kilos|kilo|unidades|unidade)\b/i;
+    // Quantity regex to parse double-numbers: e.g. money amount and pesticide/grain/seed qty
+    const qtyRegex = /(\d+[\d\.,]*)\s*(litros|litro|l|kg|kilos|kilo|unidades|unidade|sacos|saco|sc|bolsas|bolsa|toneladas|tonelada|t)\b/i;
     const qtyMatch = cleanText.match(qtyRegex);
     let qty = 0;
     if (qtyMatch) {
@@ -4143,6 +4154,14 @@ function processAICommand(text) {
                 desc = currentLanguage === 'pt-BR' 
                     ? `Lançamento por Voz: Compra de Diesel${qty > 0 ? ' (' + qty + 'L)' : ''}` 
                     : `Registro de Voz: Compra de Gasoil${qty > 0 ? ' (' + qty + 'L)' : ''}`;
+            } else if (cleanText.includes('semente') || cleanText.includes('semilla')) {
+                cat = 'Insumos';
+                let seedName = 'Soja';
+                if (cleanText.includes('milho') || cleanText.includes('maiz') || cleanText.includes('maíz')) seedName = 'Milho';
+                else if (cleanText.includes('trigo')) seedName = 'Trigo';
+                desc = currentLanguage === 'pt-BR' 
+                    ? `Lançamento por Voz: Compra de Semente de ${seedName}${qty > 0 ? ' (' + qty + ' sc)' : ''}` 
+                    : `Registro de Voz: Compra de Semilla de ${seedName}${qty > 0 ? ' (' + qty + ' sc)' : ''}`;
             } else if (cleanText.includes('insumo') || cleanText.includes('defensivo') || cleanText.includes('veneno') || detectedPest) {
                 cat = 'Insumos';
                 if (detectedPest) {
@@ -4204,6 +4223,30 @@ function processAICommand(text) {
                 }
             }
             
+            let seedUpdated = false;
+            if (cat === 'Insumos' && (cleanText.includes('semente') || cleanText.includes('semilla')) && qty > 0) {
+                const activeSafra = db.safras.find(s => s.status === 'Vigente') || db.safras[0];
+                const activeSafraId = activeSafra ? activeSafra.id : 'safra-1';
+                
+                let seedName = 'Soja';
+                if (cleanText.includes('milho') || cleanText.includes('maiz') || cleanText.includes('maíz')) seedName = 'Milho';
+                else if (cleanText.includes('trigo')) seedName = 'Trigo';
+                
+                const seedId = 'sg-' + (db.seedsGrains.length + 1);
+                db.seedsGrains.unshift({
+                    id: seedId,
+                    date,
+                    type: 'Semente Comprada',
+                    name: seedName,
+                    quantity: qty,
+                    unit: 'sc',
+                    safra_id: activeSafraId,
+                    cost: amount,
+                    currency: detectedCurrency
+                });
+                seedUpdated = true;
+            }
+            
             let fuelUpdated = false;
             if (cat === 'Combustível' && qty > 0) {
                 const fuelId = 'fuel-' + (db.fuelLogs.length + 1);
@@ -4235,6 +4278,15 @@ function processAICommand(text) {
                 responseText = currentLanguage === 'pt-BR'
                     ? `Perfeito! Registrei um gasto de **${formatCurrency(amount, detectedCurrency)}** para **${pestName}** (+${qtyPurchased}L no estoque).`
                     : `¡Perfecto! Registré un gasto de **${formatCurrency(amount, detectedCurrency)}** para **${pestName}** (+${qtyPurchased}L en stock).`;
+            } else if (seedUpdated) {
+                renderSeedsGrains();
+                renderInventarioView();
+                let seedName = 'Soja';
+                if (cleanText.includes('milho') || cleanText.includes('maiz') || cleanText.includes('maíz')) seedName = 'Milho';
+                else if (cleanText.includes('trigo')) seedName = 'Trigo';
+                responseText = currentLanguage === 'pt-BR'
+                    ? `Perfeito! Registrei um gasto de **${formatCurrency(amount, detectedCurrency)}** para a compra de **${qty} sacos** de semente de **${seedName}**.`
+                    : `¡Perfecto! Registré un gasto de **${formatCurrency(amount, detectedCurrency)}** para la compra de **${qty} sacos** de semilla de **${seedName}**.`;
             } else if (fuelUpdated) {
                 renderRecursosView();
                 renderInventarioView();
@@ -4377,15 +4429,136 @@ function processAICommand(text) {
             plot_id: plotId
         });
         
+        // Also register in seedsGrains inventory
+        const activeSafra = db.safras.find(s => s.status === 'Vigente') || db.safras[0];
+        const activeSafraId = activeSafra ? activeSafra.id : 'safra-1';
+        const seedId = 'sg-' + (db.seedsGrains.length + 1);
+        db.seedsGrains.unshift({
+            id: seedId,
+            date,
+            type: 'Grão Colhido',
+            name: crop,
+            quantity: bags,
+            unit: 'sc',
+            safra_id: activeSafraId,
+            cost: totalRevenueBrl,
+            currency: 'BRL'
+        });
+        
         saveDatabaseLocally();
         renderFinancialView();
         renderDashboard();
         renderInventarioView();
+        renderSeedsGrains();
         
         const formattedAmount = formatCurrency(convertedRevenue, detectedCurrency);
         const responseText = isPt
             ? `Parabéns! Registrei a colheita de **${bags} sacas** de **${crop}** no **${plotName}**. Uma receita estimada de **${formattedAmount}** foi lançada no livro caixa!`
             : `¡Felicidades! Registré la cosecha de **${bags} sacos** de **${crop}** en el **${plotName}**. ¡Se ha ingresado una ganancia estimada de **${formattedAmount}** en el libro diario!`;
+            
+        addMessageToChat(responseText);
+        speakResponseText(responseText);
+        return;
+    }
+
+    // 5. COMMAND DETECTED: SEED TREATMENT / TRATAMENTO DE SEMENTES
+    if (cleanText.includes('tratar semente') || cleanText.includes('tratei semente') || cleanText.includes('tratamento de semente') ||
+        cleanText.includes('tratar semilla') || cleanText.includes('tratamiento de semilla') || cleanText.includes('tratamento semente')) {
+        
+        let qtyVal = qty > 0 ? qty : 20; // default quantity
+        let seedName = 'Soja';
+        if (cleanText.includes('milho') || cleanText.includes('maiz') || cleanText.includes('maíz')) seedName = 'Milho';
+        else if (cleanText.includes('trigo')) seedName = 'Trigo';
+        
+        const activeSafra = db.safras.find(s => s.status === 'Vigente') || db.safras[0];
+        const activeSafraId = activeSafra ? activeSafra.id : 'safra-1';
+        
+        const seedId = 'sg-' + (db.seedsGrains.length + 1);
+        const date = new Date().toISOString().split('T')[0];
+        
+        db.seedsGrains.unshift({
+            id: seedId,
+            date,
+            type: 'Semente Tratada',
+            name: seedName,
+            quantity: qtyVal,
+            unit: 'sc',
+            safra_id: activeSafraId,
+            cost: 0,
+            currency: detectedCurrency
+        });
+        
+        saveDatabaseLocally();
+        renderSeedsGrains();
+        renderInventarioView();
+        
+        const responseText = isPt
+            ? `Muito bem! Registrei o tratamento de **${qtyVal} sacas** de semente de **${seedName}**.`
+            : `¡Excelente! Registré el tratamiento de **${qtyVal} sacos** de semilla de **${seedName}**.`;
+            
+        addMessageToChat(responseText);
+        speakResponseText(responseText);
+        return;
+    }
+
+    // 6. COMMAND DETECTED: CREATE SAFRA
+    if (cleanText.includes('adicionar safra') || cleanText.includes('cadastrar safra') || cleanText.includes('nova safra') ||
+        cleanText.includes('agregar zafra') || cleanText.includes('registrar zafra') || cleanText.includes('nueva zafra')) {
+        
+        let safraName = '';
+        // Extract safra name
+        const words = text.split(/\s+/);
+        let foundIndicator = false;
+        let nameWords = [];
+        for (let i = 0; i < words.length; i++) {
+            const wClean = words[i].toLowerCase();
+            if (foundIndicator) {
+                if (wClean.includes('vigente') || wClean.includes('ativa') || wClean.includes('activa') || wClean.includes('com') || wClean.includes('con')) {
+                    break;
+                }
+                nameWords.push(words[i]);
+            }
+            if (wClean.includes('safra') || wClean.includes('zafra')) {
+                foundIndicator = true;
+            }
+        }
+        
+        if (nameWords.length > 0) {
+            safraName = nameWords.join(' ');
+        } else {
+            safraName = isPt ? `Safra ${db.safras.length + 1}` : `Zafra ${db.safras.length + 1}`;
+        }
+        
+        safraName = safraName.charAt(0).toUpperCase() + safraName.slice(1).replace(/[\.,\?]$/, '').trim();
+        
+        const newSafraId = 'safra-' + (db.safras.length + 1);
+        const date = new Date();
+        const startStr = date.toISOString().split('T')[0];
+        // Set end date to 4 months later
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + 4);
+        const endStr = endDate.toISOString().split('T')[0];
+        
+        // Deactivate other safras
+        db.safras.forEach(s => s.status = 'Encerrada');
+        
+        const newSafra = {
+            id: newSafraId,
+            name: safraName,
+            start_date: startStr,
+            end_date: endStr,
+            status: 'Vigente'
+        };
+        
+        db.safras.push(newSafra);
+        saveDatabaseLocally();
+        renderSafrasView();
+        renderDashboard();
+        populateSelectDropdowns();
+        
+        const responseText = isPt
+            ? `Excelente! Cadastrei a **${safraName}** de ${startStr} a ${endStr} como safra vigente.`
+            : `¡Excelente! Registré la **${safraName}** desde ${startStr} hasta ${endStr} como zafra vigente.`;
             
         addMessageToChat(responseText);
         speakResponseText(responseText);
