@@ -309,7 +309,7 @@
         </header>
 
         <!-- MAIN MAIN CONTAINER (Scrollable Content) -->
-        <main id="main-content-scroll" class="main-content flex-grow transition-all duration-300 p-6 overflow-y-auto mt-16 mb-16 lg:mb-0">
+        <main id="main-content-scroll" class="main-content flex-grow transition-all duration-300 p-4 sm:p-6 overflow-y-auto mt-16 mb-16 lg:mb-0">
             
             <!-- DEMO MODE WARNING BANNER -->
             <div id="demo-banner" class="hidden bg-tertiary-container text-on-tertiary-container px-4 py-3 rounded-2xl mb-6 flex items-center justify-between border border-outline shadow-sm relative overflow-hidden">
@@ -728,7 +728,7 @@
                 </div>
                 
                 <!-- Currency Converter Quick Calculator -->
-                <div class="bg-surface-container border border-outline-variant p-6 rounded-2xl">
+                <div class="bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-2xl">
                     <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">currency_exchange</span>
                         <span data-i18n="currency_motor_title">Motor Cambial Integrado (Cálculo Rápido)</span>
@@ -762,7 +762,7 @@
                 </div>                <!-- Bento Grid: Charts & Distributions -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <!-- Monthly Cash Flow Chart (SVG) -->
-                    <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                             <div>
                                 <h3 class="font-headline-md text-on-surface font-bold" data-i18n="chart_title">Fluxo de Caixa Mensal</h3>
@@ -787,7 +787,7 @@
                     </div>
                     
                     <!-- Expense Category Distribution -->
-                    <div class="lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 flex flex-col">
+                    <div class="lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 flex flex-col">
                         <div class="mb-4">
                             <h3 class="font-headline-md text-on-surface font-bold" data-i18n="distribution_title">Resumo por Categoria</h3>
                             <p class="text-xs text-on-surface-variant opacity-80" data-i18n="distribution_subtitle">Gastos categorizados em BRL</p>
@@ -799,7 +799,7 @@
                 </div>
 
                 <!-- Transaction Ledger -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-headline-md font-bold text-on-surface" data-i18n="ledger_title">Livro Caixa & Transações</h3>
                         <div class="flex gap-2 items-center text-xs">
@@ -884,7 +884,7 @@
                 </div>
 
                 <!-- Pesticides Table -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
                     <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2 text-on-surface">
                         <span class="material-symbols-outlined text-primary text-[20px]">science</span>
                         <span data-i18n="inv_sect_pesticides">Defensivos Químicos</span>
@@ -908,7 +908,7 @@
                 </div>
 
                 <!-- Fuel Logs Table -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
                     <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2 text-on-surface">
                         <span class="material-symbols-outlined text-tertiary text-[20px]">local_gas_station</span>
                         <span data-i18n="inv_sect_fuel">Combustível (Diesel)</span>
@@ -931,7 +931,7 @@
                 </div>
 
                 <!-- Sementes & Grãos Table -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
                     <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2 text-on-surface">
                         <span class="material-symbols-outlined text-secondary text-[20px]">grain</span>
                         <span data-i18n="inv_sect_seeds_grains">Sementes & Grãos em Estoque</span>
@@ -956,7 +956,7 @@
                 </div>
 
                 <!-- Purchases History Table -->
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
                     <h3 class="font-headline-md font-bold mb-4 flex items-center gap-2 text-on-surface">
                         <span class="material-symbols-outlined text-secondary text-[20px]">receipt_long</span>
                         <span data-i18n="inv_sect_purchases">Histórico de Todas as Compras / Despesas</span>
@@ -1179,7 +1179,7 @@
             </button>
             <button class="tabbar-item flex flex-col items-center justify-center gap-0.5 text-on-surface-variant" onclick="switchTab('inventario')">
                 <span class="material-symbols-outlined">inventory_2</span>
-                <span class="text-[9px] font-bold" data-i18n="nav_inventario">Invent.</span>
+                <span class="text-[9px] font-bold" data-i18n="tab_inventario">Invent.</span>
             </button>
         </nav>
         

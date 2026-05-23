@@ -227,6 +227,7 @@ const translations = {
         distribution_title: 'Resumo por Categoria',
         distribution_subtitle: 'Gastos categorizados em BRL',
         nav_inventario: 'Inventário',
+        tab_inventario: 'Invent.',
         inventario_title: 'Inventário de Estoque',
         inventario_subtitle: 'Visão consolidada de todos os ativos em estoque: insumos, combustível e grãos colhidos.',
         inv_sect_pesticides: 'Defensivos Químicos',
@@ -487,6 +488,7 @@ const translations = {
         distribution_title: 'Resumen por Categoría',
         distribution_subtitle: 'Gastos categorizados en BRL',
         nav_inventario: 'Inventario',
+        tab_inventario: 'Invent.',
         inventario_title: 'Inventario de Stock',
         inventario_subtitle: 'Visión consolidada de todos los activos en stock: insumos, gasoil y granos cosechados.',
         inv_sect_pesticides: 'Defensivos Químicos',
@@ -1289,7 +1291,7 @@ function switchTab(tabId) {
     
     // Match Sidebar Buttons
     document.querySelectorAll('#desktop-sidebar nav button').forEach((btn, index) => {
-        const tabs = ['dashboard', 'talhoes', 'recursos', 'insumos', 'financeiro', 'inventario', 'safras'];
+        const tabs = ['dashboard', 'safras', 'talhoes', 'recursos', 'insumos', 'financeiro', 'inventario', 'graos_sementes'];
         if (tabs[index] === tabId) {
             btn.classList.add('active');
         }

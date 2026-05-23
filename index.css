@@ -28,12 +28,11 @@ html.dark, html.dark body {
 
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: var(--text-color);
+}
+
+#auth-screen {
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end)) !important;
 }
 
 .login-card {
