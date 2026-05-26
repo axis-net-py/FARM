@@ -708,20 +708,29 @@
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 pb-2 border-b border-outline-variant/30">
                         <h3 class="font-headline-md font-bold text-on-surface text-lg flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary text-[20px]">local_gas_station</span>
-                            <span data-i18n="fuel_list_title">Depósito de Combustível (Diesel)</span>
+                            <span>Depósito de Combustível</span>
                         </h3>
-                        <button class="btn btn-primary btn-sm flex items-center justify-center gap-1.5 shrink-0 shadow-sm hover:shadow" onclick="openModal('modal-add-combustivel')">
-                            <span class="material-symbols-outlined text-[18px]">add</span>
-                            <span data-i18n="btn_add_fuel_log">Registrar Abastecimento</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button class="btn btn-secondary btn-sm flex items-center justify-center gap-1.5 shadow-sm" onclick="openModal('modal-add-combustivel-produto')">
+                                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                                <span>Cadastrar Combustível</span>
+                            </button>
+                            <button class="btn btn-primary btn-sm flex items-center justify-center gap-1.5 shadow-sm" onclick="openModal('modal-add-combustivel')">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                                <span>Registrar Movimento</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                         <!-- Tank Capacity Widget -->
                         <div class="md:col-span-4 bg-surface-container-high rounded-xl border border-outline-variant p-6 flex flex-col justify-between items-center text-center">
-                            <div>
+                            <div class="w-full">
                                 <h4 class="font-headline-md text-primary font-bold" data-i18n="fuel_tank_title">Tanque Central</h4>
-                                <p class="text-xs text-on-surface-variant opacity-80" data-i18n="fuel_tank_desc">Capacidade de 5.000 Litros</p>
+                                <p class="text-xs text-on-surface-variant opacity-80 mb-3" data-i18n="fuel_tank_desc">Capacidade de 5.000 Litros</p>
+                                <select id="fuel-gauge-product-select" class="form-input text-xs w-full py-1" onchange="updateFuelGauge()">
+                                    <!-- Dinamicamente preenchido pelo app.js -->
+                                </select>
                             </div>
                             
                             <!-- Circular or pill fuel gauge -->
@@ -1254,6 +1263,38 @@
                                     </tr>
                                 </thead>
                                 <tbody id="seeds-grains-table-body" class="divide-y divide-outline-variant">
+                                    <!-- Dinamicamente preenchido pelo app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 1B: Catálogo de Variedades -->
+                <div id="sub-catalogo-graos" class="sub-tab-content flex flex-col gap-6 hidden">
+                    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 pb-2 border-b border-outline-variant/30">
+                            <h3 class="font-headline-md font-bold text-on-surface text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">inventory</span>
+                                <span>Catálogo de Sementes & Grãos</span>
+                            </h3>
+                            <button class="btn btn-primary btn-sm flex items-center justify-center gap-1.5 shrink-0 shadow-sm hover:shadow" onclick="openModal('modal-add-semente-grao-produto')">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                                <span>Cadastrar Produto / Variedade</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[500px]">
+                                <thead>
+                                    <tr class="border-b border-outline-variant font-label-md text-on-surface-variant uppercase tracking-wider">
+                                        <th class="p-4">Nome do Produto</th>
+                                        <th class="p-4">Categoria</th>
+                                        <th class="p-4">Unidade Padrão</th>
+                                        <th class="p-4 text-right">Estoque Atual</th>
+                                        <th class="p-4 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="seeds-grains-catalog-table-body" class="divide-y divide-outline-variant">
                                     <!-- Dinamicamente preenchido pelo app.js -->
                                 </tbody>
                             </table>
@@ -1850,40 +1891,79 @@
         
         <form onsubmit="handleFormSubmitFuel(event)">
             <div class="form-group mb-4">
-                <label for="fuel-desc" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_fuel_desc">Descrição da Operação</label>
+                <label for="fuel-product" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Tipo de Combustível</label>
+                <div class="flex gap-2">
+                    <select id="fuel-product" required class="form-input">
+                        <!-- Dinamicamente preenchido pelo app.js -->
+                    </select>
+                    <button type="button" class="btn btn-secondary px-3" onclick="openModal('modal-add-combustivel-produto')" title="Cadastrar novo combustível">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="fuel-desc" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Descrição da Operação</label>
                 <input type="text" id="fuel-desc" required placeholder="Ex: Carga central de Diesel" class="form-input"/>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="fuel-date" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Data da Operação</label>
+                <input type="date" id="fuel-date" required class="form-input"/>
             </div>
             
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="form-group">
-                    <label for="fuel-liters" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Liters (Litros)</label>
+                    <label for="fuel-liters" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Quantidade (Litros)</label>
                     <input type="number" id="fuel-liters" required placeholder="500" class="form-input text-right"/>
                 </div>
                 <div class="form-group">
-                    <label for="fuel-machinery" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_fuel_machinery">Máquina Abastecida</label>
-                    <select id="fuel-machinery" class="form-input">
-                        <option value="" data-i18n="fuel_tank_store">Depósito Central (Tanque)</option>
+                    <label for="fuel-machinery" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Máquina Destino (Opcional)</label>
+                    <select id="fuel-machinery" class="form-input" onchange="toggleFuelOpFields()">
+                        <option value="">Depósito Central (Tanque)</option>
                         <!-- Dinamicamente preenchido pelo app.js -->
                     </select>
                 </div>
             </div>
             
-            <div class="grid grid-cols-3 gap-2 mb-6">
-                <div class="form-group col-span-2">
-                    <label for="fuel-cost" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_fuel_cost">Preço Pago (Opcional)</label>
-                    <input type="number" id="fuel-cost" placeholder="0.00" class="form-input text-right"/>
+            <!-- Purchase payment fields, hidden when refueling a machinery (outflow) -->
+            <div id="fuel-purchase-financial-group" class="mb-4">
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="form-group col-span-2">
+                        <label for="fuel-cost" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Custo da Carga (Opcional)</label>
+                        <input type="number" id="fuel-cost" placeholder="0.00" class="form-input text-right"/>
+                    </div>
+                    <div class="form-group col-span-1">
+                        <label for="fuel-currency" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Moeda</label>
+                        <select id="fuel-currency" class="form-input">
+                            <option value="BRL">BRL (R$)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="PYG">PYG (₲)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group col-span-1">
-                    <label for="fuel-currency" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_fuel_currency">Moeda</label>
-                    <select id="fuel-currency" class="form-input">
-                        <option value="BRL">BRL (R$)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="PYG">PYG (₲)</option>
-                    </select>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="fuel-payment-type" class="block text-[10px] font-bold uppercase text-on-surface-variant">Forma de Pagamento</label>
+                        <select id="fuel-payment-type" class="form-input" onchange="toggleFuelDueDate()">
+                            <option value="À vista">À vista</option>
+                            <option value="A prazo">A prazo</option>
+                        </select>
+                    </div>
+                    <div id="fuel-due-date-wrapper" class="hidden">
+                        <label for="fuel-due-date" class="block text-[10px] font-bold uppercase text-on-surface-variant">Data de Vencimento</label>
+                        <input type="date" id="fuel-due-date" class="form-input"/>
+                    </div>
+                </div>
+
+                <div class="form-group flex items-center gap-2 mb-6">
+                    <input type="checkbox" id="fuel-auto-tx" class="rounded border-outline-variant text-primary focus:ring-primary" checked/>
+                    <label for="fuel-auto-tx" class="text-xs font-bold text-on-surface-variant">Lançar despesa no Livro Caixa</label>
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-primary btn-lg w-full" data-i18n="btn_save">Salvar Registro</button>
+            <button type="submit" class="btn btn-primary btn-lg w-full">Salvar Registro</button>
         </form>
     </div>
 
@@ -1993,7 +2073,15 @@
             </div>
 
             <div class="form-group mb-4">
-                <label for="entry-payment-date" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Data de Pagamento / Vencimento (Opcional)</label>
+                <label for="entry-payment-type" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Forma de Pagamento</label>
+                <select id="entry-payment-type" class="form-input" onchange="togglePesticideEntryDueDate()">
+                    <option value="À vista">À vista (Pago)</option>
+                    <option value="A prazo">A prazo (Pagar depois)</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-4" id="entry-due-date-group" style="display: none;">
+                <label for="entry-payment-date" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Data de Vencimento</label>
                 <input type="date" id="entry-payment-date" class="form-input"/>
             </div>
 
@@ -2206,17 +2294,34 @@
         
         <form onsubmit="handleFormSubmitSeedGrain(event)">
             <div class="form-group mb-4">
-                <label for="seed-grain-type" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_seed_grain_type">Tipo de Registro</label>
-                <select id="seed-grain-type" required class="form-input">
-                    <option value="Semente Comprada" data-i18n="type_seed_bought">Semente Comprada</option>
-                    <option value="Semente Tratada" data-i18n="type_seed_treated">Semente Tratada</option>
-                    <option value="Grão Colhido" data-i18n="type_grain_harvested">Grão Colhido</option>
+                <label for="seed-grain-product" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Produto / Variedade (do Catálogo)</label>
+                <div class="flex gap-2">
+                    <select id="seed-grain-product" required class="form-input" onchange="onSeedGrainProductChange()">
+                        <!-- Dinamicamente preenchido pelo app.js -->
+                    </select>
+                    <button type="button" class="btn btn-secondary px-3" onclick="openModal('modal-add-semente-grao-produto')" title="Cadastrar nova variedade">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="seed-grain-type" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Tipo de Operação</label>
+                <select id="seed-grain-type" required class="form-input" onchange="toggleSeedGrainOpFields()">
+                    <!-- Preenchido dinamicamente pelo app.js dependendo da categoria do produto -->
                 </select>
             </div>
-            
+
             <div class="form-group mb-4">
-                <label for="seed-grain-name" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_seed_grain_name">Nome da Variedade / Item</label>
-                <input type="text" id="seed-grain-name" required placeholder="Ex: Soja M6410 IPRO" class="form-input"/>
+                <label for="seed-grain-date" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Data da Operação</label>
+                <input type="date" id="seed-grain-date" required class="form-input"/>
+            </div>
+
+            <div class="form-group mb-4 hidden" id="seed-grain-plot-group">
+                <label for="seed-grain-plot" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Talhão / Lote Relacionado</label>
+                <select id="seed-grain-plot" class="form-input">
+                    <!-- Dinamicamente preenchido pelo app.js -->
+                </select>
             </div>
             
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -2226,62 +2331,77 @@
                 </div>
                 <div class="form-group">
                     <label for="seed-grain-unit" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_seed_grain_unit">Unidade</label>
-                    <select id="seed-grain-unit" required class="form-input">
-                        <option value="Sacas">Sacas</option>
-                        <option value="Kg">Kg</option>
-                    </select>
+                    <input type="text" id="seed-grain-unit" class="form-input text-center bg-surface-container/50" readonly value="Sacas"/>
                 </div>
             </div>
 
-            <div class="form-group mb-4">
+            <div class="form-group mb-4" id="seed-grain-safra-group">
                 <label for="seed-grain-safra" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_seed_grain_safra">Safra Relacionada</label>
                 <select id="seed-grain-safra" required class="form-input">
                     <!-- Dinamicamente preenchido pelo app.js -->
                 </select>
             </div>
 
-            <div class="form-group mb-4">
-                <label for="seed-grain-cost-type" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Tipo de Custo</label>
-                <select id="seed-grain-cost-type" class="form-input">
-                    <option value="Total">Custo Total</option>
-                    <option value="Saca">Custo por Saca / Bag</option>
-                    <option value="Hectare">Custo por Hectare</option>
-                </select>
-            </div>
-
-            <!-- Conditional cost calculation fields -->
-            <div id="seed-grain-cost-calc-fields" class="grid grid-cols-2 gap-4 mb-4 hidden">
-                <div class="form-group" id="seed-grain-unit-price-group">
-                    <label for="seed-grain-unit-price" id="seed-grain-unit-price-label" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Preço Unitário</label>
-                    <input type="number" step="0.01" id="seed-grain-unit-price" class="form-input text-right" placeholder="0.00"/>
-                </div>
-                <div class="form-group" id="seed-grain-area-group">
-                    <label for="seed-grain-area" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Área (Hectares)</label>
-                    <input type="number" step="0.1" id="seed-grain-area" class="form-input text-right" placeholder="0.0"/>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 mb-4">
-                <div class="form-group col-span-2">
-                    <label for="seed-grain-cost" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_seed_grain_cost">Custo Total / Valor Estimado</label>
-                    <input type="number" step="0.01" id="seed-grain-cost" required class="form-input text-right" placeholder="1500.00"/>
-                </div>
-                <div class="form-group col-span-1">
-                    <label for="seed-grain-currency" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_fin_currency">Moeda</label>
-                    <select id="seed-grain-currency" class="form-input">
-                        <option value="BRL">BRL (R$)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="PYG">PYG (₲)</option>
+            <!-- Financial fields for Purchase / Sale / Harvest -->
+            <div id="seed-grain-financial-fields" class="mb-4">
+                <div class="form-group mb-4" id="seed-grain-cost-type-group">
+                    <label for="seed-grain-cost-type" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Tipo de Custo</label>
+                    <select id="seed-grain-cost-type" class="form-input">
+                        <option value="Total">Custo Total</option>
+                        <option value="Saca">Custo por Saca / Bag</option>
+                        <option value="Hectare">Custo por Hectare</option>
                     </select>
                 </div>
+
+                <!-- Conditional cost calculation fields -->
+                <div id="seed-grain-cost-calc-fields" class="grid grid-cols-2 gap-4 mb-4 hidden">
+                    <div class="form-group" id="seed-grain-unit-price-group">
+                        <label for="seed-grain-unit-price" id="seed-grain-unit-price-label" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Preço Unitário</label>
+                        <input type="number" step="0.01" id="seed-grain-unit-price" class="form-input text-right" placeholder="0.00"/>
+                    </div>
+                    <div class="form-group" id="seed-grain-area-group">
+                        <label for="seed-grain-area" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Área (Hectares)</label>
+                        <input type="number" step="0.1" id="seed-grain-area" class="form-input text-right" placeholder="0.0"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="form-group col-span-2">
+                        <label for="seed-grain-cost" id="seed-grain-cost-label" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Custo Total / Valor Estimado</label>
+                        <input type="number" step="0.01" id="seed-grain-cost" class="form-input text-right" placeholder="1500.00"/>
+                    </div>
+                    <div class="form-group col-span-1">
+                        <label for="seed-grain-currency" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_fin_currency">Moeda</label>
+                        <select id="seed-grain-currency" class="form-input">
+                            <option value="BRL">BRL (R$)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="PYG">PYG (₲)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Term and deferred options -->
+                <div class="grid grid-cols-2 gap-4 mb-4" id="seed-grain-payment-group">
+                    <div>
+                        <label for="seed-grain-payment-type" class="block text-[10px] font-bold uppercase text-on-surface-variant">Forma de Pagamento</label>
+                        <select id="seed-grain-payment-type" class="form-input" onchange="toggleSeedGrainDueDate()">
+                            <option value="À vista">À vista</option>
+                            <option value="A prazo">A prazo</option>
+                        </select>
+                    </div>
+                    <div id="seed-grain-due-date-wrapper" class="hidden">
+                        <label for="seed-grain-due-date" class="block text-[10px] font-bold uppercase text-on-surface-variant">Data de Vencimento</label>
+                        <input type="date" id="seed-grain-due-date" class="form-input"/>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mb-6 flex items-center gap-2">
+            <div class="form-group mb-6 flex items-center gap-2" id="seed-grain-auto-tx-group">
                 <input type="checkbox" id="seed-grain-auto-tx" class="rounded border-outline-variant text-primary focus:ring-primary" checked/>
-                <label for="seed-grain-auto-tx" class="text-xs font-bold text-on-surface-variant" data-i18n="label_seed_grain_auto_tx">Lançar transação no Livro Caixa</label>
+                <label for="seed-grain-auto-tx" class="text-xs font-bold text-on-surface-variant">Lançar transação no Livro Caixa</label>
             </div>
             
-            <button type="submit" class="btn btn-primary btn-lg w-full" data-i18n="btn_save">Salvar Registro</button>
+            <button type="submit" class="btn btn-primary btn-lg w-full">Salvar Movimentação</button>
         </form>
     </div>
 
@@ -2317,6 +2437,66 @@
             </div>
             
             <button type="submit" class="btn btn-primary btn-lg w-full" data-i18n="btn_save">Salvar Registro</button>
+        </form>
+    </div>
+
+    <!-- 9B. MODAL: REGISTER SEED/GRAIN CATALOG PRODUCT -->
+    <div id="modal-add-semente-grao-produto" class="modal-window fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl w-[90%] max-w-md shadow-2xl hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-headline-md font-bold text-primary">Cadastrar Produto / Variedade</h3>
+            <button class="hover:bg-surface-container p-1 rounded-full" onclick="closeModal('modal-add-semente-grao-produto')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form onsubmit="handleFormSubmitSeedGrainProduct(event)">
+            <div class="form-group mb-4">
+                <label for="sg-prod-name" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Nome do Produto / Variedade</label>
+                <input type="text" id="sg-prod-name" required placeholder="Ex: Soja Nidera 5909" class="form-input"/>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="form-group">
+                    <label for="sg-prod-category" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Categoria</label>
+                    <select id="sg-prod-category" required class="form-input">
+                        <option value="Semente">Semente</option>
+                        <option value="Grão">Grão</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sg-prod-unit" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Unidade Padrão</label>
+                    <select id="sg-prod-unit" required class="form-input">
+                        <option value="Sacas">Sacas</option>
+                        <option value="Kg">Kg</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-full">Salvar Produto</button>
+        </form>
+    </div>
+
+    <!-- 4B. MODAL: REGISTER FUEL CATALOG PRODUCT -->
+    <div id="modal-add-combustivel-produto" class="modal-window fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl w-[90%] max-w-md shadow-2xl hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-headline-md font-bold text-primary">Cadastrar Tipo de Combustível</h3>
+            <button class="hover:bg-surface-container p-1 rounded-full" onclick="closeModal('modal-add-combustivel-produto')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form onsubmit="handleFormSubmitFuelProduct(event)">
+            <div class="form-group mb-4">
+                <label for="fuel-prod-name" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Nome do Combustível</label>
+                <input type="text" id="fuel-prod-name" required placeholder="Ex: Diesel S10" class="form-input"/>
+            </div>
+
+            <div class="form-group mb-6">
+                <label for="fuel-prod-capacity" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant">Capacidade do Depósito (Litros)</label>
+                <input type="number" id="fuel-prod-capacity" value="5000" required class="form-input text-right"/>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-full">Salvar Combustível</button>
         </form>
     </div>
 

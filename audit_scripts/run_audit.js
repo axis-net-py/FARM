@@ -12,6 +12,7 @@ const scripts = [
   'locale_test.js',
   'voice_command_test.js',
   'security_test.js',
+  'inventory_catalogs_test.js',
 ];
 
 let allPassed = true;

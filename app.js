@@ -741,7 +741,11 @@ const defaultDatabase = {
             status: 'Ativo'
         }
     ],
-    seedsGrains: []
+    seedsGrains: [],
+    seedsGrainsProducts: [],
+    seedsGrainsMovements: [],
+    fuels: [],
+    fuelMovements: []
 };
 
 // Application DB variable holding active records
@@ -1164,8 +1168,13 @@ function initDatabase() {
     if (!db.applications || !Array.isArray(db.applications)) db.applications = [];
     if (!db.transactions || !Array.isArray(db.transactions)) db.transactions = [];
     if (!db.seedsGrains || !Array.isArray(db.seedsGrains)) db.seedsGrains = [];
+    if (!db.seedsGrainsProducts || !Array.isArray(db.seedsGrainsProducts)) db.seedsGrainsProducts = [];
+    if (!db.seedsGrainsMovements || !Array.isArray(db.seedsGrainsMovements)) db.seedsGrainsMovements = [];
+    if (!db.fuels || !Array.isArray(db.fuels)) db.fuels = [];
+    if (!db.fuelMovements || !Array.isArray(db.fuelMovements)) db.fuelMovements = [];
     
     migratePesticideStockToMovements();
+    migrateLegacyData();
     
     if (!db.safras || !Array.isArray(db.safras) || db.safras.length === 0) {
         db.safras = [
@@ -1243,6 +1252,87 @@ function migratePesticideStockToMovements() {
             });
         }
     });
+}
+
+function migrateLegacyData() {
+    if (!db.seedsGrainsProducts) db.seedsGrainsProducts = [];
+    if (!db.seedsGrainsMovements) db.seedsGrainsMovements = [];
+    if (!db.fuels) db.fuels = [];
+    if (!db.fuelMovements) db.fuelMovements = [];
+
+    // Ensure default fuel exists
+    if (db.fuels.length === 0) {
+        db.fuels.push({
+            id: 'fuel-diesel-s10',
+            name: currentLanguage === 'pt-BR' ? 'Diesel S10' : 'Gasoil S10',
+            capacity: 5000
+        });
+    }
+
+    // Migrate seedsGrains to new model if seedsGrains contains legacy records
+    if (db.seedsGrains && db.seedsGrains.length > 0 && db.seedsGrainsMovements.length === 0) {
+        db.seedsGrains.forEach(item => {
+            if (item.type && !item.product_id) {
+                const cat = item.type === 'Grão Colhido' ? 'Grão' : 'Semente';
+                let prod = db.seedsGrainsProducts.find(p => p.name === item.name && p.category === cat);
+                if (!prod) {
+                    prod = {
+                        id: 'sg-prod-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+                        name: item.name,
+                        category: cat,
+                        unit: item.unit || 'Sacas'
+                    };
+                    db.seedsGrainsProducts.push(prod);
+                }
+                
+                let subType = 'compra';
+                if (item.type === 'Semente Tratada') subType = 'tratamento';
+                if (item.type === 'Grão Colhido') subType = 'colheita';
+
+                db.seedsGrainsMovements.push({
+                    id: item.id,
+                    product_id: prod.id,
+                    type: 'entrada',
+                    sub_type: subType,
+                    date: item.date,
+                    quantity: parseFloat(item.quantity) || 0,
+                    unit_price: item.unit_price || 0,
+                    total_cost: item.cost || 0,
+                    currency: item.currency || 'BRL',
+                    payment_type: 'À vista',
+                    payment_date: item.date,
+                    safra_id: item.safra_id || 'safra-1',
+                    description: item.type + ': ' + item.name
+                });
+            }
+        });
+    }
+
+    // Migrate fuelLogs to fuelMovements if fuelMovements is empty
+    if (db.fuelLogs && db.fuelLogs.length > 0 && db.fuelMovements.length === 0) {
+        db.fuelLogs.forEach(f => {
+            if (!f.fuel_id) {
+                const isEntry = f.cost_value > 0 || f.desc.toLowerCase().includes('reabastecimento') || f.desc.toLowerCase().includes('carga') || f.desc.toLowerCase().includes('compra');
+                const qty = parseFloat(f.amount_liters) || 0;
+                const cost = parseFloat(f.cost_value) || 0;
+                
+                db.fuelMovements.push({
+                    id: f.id,
+                    fuel_id: 'fuel-diesel-s10',
+                    type: isEntry ? 'entrada' : 'saida',
+                    date: f.date,
+                    quantity: qty,
+                    unit_price: qty > 0 ? (cost / qty) : 0,
+                    total_cost: cost,
+                    currency: f.currency || 'BRL',
+                    payment_type: 'À vista',
+                    payment_date: f.date,
+                    machinery_id: f.machinery_id || '',
+                    description: f.desc
+                });
+            }
+        });
+    }
 }
 
 function getPesticideStock(pesticideId) {
@@ -1366,6 +1456,12 @@ function openAddEntradaModal(pestId) {
     if (totalCostInput) totalCostInput.value = '';
     const paymentDateInput = document.getElementById('entry-payment-date');
     if (paymentDateInput) paymentDateInput.value = '';
+    
+    // Reset payment type fields
+    const paymentTypeSelect = document.getElementById('entry-payment-type');
+    if (paymentTypeSelect) paymentTypeSelect.value = 'À vista';
+    const dueDateGroup = document.getElementById('entry-due-date-group');
+    if (dueDateGroup) dueDateGroup.style.display = 'none';
 
     openModal('modal-add-entrada-insumo');
 }
@@ -1378,6 +1474,14 @@ function openAddSaidaModal(pestId) {
     openModal('modal-add-insumo-aplicacao');
 }
 
+function togglePesticideEntryDueDate() {
+    const payType = document.getElementById('entry-payment-type').value;
+    const group = document.getElementById('entry-due-date-group');
+    if (group) {
+        group.style.display = payType === 'A prazo' ? 'block' : 'none';
+    }
+}
+
 function handleFormSubmitPesticideEntry(e) {
     e.preventDefault();
     const pesticideId = document.getElementById('entry-pesticide').value;
@@ -1386,6 +1490,7 @@ function handleFormSubmitPesticideEntry(e) {
     const unitPrice = parseFloat(document.getElementById('entry-unit-price').value) || 0;
     const totalCost = parseFloat(document.getElementById('entry-total-cost').value) || 0;
     const currency = document.getElementById('entry-currency').value;
+    const paymentType = document.getElementById('entry-payment-type').value;
     const paymentDate = document.getElementById('entry-payment-date').value;
     const autoTx = document.getElementById('entry-auto-tx').checked;
     
@@ -1405,7 +1510,8 @@ function handleFormSubmitPesticideEntry(e) {
             unit_price: unitPrice,
             total_cost: totalCost,
             currency,
-            payment_date: paymentDate,
+            payment_type: paymentType,
+            payment_date: paymentType === 'A prazo' ? paymentDate : entryDate,
             description: currentLanguage === 'pt-BR' ? 'Compra de Insumo' : 'Compra de Insumo'
         });
         
@@ -1421,7 +1527,10 @@ function handleFormSubmitPesticideEntry(e) {
                 plot_id: '',
                 pesticide_id: pesticideId,
                 amount_purchased: qty,
-                movement_id: movId
+                movement_id: movId,
+                payment_type: paymentType,
+                payment_status: paymentType === 'A prazo' ? 'pendente' : 'pago',
+                due_date: paymentType === 'A prazo' ? paymentDate : ''
             });
         }
         
@@ -1437,6 +1546,50 @@ function handleFormSubmitPesticideEntry(e) {
         }
         populateSelectDropdowns();
         showToast(currentLanguage === 'pt-BR' ? 'Entrada registrada com sucesso!' : '¡Entrada registrada con éxito!');
+    }
+}
+
+function payPendingTransaction(txId) {
+    const tx = db.transactions.find(t => t.id === txId);
+    if (tx) {
+        tx.payment_status = 'pago';
+        
+        // Also update corresponding movement payment status if any
+        if (tx.movement_id) {
+            // Check pesticide movements
+            const pm = db.pesticideMovements.find(m => m.id === tx.movement_id);
+            if (pm) {
+                pm.payment_type = 'À vista';
+                pm.payment_date = new Date().toISOString().split('T')[0];
+            }
+            
+            // Check seedsGrains movements
+            if (db.seedsGrainsMovements) {
+                const sgm = db.seedsGrainsMovements.find(m => m.id === tx.movement_id);
+                if (sgm) {
+                    sgm.payment_type = 'À vista';
+                    sgm.payment_date = new Date().toISOString().split('T')[0];
+                }
+            }
+            
+            // Check fuel movements
+            if (db.fuelMovements) {
+                const fm = db.fuelMovements.find(m => m.id === tx.movement_id);
+                if (fm) {
+                    fm.payment_type = 'À vista';
+                    fm.payment_date = new Date().toISOString().split('T')[0];
+                }
+            }
+        }
+        
+        saveDatabaseLocally();
+        renderFinancialView();
+        renderDashboard();
+        renderInsumosView();
+        renderInventarioView();
+        if (typeof renderSeedsGrains === 'function') renderSeedsGrains();
+        if (typeof renderFuelView === 'function') renderFuelView();
+        showToast(currentLanguage === 'pt-BR' ? 'Lançamento quitado com sucesso!' : '¡Transacción pagada con éxito!');
     }
 }
 
@@ -1545,7 +1698,11 @@ function clearMockDataIfPresent() {
                     status: 'Ativo'
                 }
             ],
-            seedsGrains: []
+            seedsGrains: [],
+            seedsGrainsProducts: [],
+            seedsGrainsMovements: [],
+            fuels: [],
+            fuelMovements: []
         };
         saveDatabaseLocally();
         renderAllViews();
@@ -2363,7 +2520,11 @@ async function fetchDatabaseFromCloud(userId) {
                                 status: 'Ativo'
                             }
                         ],
-                        seedsGrains: []
+                        seedsGrains: [],
+                        seedsGrainsProducts: [],
+                        seedsGrainsMovements: [],
+                        fuels: [],
+                        fuelMovements: []
                     };
                 }
                 await supabaseClient
@@ -2397,6 +2558,10 @@ async function fetchDatabaseFromCloud(userId) {
             if (!db.applications || !Array.isArray(db.applications)) db.applications = [];
             if (!db.transactions || !Array.isArray(db.transactions)) db.transactions = [];
             if (!db.seedsGrains || !Array.isArray(db.seedsGrains)) db.seedsGrains = [];
+            if (!db.seedsGrainsProducts || !Array.isArray(db.seedsGrainsProducts)) db.seedsGrainsProducts = [];
+            if (!db.seedsGrainsMovements || !Array.isArray(db.seedsGrainsMovements)) db.seedsGrainsMovements = [];
+            if (!db.fuels || !Array.isArray(db.fuels)) db.fuels = [];
+            if (!db.fuelMovements || !Array.isArray(db.fuelMovements)) db.fuelMovements = [];
             
             migratePesticideStockToMovements();
             if (!db.safras || !Array.isArray(db.safras) || db.safras.length === 0) {
@@ -2432,7 +2597,11 @@ async function fetchDatabaseFromCloud(userId) {
                             status: 'Ativo'
                         }
                     ],
-                    seedsGrains: []
+                    seedsGrains: [],
+                    seedsGrainsProducts: [],
+                    seedsGrainsMovements: [],
+                    fuels: [],
+                    fuelMovements: []
                 };
                 localStorage.setItem('agrimanage_db', JSON.stringify(db));
                 await syncDatabaseToCloud();
@@ -2821,15 +2990,12 @@ function renderPlotsView() {
 
 // Helper to calculate central fuel tank level dynamically
 function getCurrentFuelLevel() {
-    let currentTankLiters = 0; // Starts at 0, 100% dynamic based on fuel logs
-    db.fuelLogs.forEach(f => {
-        if (f.cost_value > 0 || f.desc.toLowerCase().includes('reabastecimento') || f.desc.toLowerCase().includes('carga') || f.desc.toLowerCase().includes('compra')) {
-            currentTankLiters += f.amount_liters;
-        } else {
-            currentTankLiters -= f.amount_liters;
-        }
+    if (!db.fuels || db.fuels.length === 0) return 0;
+    let total = 0;
+    db.fuels.forEach(f => {
+        total += getFuelStock(f.id);
     });
-    return Math.max(0, Math.min(5000, currentTankLiters));
+    return total;
 }
 
 // Module 3: Fleet & Team Resources
@@ -2911,41 +3077,29 @@ function renderRecursosView() {
     const fuelTbody = document.getElementById('fuel-table-body');
     if (fuelTbody) {
         fuelTbody.innerHTML = '';
-        let totalFuelInStore = 3200; // Simulated tank starting level
         
-        // Sum additions and subtractions to simulated level
-        db.fuelLogs.forEach(f => {
+        const sortedMovements = [...db.fuelMovements].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+        
+        sortedMovements.forEach(m => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-surface-container-low transition-colors';
             
-            const costFormatted = f.cost_value > 0 ? formatCurrency(f.cost_value, f.currency) : '-';
+            const costFormatted = m.total_cost > 0 ? formatCurrency(m.total_cost, m.currency) : '-';
             
-            // Format dates simply
-            const d = new Date(f.date + 'T00:00:00');
+            const d = new Date(m.date + 'T00:00:00');
             const dateStr = d.toLocaleDateString(currentLanguage === 'pt-BR' ? 'pt-BR' : 'es-PY', { day: 'numeric', month: 'short' });
             
             tr.innerHTML = `
                 <td class="p-3 font-semibold text-on-surface-variant">${dateStr}</td>
-                <td class="p-3 font-bold">${f.desc}</td>
-                <td class="p-3 font-data-numeral">${f.amount_liters} L</td>
+                <td class="p-3 font-bold">${m.description}</td>
+                <td class="p-3 font-data-numeral">${m.quantity} L</td>
                 <td class="p-3 text-right font-data-numeral">${costFormatted}</td>
             `;
             fuelTbody.appendChild(tr);
         });
 
         // Update Circular Gauge details
-        const tankMax = 5000;
-        const currentTankLiters = getCurrentFuelLevel();
-        const pct = Math.round((currentTankLiters / tankMax) * 100);
-        
-        const countEl = document.getElementById('fuel-tank-liters-count');
-        const pctEl = document.getElementById('fuel-tank-percent-gauge');
-        const dashOffset = 377 - (377 * pct) / 100;
-        const circleGauge = document.getElementById('fuel-tank-circle-gauge');
-
-        if (countEl) countEl.textContent = `${currentTankLiters.toLocaleString()}L`;
-        if (pctEl) pctEl.textContent = `${pct}%`;
-        if (circleGauge) circleGauge.setAttribute('stroke-dashoffset', dashOffset);
+        updateFuelGauge();
     }
 }
 
@@ -2964,9 +3118,9 @@ function renderInventarioView() {
     if (elLowPest) elLowPest.textContent = lowStockPesticides > 0 ? `${lowStockPesticides} ${t.inv_low_stock_warning}` : t.inv_ok_stock;
     if (elLowPest) elLowPest.className = lowStockPesticides > 0 ? 'text-[10px] font-bold text-error' : 'text-[10px] font-bold text-primary';
 
-    // Fuel tank level (simulated)
+    // Fuel tank level (dynamic)
     const fuelLevel = getCurrentFuelLevel();
-    const fuelMax = 5000;
+    const fuelMax = db.fuels.reduce((sum, f) => sum + (f.capacity || 5000), 0) || 5000;
     const fuelPct = Math.round((fuelLevel / fuelMax) * 100);
     const elFuelLevel = document.getElementById('inv-kpi-fuel-level');
     const elFuelPct = document.getElementById('inv-kpi-fuel-pct');
@@ -3016,23 +3170,29 @@ function renderInventarioView() {
         }
     }
 
-    // --- Fuel Logs Table ---
+    // --- Fuel Movements Table ---
     const fuelTbody = document.getElementById('inv-fuel-tbody');
     if (fuelTbody) {
         fuelTbody.innerHTML = '';
-        if (db.fuelLogs.length === 0) {
+        if (!db.fuelMovements || db.fuelMovements.length === 0) {
             fuelTbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-on-surface-variant opacity-60">${t.inv_no_data}</td></tr>`;
         } else {
-            db.fuelLogs.forEach(f => {
+            const sorted = [...db.fuelMovements].sort((a, b) => b.date.localeCompare(a.date));
+            sorted.forEach(f => {
                 const d = new Date(f.date + 'T00:00:00');
                 const dateStr = d.toLocaleDateString(currentLanguage === 'pt-BR' ? 'pt-BR' : 'es-PY', { day: 'numeric', month: 'short', year: 'numeric' });
-                const costStr = f.cost_value > 0 ? formatCurrency(f.cost_value, f.currency) : '-';
+                const costStr = f.total_cost > 0 ? formatCurrency(f.total_cost, f.currency) : '-';
+                
+                const fuel = db.fuels.find(x => x.id === f.fuel_id);
+                const fuelName = fuel ? fuel.name : 'Combustível';
+                const descStr = f.machinery_id ? `${f.description} (${db.machinery.find(m => m.id === f.machinery_id)?.name || ''})` : f.description;
+                
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-surface-container-low transition-colors';
                 tr.innerHTML = `
                     <td class="p-4 text-on-surface-variant font-semibold">${dateStr}</td>
-                    <td class="p-4 font-bold text-on-surface">${f.desc}</td>
-                    <td class="p-4 font-data-numeral text-primary font-bold">${f.amount_liters.toLocaleString()} L</td>
+                    <td class="p-4 font-bold text-on-surface">${fuelName}: ${descStr}</td>
+                    <td class="p-4 font-data-numeral text-primary font-bold">${f.quantity.toLocaleString()} L</td>
                     <td class="p-4 font-data-numeral text-right">${costStr}</td>
                 `;
                 fuelTbody.appendChild(tr);
@@ -3196,16 +3356,35 @@ function renderFinancialLedger() {
         const d = new Date(tx.date + 'T00:00:00');
         const dateStr = d.toLocaleDateString(currentLanguage === 'pt-BR' ? 'pt-BR' : 'es-PY', { day: 'numeric', month: 'short', year: 'numeric' });
         
+        // Status Badge for A Prazo / Pendente
+        const statusBadge = tx.payment_status === 'pendente'
+            ? `<span class="bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300/30 text-[9px] px-2 py-0.5 rounded font-bold ml-2 select-none">${currentLanguage === 'pt-BR' ? 'A Prazo (Pendente)' : 'A Plazo (Pendiente)'}</span>`
+            : '';
+            
+        // Quitar button action
+        const payAction = tx.payment_status === 'pendente'
+            ? `<button class="text-secondary hover:text-green-700 transition-colors p-1" onclick="payPendingTransaction('${tx.id}')" title="${currentLanguage === 'pt-BR' ? 'Marcar como Pago' : 'Marcar como Pagado'}">
+                   <span class="material-symbols-outlined text-[18px]">price_check</span>
+               </button>`
+            : '';
+            
         tr.innerHTML = `
             <td class="p-4 text-on-surface-variant font-semibold">${dateStr}</td>
-            <td class="p-4 font-bold text-on-surface flex items-center gap-2">${typeBadge} <span>${tx.description}</span></td>
+            <td class="p-4 font-bold text-on-surface flex items-center gap-2 flex-wrap">
+                ${typeBadge} 
+                <span>${tx.description}</span>
+                ${statusBadge}
+            </td>
             <td class="p-4 text-on-surface-variant">${tx.category}</td>
             <td class="p-4 text-right font-data-numeral text-sm ${textWeightClass}">${isExp ? '-' : '+'}${originalValueStr}</td>
             <td class="p-4 text-right font-data-numeral text-xs opacity-70">${convertedValueStr}</td>
             <td class="p-4 text-center">
-                <button class="text-error hover:text-red-700 transition-colors p-1" onclick="deleteTransaction('${tx.id}')">
-                    <span class="material-symbols-outlined text-[18px]">delete</span>
-                </button>
+                <div class="flex items-center justify-center gap-1.5">
+                    ${payAction}
+                    <button class="text-error hover:text-red-700 transition-colors p-1" onclick="deleteTransaction('${tx.id}')">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                </div>
             </td>
         `;
         ledgerTbody.appendChild(tr);
@@ -3597,6 +3776,56 @@ function populateSelectDropdowns() {
             seedGrainSafraSelect.appendChild(opt);
         });
     }
+
+    const seedGrainProductSelect = document.getElementById('seed-grain-product');
+    if (seedGrainProductSelect) {
+        seedGrainProductSelect.innerHTML = '';
+        db.seedsGrainsProducts.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `${p.name} (${p.category})`;
+            seedGrainProductSelect.appendChild(opt);
+        });
+    }
+
+    const seedGrainPlotSelect = document.getElementById('seed-grain-plot');
+    if (seedGrainPlotSelect) {
+        seedGrainPlotSelect.innerHTML = `<option value="">${currentLanguage === 'pt-BR' ? '-- Selecionar Talhão --' : '-- Seleccionar Lote --'}</option>`;
+        db.plots.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.name;
+            seedGrainPlotSelect.appendChild(opt);
+        });
+    }
+
+    const fuelProductSelect = document.getElementById('fuel-product');
+    if (fuelProductSelect) {
+        fuelProductSelect.innerHTML = '';
+        db.fuels.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.id;
+            opt.textContent = f.name;
+            fuelProductSelect.appendChild(opt);
+        });
+    }
+
+    const fuelGaugeProductSelect = document.getElementById('fuel-gauge-product-select');
+    if (fuelGaugeProductSelect) {
+        const prevVal = fuelGaugeProductSelect.value;
+        fuelGaugeProductSelect.innerHTML = '';
+        db.fuels.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.id;
+            opt.textContent = f.name;
+            fuelGaugeProductSelect.appendChild(opt);
+        });
+        if (prevVal && db.fuels.some(f => f.id === prevVal)) {
+            fuelGaugeProductSelect.value = prevVal;
+        } else if (db.fuels.length > 0) {
+            fuelGaugeProductSelect.value = db.fuels[0].id;
+        }
+    }
 }
 
 // ==================== 8. SUBMISSIONS & REGISTRY INSERTIONS ====================
@@ -3698,40 +3927,103 @@ function deleteMachineryItem(id) {
 // Add Fuel
 function handleFormSubmitFuel(e) {
     e.preventDefault();
+    const fuelId = document.getElementById('fuel-product').value;
     const desc = document.getElementById('fuel-desc').value;
-    const liters = parseInt(document.getElementById('fuel-liters').value);
+    const date = document.getElementById('fuel-date').value || new Date().toISOString().split('T')[0];
+    const liters = parseInt(document.getElementById('fuel-liters').value) || 0;
     const machId = document.getElementById('fuel-machinery').value;
-    const cost = parseFloat(document.getElementById('fuel-cost').value) || 0;
-    const currency = document.getElementById('fuel-currency').value;
     
-    if (desc && liters > 0) {
-        const id = 'fuel-' + (db.fuelLogs.length + 1);
-        const date = new Date().toISOString().split('T')[0];
-        
-        db.fuelLogs.unshift({ id, date, desc, amount_liters: liters, cost_value: cost, currency, mach_id: machId });
-        
-        // If refueling specific machine, fill machine tank!
-        if (machId) {
-            const mach = db.machinery.find(m => m.id === machId);
-            if (mach) {
-                mach.fuel_level_percent = Math.min(100, mach.fuel_level_percent + Math.round((liters / 120) * 100)); // Simulating 120L fuel tanks
-                mach.last_action = currentLanguage === 'pt-BR' ? 'Abastecido' : 'Abastecido';
-            }
+    const fuel = db.fuels.find(f => f.id === fuelId);
+    if (!fuel || liters <= 0) return;
+    
+    const isOutflow = !!machId;
+    if (isOutflow) {
+        const stock = getFuelStock(fuelId);
+        if (liters > stock) {
+            showToast(currentLanguage === 'pt-BR' 
+                ? `Estoque insuficiente! Estoque atual: ${stock.toLocaleString()} L` 
+                : `¡Stock insuficiente! Stock actual: ${stock.toLocaleString()} L`);
+            return;
         }
-        
-        // If there was a financial cost, log expenditure too!
-        if (cost > 0) {
-            const txId = 'tx-' + (db.transactions.length + 1);
-            db.transactions.unshift({ id: txId, date, type: 'gasto', description: `Combustível: ${desc}`, amount: cost, currency, category: 'Combustível', plot_id: '' });
-        }
-        
-        saveDatabaseLocally();
-        closeModal('modal-add-combustivel');
-        renderRecursosView();
-        renderFinancialView();
-        renderDashboard();
-        showToast(currentLanguage === 'pt-BR' ? 'Abastecimento registrado!' : '¡Abastecimiento registrado!');
     }
+    
+    let cost = 0;
+    let currency = 'BRL';
+    let paymentType = 'À vista';
+    let dueDate = '';
+    let autoTx = false;
+    
+    if (!isOutflow) {
+        cost = parseFloat(document.getElementById('fuel-cost').value) || 0;
+        currency = document.getElementById('fuel-currency').value;
+        paymentType = document.getElementById('fuel-payment-type').value;
+        dueDate = paymentType === 'A prazo' ? document.getElementById('fuel-due-date').value : '';
+        autoTx = document.getElementById('fuel-auto-tx').checked;
+    }
+    
+    const id = 'fuel-mov-' + Date.now();
+    
+    db.fuelMovements.push({
+        id,
+        fuel_id: fuelId,
+        type: isOutflow ? 'saida' : 'entrada',
+        date,
+        quantity: liters,
+        unit_price: cost > 0 ? (cost / liters) : 0,
+        total_cost: cost,
+        currency,
+        payment_type: paymentType,
+        payment_date: paymentType === 'A prazo' ? dueDate : date,
+        machinery_id: machId,
+        description: desc
+    });
+
+    // Also populate legacy log table for report/backward compatibility
+    db.fuelLogs.unshift({
+        id,
+        date,
+        desc: isOutflow ? `${fuel.name}: Abastecimento ${db.machinery.find(m => m.id === machId)?.name || ''}` : `${fuel.name}: ${desc}`,
+        amount_liters: liters,
+        cost_value: cost,
+        currency,
+        mach_id: machId
+    });
+    
+    // Update machinery level if refueling
+    if (isOutflow) {
+        const mach = db.machinery.find(m => m.id === machId);
+        if (mach) {
+            mach.fuel_level_percent = Math.min(100, mach.fuel_level_percent + Math.round((liters / 120) * 100)); // Simulating 120L tank
+            mach.last_action = currentLanguage === 'pt-BR' ? 'Abastecido' : 'Abastecido';
+        }
+    }
+    
+    // Financial transaction
+    if (autoTx && cost > 0) {
+        const txId = 'tx-' + Date.now();
+        db.transactions.unshift({
+            id: txId,
+            date,
+            type: 'gasto',
+            description: `${currentLanguage === 'pt-BR' ? 'Combustível' : 'Combustible'}: ${desc}`,
+            amount: cost,
+            currency,
+            category: 'Combustível',
+            plot_id: '',
+            movement_id: id,
+            payment_status: paymentType === 'A prazo' ? 'pendente' : 'pago',
+            due_date: paymentType === 'A prazo' ? dueDate : ''
+        });
+    }
+    
+    saveDatabaseLocally();
+    closeModal('modal-add-combustivel');
+    renderRecursosView();
+    renderInventarioView();
+    renderFinancialView();
+    renderDashboard();
+    showToast(currentLanguage === 'pt-BR' ? 'Movimentação de combustível registrada!' : '¡Movimiento de combustible registrado!');
+    e.target.reset();
 }
 
 // Add Pesticide stock
@@ -4786,7 +5078,7 @@ function processAICommand(text) {
                 else if (cleanText.includes('trigo')) seedName = 'Trigo';
                 
                 const seedId = 'sg-' + (db.seedsGrains.length + 1);
-                db.seedsGrains.unshift({
+                addLegacySeedGrainEntry({
                     id: seedId,
                     date,
                     type: 'Semente Comprada',
@@ -4806,7 +5098,7 @@ function processAICommand(text) {
                 const fuelDesc = currentLanguage === 'pt-BR' 
                     ? `Compra de Diesel por Voz (${qty}L)` 
                     : `Compra de Gasoil por Voz (${qty}L)`;
-                db.fuelLogs.unshift({
+                addLegacyFuelLogEntry({
                     id: fuelId,
                     date,
                     desc: fuelDesc,
@@ -4986,7 +5278,7 @@ function processAICommand(text) {
         const activeSafra = db.safras.find(s => s.status === 'Vigente') || db.safras[0];
         const activeSafraId = activeSafra ? activeSafra.id : 'safra-1';
         const seedId = 'sg-' + (db.seedsGrains.length + 1);
-        db.seedsGrains.unshift({
+        addLegacySeedGrainEntry({
             id: seedId,
             date,
             type: 'Grão Colhido',
@@ -4995,7 +5287,8 @@ function processAICommand(text) {
             unit: 'sc',
             safra_id: activeSafraId,
             cost: totalRevenueBrl,
-            currency: 'BRL'
+            currency: 'BRL',
+            plot_id: plotId
         });
         
         saveDatabaseLocally();
@@ -5029,7 +5322,7 @@ function processAICommand(text) {
         const seedId = 'sg-' + (db.seedsGrains.length + 1);
         const date = new Date().toISOString().split('T')[0];
         
-        db.seedsGrains.unshift({
+        addLegacySeedGrainEntry({
             id: seedId,
             date,
             type: 'Semente Tratada',
@@ -5382,22 +5675,337 @@ window.deleteApplication = deleteApplication;
 window.deleteTransaction = deleteTransaction;
 window.calculatePlotUnits = calculatePlotUnits;
 window.setFinanceType = setFinanceType;
-window.toggleFinanceInsumoFields = toggleFinanceInsumoFields;
-window.applyTreatmentFromScan = applyTreatmentFromScan;
-window.clearAIChat = clearAIChat;
-window.toggleAIChat = toggleAIChat;
-window.openPestPhotosSelector = openPestPhotosSelector;
-window.handleChatInputKey = handleChatInputKey;
-window.sendChatTextMessage = sendChatTextMessage;
-window.toggleVoiceInput = toggleVoiceInput;
-window.selectPestSample = selectPestSample;
-window.handlePestPhotoUpload = handlePestPhotoUpload;
-window.openAddEntradaModal = openAddEntradaModal;
-window.openAddSaidaModal = openAddSaidaModal;
-window.deletePesticideMovement = deletePesticideMovement;
-window.handleFormSubmitPesticideEntry = handleFormSubmitPesticideEntry;
+window.toggleFinanceInsumoFields = togglefunction getSeedGrainStock(productId) {
+    if (!db.seedsGrainsMovements) return 0;
+    const entries = db.seedsGrainsMovements.filter(m => m.product_id === productId && m.type === 'entrada');
+    const exits = db.seedsGrainsMovements.filter(m => m.product_id === productId && m.type === 'saida');
+    const totalIn = entries.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0);
+    const totalOut = exits.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0);
+    return Math.max(0, totalIn - totalOut);
+}
 
-// ==================== 14. GRÃOS & SEMENTES & SAFRAS MODULES ====================
+function getFuelStock(fuelId) {
+    if (!db.fuelMovements) return 0;
+    const entries = db.fuelMovements.filter(m => m.fuel_id === fuelId && m.type === 'entrada');
+    const exits = db.fuelMovements.filter(m => m.fuel_id === fuelId && m.type === 'saida');
+    const totalIn = entries.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0);
+    const totalOut = exits.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0);
+    return Math.max(0, totalIn - totalOut);
+}
+
+function addLegacySeedGrainEntry(item) {
+    if (!db.seedsGrains) db.seedsGrains = [];
+    db.seedsGrains.unshift(item);
+    
+    if (!db.seedsGrainsProducts) db.seedsGrainsProducts = [];
+    if (!db.seedsGrainsMovements) db.seedsGrainsMovements = [];
+    
+    const cat = item.type === 'Grão Colhido' ? 'Grão' : 'Semente';
+    let prod = db.seedsGrainsProducts.find(p => p.name === item.name && p.category === cat);
+    if (!prod) {
+        prod = {
+            id: 'sg-prod-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+            name: item.name,
+            category: cat,
+            unit: item.unit || 'Sacas'
+        };
+        db.seedsGrainsProducts.push(prod);
+    }
+    
+    let subType = 'compra';
+    if (item.type === 'Semente Tratada') subType = 'tratamento';
+    if (item.type === 'Grão Colhido') subType = 'colheita';
+    
+    db.seedsGrainsMovements.push({
+        id: item.id,
+        product_id: prod.id,
+        type: 'entrada',
+        sub_type: subType,
+        date: item.date,
+        quantity: parseFloat(item.quantity) || 0,
+        unit_price: item.quantity > 0 ? (item.cost / item.quantity) : 0,
+        total_cost: item.cost || 0,
+        currency: item.currency || 'BRL',
+        payment_type: 'À vista',
+        payment_date: item.date,
+        safra_id: item.safra_id || 'safra-1',
+        plot_id: item.plot_id || '',
+        description: item.type + ': ' + item.name
+    });
+}
+
+function addLegacyFuelLogEntry(item) {
+    if (!db.fuelLogs) db.fuelLogs = [];
+    db.fuelLogs.unshift(item);
+    
+    if (!db.fuels) db.fuels = [];
+    if (!db.fuelMovements) db.fuelMovements = [];
+    
+    if (db.fuels.length === 0) {
+        db.fuels.push({
+            id: 'fuel-diesel-s10',
+            name: currentLanguage === 'pt-BR' ? 'Diesel S10' : 'Gasoil S10',
+            capacity: 5000
+        });
+    }
+    
+    const isEntry = item.cost_value > 0 || item.desc.toLowerCase().includes('reabastecimento') || item.desc.toLowerCase().includes('carga') || item.desc.toLowerCase().includes('compra');
+    
+    db.fuelMovements.push({
+        id: item.id,
+        fuel_id: 'fuel-diesel-s10',
+        type: isEntry ? 'entrada' : 'saida',
+        date: item.date,
+        quantity: parseFloat(item.amount_liters) || 0,
+        unit_price: item.amount_liters > 0 ? (item.cost_value / item.amount_liters) : 0,
+        total_cost: item.cost_value || 0,
+        currency: item.currency || 'BRL',
+        payment_type: 'À vista',
+        payment_date: item.date,
+        machinery_id: item.mach_id || '',
+        description: item.desc
+    });
+}
+
+function onSeedGrainProductChange() {
+    const productId = document.getElementById('seed-grain-product').value;
+    const prod = db.seedsGrainsProducts.find(p => p.id === productId);
+    if (!prod) return;
+
+    const unitInput = document.getElementById('seed-grain-unit');
+    if (unitInput) unitInput.value = prod.unit || 'Sacas';
+
+    const typeSelect = document.getElementById('seed-grain-type');
+    if (typeSelect) {
+        typeSelect.innerHTML = '';
+        if (prod.category === 'Semente') {
+            typeSelect.innerHTML = `
+                <option value="compra">${currentLanguage === 'pt-BR' ? 'Compra (Entrada)' : 'Compra (Entrada)'}</option>
+                <option value="tratamento">${currentLanguage === 'pt-BR' ? 'Tratamento (Entrada)' : 'Tratamiento (Entrada)'}</option>
+                <option value="plantio">${currentLanguage === 'pt-BR' ? 'Plantio (Saída)' : 'Plantación (Salida)'}</option>
+            `;
+        } else {
+            typeSelect.innerHTML = `
+                <option value="colheita">${currentLanguage === 'pt-BR' ? 'Colheita (Entrada)' : 'Cosecha (Entrada)'}</option>
+                <option value="venda">${currentLanguage === 'pt-BR' ? 'Venda (Saída)' : 'Venta (Salida)'}</option>
+            `;
+        }
+    }
+    toggleSeedGrainOpFields();
+}
+
+function toggleSeedGrainOpFields() {
+    const opType = document.getElementById('seed-grain-type').value;
+    
+    const plotGroup = document.getElementById('seed-grain-plot-group');
+    const financialFields = document.getElementById('seed-grain-financial-fields');
+    const autoTxGroup = document.getElementById('seed-grain-auto-tx-group');
+    const costLabel = document.getElementById('seed-grain-cost-label');
+    
+    if (plotGroup) plotGroup.classList.add('hidden');
+    if (financialFields) financialFields.classList.add('hidden');
+    if (autoTxGroup) autoTxGroup.classList.add('hidden');
+    
+    if (opType === 'plantio') {
+        if (plotGroup) plotGroup.classList.remove('hidden');
+    } else if (opType === 'compra') {
+        if (financialFields) financialFields.classList.remove('hidden');
+        if (autoTxGroup) autoTxGroup.classList.remove('hidden');
+        if (costLabel) costLabel.textContent = currentLanguage === 'pt-BR' ? 'Custo Total da Compra' : 'Costo Total de Compra';
+    } else if (opType === 'venda') {
+        if (financialFields) financialFields.classList.remove('hidden');
+        if (autoTxGroup) autoTxGroup.classList.remove('hidden');
+        if (costLabel) costLabel.textContent = currentLanguage === 'pt-BR' ? 'Valor Total da Venda' : 'Valor Total de Venta';
+    } else if (opType === 'colheita') {
+        if (plotGroup) plotGroup.classList.remove('hidden');
+    }
+    
+    toggleSeedGrainDueDate();
+}
+
+function toggleSeedGrainDueDate() {
+    const payType = document.getElementById('seed-grain-payment-type').value;
+    const wrapper = document.getElementById('seed-grain-due-date-wrapper');
+    if (wrapper) {
+        if (payType === 'A prazo') {
+            wrapper.classList.remove('hidden');
+        } else {
+            wrapper.classList.add('hidden');
+        }
+    }
+}
+
+function handleFormSubmitSeedGrainProduct(e) {
+    e.preventDefault();
+    const name = document.getElementById('sg-prod-name').value;
+    const category = document.getElementById('sg-prod-category').value;
+    const unit = document.getElementById('sg-prod-unit').value;
+    
+    if (name && category && unit) {
+        const exists = db.seedsGrainsProducts.some(p => p.name.toLowerCase() === name.toLowerCase() && p.category === category);
+        if (exists) {
+            showToast(currentLanguage === 'pt-BR' ? 'Produto já cadastrado nesta categoria!' : '¡Producto ya registrado en esta categoría!');
+            return;
+        }
+        
+        const id = 'sg-prod-' + Date.now();
+        db.seedsGrainsProducts.push({ id, name, category, unit });
+        
+        saveDatabaseLocally();
+        closeModal('modal-add-semente-grao-produto');
+        populateSelectDropdowns();
+        renderSeedsGrains();
+        showToast(currentLanguage === 'pt-BR' ? 'Produto cadastrado com sucesso!' : '¡Producto registrado con éxito!');
+        e.target.reset();
+    }
+}
+
+function deleteSeedGrainProduct(id) {
+    const hasMovements = db.seedsGrainsMovements && db.seedsGrainsMovements.some(m => m.product_id === id);
+    if (hasMovements) {
+        showToast(currentLanguage === 'pt-BR' ? 'Não é possível excluir um produto que possui movimentações no estoque!' : '¡No se puede eliminar un producto con movimientos en stock!');
+        return;
+    }
+    
+    if (confirm(currentLanguage === 'pt-BR' ? 'Tem certeza que deseja remover este produto do catálogo?' : '¿Está seguro de que deseja eliminar este produto del catálogo?')) {
+        db.seedsGrainsProducts = db.seedsGrainsProducts.filter(p => p.id !== id);
+        saveDatabaseLocally();
+        populateSelectDropdowns();
+        renderSeedsGrains();
+        showToast(currentLanguage === 'pt-BR' ? 'Produto excluído!' : '¡Produto excluído!');
+    }
+}
+
+function handleFormSubmitFuelProduct(e) {
+    e.preventDefault();
+    const name = document.getElementById('fuel-prod-name').value;
+    const capacity = parseFloat(document.getElementById('fuel-prod-capacity').value) || 5000;
+    
+    if (name && capacity > 0) {
+        const exists = db.fuels.some(f => f.name.toLowerCase() === name.toLowerCase());
+        if (exists) {
+            showToast(currentLanguage === 'pt-BR' ? 'Combustível já cadastrado!' : '¡Combustible ya registrado!');
+            return;
+        }
+        
+        const id = 'fuel-prod-' + Date.now();
+        db.fuels.push({ id, name, capacity });
+        
+        saveDatabaseLocally();
+        closeModal('modal-add-combustivel-produto');
+        populateSelectDropdowns();
+        renderRecursosView();
+        renderInventarioView();
+        showToast(currentLanguage === 'pt-BR' ? 'Combustível cadastrado com sucesso!' : '¡Combustible registrado con éxito!');
+        e.target.reset();
+    }
+}
+
+function deleteFuelProduct(id) {
+    const hasMovements = db.fuelMovements && db.fuelMovements.some(m => m.fuel_id === id);
+    if (hasMovements) {
+        showToast(currentLanguage === 'pt-BR' ? 'Não é possível excluir um combustível que possui movimentações!' : '¡No se puede eliminar un combustible con movimientos!');
+        return;
+    }
+    
+    if (db.fuels.length <= 1) {
+        showToast(currentLanguage === 'pt-BR' ? 'Você deve manter pelo menos um combustível cadastrado!' : '¡Debe mantener al menos un combustible registrado!');
+        return;
+    }
+    
+    if (confirm(currentLanguage === 'pt-BR' ? 'Tem certeza que deseja remover este combustível?' : '¿Está seguro de que deseja eliminar este combustible?')) {
+        db.fuels = db.fuels.filter(f => f.id !== id);
+        saveDatabaseLocally();
+        populateSelectDropdowns();
+        renderRecursosView();
+        renderInventarioView();
+        showToast(currentLanguage === 'pt-BR' ? 'Combustível removido!' : '¡Combustible eliminado!');
+    }
+}
+
+function updateFuelGauge() {
+    const select = document.getElementById('fuel-gauge-product-select');
+    if (!select) return;
+    const fuelId = select.value;
+    const fuel = db.fuels.find(f => f.id === fuelId);
+    if (!fuel) return;
+    
+    const stock = getFuelStock(fuelId);
+    const cap = fuel.capacity || 5000;
+    const pct = Math.round((stock / cap) * 100);
+    
+    const countEl = document.getElementById('fuel-tank-liters-count');
+    const pctEl = document.getElementById('fuel-tank-percent-gauge');
+    const circleGauge = document.getElementById('fuel-tank-circle-gauge');
+    
+    if (countEl) countEl.textContent = `${stock.toLocaleString()}L`;
+    if (pctEl) pctEl.textContent = `${pct}%`;
+    
+    if (circleGauge) {
+        const dashOffset = 377 - (377 * Math.min(100, pct)) / 100;
+        circleGauge.setAttribute('stroke-dashoffset', dashOffset);
+    }
+}
+
+function toggleFuelOpFields() {
+    const machId = document.getElementById('fuel-machinery').value;
+    const group = document.getElementById('fuel-purchase-financial-group');
+    if (group) {
+        if (machId) {
+            group.classList.add('hidden');
+        } else {
+            group.classList.remove('hidden');
+        }
+    }
+    toggleFuelDueDate();
+}
+
+function toggleFuelDueDate() {
+    const payType = document.getElementById('fuel-payment-type').value;
+    const wrapper = document.getElementById('fuel-due-date-wrapper');
+    const machId = document.getElementById('fuel-machinery').value;
+    if (wrapper) {
+        if (payType === 'A prazo' && !machId) {
+            wrapper.classList.remove('hidden');
+        } else {
+            wrapper.classList.add('hidden');
+        }
+    }
+}
+
+function renderSeedsGrainsCatalog() {
+    const tbody = document.getElementById('seeds-grains-catalog-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    if (!db.seedsGrainsProducts || db.seedsGrainsProducts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-on-surface-variant opacity-60">${translations[currentLanguage].inv_no_data}</td></tr>`;
+        return;
+    }
+    
+    db.seedsGrainsProducts.forEach(p => {
+        const stock = getSeedGrainStock(p.id);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-surface-container-low transition-colors';
+        
+        const catBadge = p.category === 'Semente'
+            ? `<span class="bg-primary-container text-on-primary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${translations[currentLanguage].type_seed_bought || 'Semente'}</span>`
+            : `<span class="bg-secondary-container text-on-secondary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${translations[currentLanguage].type_grain_harvested || 'Grão'}</span>`;
+            
+        tr.innerHTML = `
+            <td class="p-4 font-bold text-on-surface">${p.name}</td>
+            <td class="p-4">${catBadge}</td>
+            <td class="p-4 text-on-surface-variant font-semibold">${p.unit}</td>
+            <td class="p-4 text-right font-data-numeral font-bold text-primary">${stock.toLocaleString()} ${p.unit}</td>
+            <td class="p-4 text-center">
+                <button class="text-on-surface-variant hover:text-error transition-colors" onclick="deleteSeedGrainProduct('${p.id}')" title="Excluir do Catálogo">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
 function renderSeedsGrains() {
     const t = translations[currentLanguage];
@@ -5406,24 +6014,35 @@ function renderSeedsGrains() {
     const invTbody = document.getElementById('inv-seeds-grains-tbody');
     if (invTbody) {
         invTbody.innerHTML = '';
-        if (!db.seedsGrains || db.seedsGrains.length === 0) {
+        if (!db.seedsGrainsMovements || db.seedsGrainsMovements.length === 0) {
             invTbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-on-surface-variant opacity-60">${t.inv_no_data}</td></tr>`;
         } else {
-            const sorted = [...db.seedsGrains].sort((a, b) => new Date(b.date) - new Date(a.date));
-            sorted.forEach(item => {
-                const d = new Date(item.date + 'T00:00:00');
+            const sorted = [...db.seedsGrainsMovements].sort((a, b) => new Date(b.date) - new Date(a.date));
+            sorted.forEach(m => {
+                const prod = db.seedsGrainsProducts.find(p => p.id === m.product_id);
+                if (!prod) return;
+                
+                const d = new Date(m.date + 'T00:00:00');
                 const dateStr = d.toLocaleDateString(currentLanguage === 'pt-BR' ? 'pt-BR' : 'es-PY', { day: 'numeric', month: 'short', year: 'numeric' });
-                const safra = db.safras.find(s => s.id === item.safra_id);
-                const safraName = safra ? safra.name : item.safra_id;
-                const costStr = formatCurrency(item.cost, item.currency);
+                const safra = db.safras.find(s => s.id === m.safra_id);
+                const safraName = safra ? safra.name : m.safra_id;
+                const costStr = m.total_cost > 0 ? formatCurrency(m.total_cost, m.currency) : '-';
                 
                 let typeBadge = '';
-                if (item.type === 'Semente Comprada') {
-                    typeBadge = `<span class="bg-primary-container text-on-primary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_bought || item.type}</span>`;
-                } else if (item.type === 'Semente Tratada') {
-                    typeBadge = `<span class="bg-tertiary-container text-on-tertiary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_treated || item.type}</span>`;
+                if (m.type === 'entrada') {
+                    if (m.sub_type === 'compra') {
+                        typeBadge = `<span class="bg-primary-container text-on-primary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_bought || 'Compra'}</span>`;
+                    } else if (m.sub_type === 'tratamento') {
+                        typeBadge = `<span class="bg-tertiary-container text-on-tertiary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_treated || 'Tratamento'}</span>`;
+                    } else {
+                        typeBadge = `<span class="bg-secondary-container text-on-secondary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_grain_harvested || 'Colheita'}</span>`;
+                    }
                 } else {
-                    typeBadge = `<span class="bg-secondary-container text-on-secondary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_grain_harvested || item.type}</span>`;
+                    if (m.sub_type === 'plantio') {
+                        typeBadge = `<span class="bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300/30 text-[9px] px-2 py-0.5 rounded font-bold uppercase">Plantio</span>`;
+                    } else {
+                        typeBadge = `<span class="bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-300/30 text-[9px] px-2 py-0.5 rounded font-bold uppercase">Venda</span>`;
+                    }
                 }
                 
                 const tr = document.createElement('tr');
@@ -5431,8 +6050,8 @@ function renderSeedsGrains() {
                 tr.innerHTML = `
                     <td class="p-4 text-on-surface-variant font-semibold">${dateStr}</td>
                     <td class="p-4">${typeBadge}</td>
-                    <td class="p-4 font-bold text-on-surface">${item.name}</td>
-                    <td class="p-4 font-data-numeral text-primary font-bold">${item.quantity.toLocaleString()} ${item.unit}</td>
+                    <td class="p-4 font-bold text-on-surface">${prod.name}</td>
+                    <td class="p-4 font-data-numeral text-primary font-bold">${m.quantity.toLocaleString()} ${prod.unit}</td>
                     <td class="p-4 text-on-surface-variant">${safraName}</td>
                     <td class="p-4 font-data-numeral text-right font-bold text-on-surface">${costStr}</td>
                 `;
@@ -5447,14 +6066,14 @@ function renderSeedsGrains() {
     let treatedSum = 0;
     let harvestedSum = 0;
 
-    if (db.seedsGrains && db.seedsGrains.length > 0) {
-        db.seedsGrains.forEach(item => {
-            const qty = parseFloat(item.quantity) || 0;
-            if (item.type === 'Semente Comprada') {
+    if (db.seedsGrainsMovements) {
+        db.seedsGrainsMovements.forEach(m => {
+            const qty = parseFloat(m.quantity) || 0;
+            if (m.sub_type === 'compra') {
                 boughtSum += qty;
-            } else if (item.type === 'Semente Tratada') {
+            } else if (m.sub_type === 'tratamento') {
                 treatedSum += qty;
-            } else if (item.type === 'Grão Colhido') {
+            } else if (m.sub_type === 'colheita') {
                 harvestedSum += qty;
             }
         });
@@ -5470,24 +6089,35 @@ function renderSeedsGrains() {
 
     if (gsTbody) {
         gsTbody.innerHTML = '';
-        if (!db.seedsGrains || db.seedsGrains.length === 0) {
+        if (!db.seedsGrainsMovements || db.seedsGrainsMovements.length === 0) {
             gsTbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-on-surface-variant opacity-60">${t.inv_no_data}</td></tr>`;
         } else {
-            const sorted = [...db.seedsGrains].sort((a, b) => new Date(b.date) - new Date(a.date));
-            sorted.forEach(item => {
-                const d = new Date(item.date + 'T00:00:00');
+            const sorted = [...db.seedsGrainsMovements].sort((a, b) => new Date(b.date) - new Date(a.date));
+            sorted.forEach(m => {
+                const prod = db.seedsGrainsProducts.find(p => p.id === m.product_id);
+                if (!prod) return;
+                
+                const d = new Date(m.date + 'T00:00:00');
                 const dateStr = d.toLocaleDateString(currentLanguage === 'pt-BR' ? 'pt-BR' : 'es-PY', { day: 'numeric', month: 'short', year: 'numeric' });
-                const safra = db.safras.find(s => s.id === item.safra_id);
-                const safraName = safra ? safra.name : item.safra_id;
-                const costStr = formatCurrency(item.cost, item.currency);
+                const safra = db.safras.find(s => s.id === m.safra_id);
+                const safraName = safra ? safra.name : m.safra_id;
+                const costStr = m.total_cost > 0 ? formatCurrency(m.total_cost, m.currency) : '-';
                 
                 let typeBadge = '';
-                if (item.type === 'Semente Comprada') {
-                    typeBadge = `<span class="bg-primary-container text-on-primary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_bought || item.type}</span>`;
-                } else if (item.type === 'Semente Tratada') {
-                    typeBadge = `<span class="bg-tertiary-container text-on-tertiary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_treated || item.type}</span>`;
+                if (m.type === 'entrada') {
+                    if (m.sub_type === 'compra') {
+                        typeBadge = `<span class="bg-primary-container text-on-primary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_bought || 'Compra'}</span>`;
+                    } else if (m.sub_type === 'tratamento') {
+                        typeBadge = `<span class="bg-tertiary-container text-on-tertiary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_seed_treated || 'Tratamento'}</span>`;
+                    } else {
+                        typeBadge = `<span class="bg-secondary-container text-on-secondary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_grain_harvested || 'Colheita'}</span>`;
+                    }
                 } else {
-                    typeBadge = `<span class="bg-secondary-container text-on-secondary-container text-[9px] px-2 py-0.5 rounded font-bold uppercase">${t.type_grain_harvested || item.type}</span>`;
+                    if (m.sub_type === 'plantio') {
+                        typeBadge = `<span class="bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300/30 text-[9px] px-2 py-0.5 rounded font-bold uppercase">Plantio</span>`;
+                    } else {
+                        typeBadge = `<span class="bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-300/30 text-[9px] px-2 py-0.5 rounded font-bold uppercase">Venda</span>`;
+                    }
                 }
                 
                 const tr = document.createElement('tr');
@@ -5495,12 +6125,12 @@ function renderSeedsGrains() {
                 tr.innerHTML = `
                     <td class="p-4 text-on-surface-variant font-semibold">${dateStr}</td>
                     <td class="p-4">${typeBadge}</td>
-                    <td class="p-4 font-bold text-on-surface">${item.name}</td>
-                    <td class="p-4 font-data-numeral text-primary font-bold">${item.quantity.toLocaleString()} ${item.unit}</td>
+                    <td class="p-4 font-bold text-on-surface">${prod.name}</td>
+                    <td class="p-4 font-data-numeral text-primary font-bold">${m.quantity.toLocaleString()} ${prod.unit}</td>
                     <td class="p-4 text-on-surface-variant">${safraName}</td>
                     <td class="p-4 font-data-numeral text-right font-bold text-on-surface">${costStr}</td>
                     <td class="p-4 text-center">
-                        <button class="text-on-surface-variant hover:text-error transition-colors" onclick="deleteSeedGrainItem('${item.id}')" title="Excluir">
+                        <button class="text-on-surface-variant hover:text-error transition-colors" onclick="deleteSeedGrainItem('${m.id}')" title="Excluir">
                             <span class="material-symbols-outlined text-[18px]">delete</span>
                         </button>
                     </td>
@@ -5510,7 +6140,10 @@ function renderSeedsGrains() {
         }
     }
 
-    // 3. Render type distribution progress bars
+    // 3. Render in Catalog sub-tab
+    renderSeedsGrainsCatalog();
+
+    // 4. Render type distribution progress bars
     const typeContainer = document.getElementById('gs-type-distribution');
     if (typeContainer) {
         typeContainer.innerHTML = '';
@@ -5551,17 +6184,20 @@ function renderSeedsGrains() {
         }
     }
 
-    // 4. Render product distribution progress bars (top 5)
+    // 5. Render product distribution progress bars (top 5)
     const productContainer = document.getElementById('gs-product-distribution');
     if (productContainer) {
         productContainer.innerHTML = '';
         const prodTotals = {};
         let totalProdQty = 0;
-        if (db.seedsGrains) {
-            db.seedsGrains.forEach(item => {
-                const qty = parseFloat(item.quantity) || 0;
-                prodTotals[item.name] = (prodTotals[item.name] || 0) + qty;
-                totalProdQty += qty;
+        if (db.seedsGrainsMovements) {
+            db.seedsGrainsMovements.forEach(m => {
+                const prod = db.seedsGrainsProducts.find(p => p.id === m.product_id);
+                if (prod && m.type === 'entrada') {
+                    const qty = parseFloat(m.quantity) || 0;
+                    prodTotals[prod.name] = (prodTotals[prod.name] || 0) + qty;
+                    totalProdQty += qty;
+                }
             });
         }
 
@@ -5603,72 +6239,131 @@ function renderSeedsGrains() {
 
 function handleFormSubmitSeedGrain(e) {
     e.preventDefault();
-    const type = document.getElementById('seed-grain-type').value;
-    const name = document.getElementById('seed-grain-name').value;
+    const productId = document.getElementById('seed-grain-product').value;
+    const opType = document.getElementById('seed-grain-type').value;
     const qty = parseFloat(document.getElementById('seed-grain-qty').value);
     const unit = document.getElementById('seed-grain-unit').value;
     const safraId = document.getElementById('seed-grain-safra').value;
-    const cost = parseFloat(document.getElementById('seed-grain-cost').value);
-    const currency = document.getElementById('seed-grain-currency').value;
-    const autoTx = document.getElementById('seed-grain-auto-tx').checked;
+    const date = document.getElementById('seed-grain-date').value || new Date().toISOString().split('T')[0];
     
-    const costType = document.getElementById('seed-grain-cost-type').value;
-    const unitPrice = parseFloat(document.getElementById('seed-grain-unit-price').value) || 0;
-    const area = parseFloat(document.getElementById('seed-grain-area').value) || 0;
+    const prod = db.seedsGrainsProducts.find(p => p.id === productId);
+    if (!prod || !qty || qty <= 0) return;
     
-    if (type && name && qty > 0 && safraId && cost >= 0) {
-        const id = 'sg-' + Date.now();
-        const today = new Date().toISOString().split('T')[0];
+    const isOutflow = (opType === 'plantio' || opType === 'venda');
+    if (isOutflow) {
+        const currentStock = getSeedGrainStock(productId);
+        if (qty > currentStock) {
+            showToast(currentLanguage === 'pt-BR' 
+                ? `Estoque insuficiente! Estoque atual: ${currentStock.toLocaleString()} ${unit}` 
+                : `¡Stock insuficiente! Stock actual: ${currentStock.toLocaleString()} ${unit}`);
+            return;
+        }
+    }
+    
+    const id = 'sg-mov-' + Date.now();
+    const plotId = document.getElementById('seed-grain-plot').value || '';
+    
+    let cost = 0;
+    let currency = 'BRL';
+    let paymentType = 'À vista';
+    let dueDate = '';
+    let autoTx = false;
+    
+    if (opType === 'compra' || opType === 'venda') {
+        cost = parseFloat(document.getElementById('seed-grain-cost').value) || 0;
+        currency = document.getElementById('seed-grain-currency').value;
+        paymentType = document.getElementById('seed-grain-payment-type').value;
+        dueDate = paymentType === 'A prazo' ? document.getElementById('seed-grain-due-date').value : '';
+        autoTx = document.getElementById('seed-grain-auto-tx').checked;
+    }
+    
+    db.seedsGrainsMovements.push({
+        id,
+        product_id: productId,
+        type: isOutflow ? 'saida' : 'entrada',
+        sub_type: opType,
+        date,
+        quantity: qty,
+        unit_price: cost > 0 ? (cost / qty) : 0,
+        total_cost: cost,
+        currency,
+        payment_type: paymentType,
+        payment_date: paymentType === 'A prazo' ? dueDate : date,
+        safra_id: safraId,
+        plot_id: plotId,
+        description: `${prod.name} (${opType})`
+    });
+
+    // Write to legacy table for backwards compatibility
+    let legacyType = 'Semente Comprada';
+    if (opType === 'tratamento') legacyType = 'Semente Tratada';
+    if (opType === 'colheita') legacyType = 'Grão Colhido';
+    if (opType === 'plantio') legacyType = 'Semente Aplicada';
+    if (opType === 'venda') legacyType = 'Grão Vendido';
+
+    db.seedsGrains.unshift({
+        id,
+        type: legacyType,
+        name: prod.name,
+        quantity: qty,
+        unit: prod.unit,
+        safra_id: safraId,
+        cost: cost,
+        currency: currency,
+        date: date
+    });
+    
+    if (autoTx && cost > 0) {
+        const txId = 'tx-' + Date.now();
+        const safra = db.safras.find(s => s.id === safraId);
+        const safraName = safra ? safra.name : '';
+        const txType = opType === 'compra' ? 'gasto' : 'receita';
+        const category = opType === 'compra' ? 'Insumos' : 'Colheita';
         
-        db.seedsGrains.push({
-            id,
-            type,
-            name,
-            quantity: qty,
-            unit,
-            safra_id: safraId,
-            cost,
-            currency,
-            date: today,
-            cost_type: costType,
-            unit_price: unitPrice,
-            area_ha: area
-        });
-        
-        if (autoTx) {
-            const txId = 'tx-' + Date.now();
-            const safra = db.safras.find(s => s.id === safraId);
-            const safraName = safra ? safra.name : '';
+        let desc = opType === 'compra'
+            ? `${currentLanguage === 'pt-BR' ? 'Compra Sementes' : 'Compra Semillas'}: ${prod.name} (${qty} ${unit}) - ${safraName}`
+            : `${currentLanguage === 'pt-BR' ? 'Venda de Grãos' : 'Venta de Granos'}: ${prod.name} (${qty} ${unit}) - ${safraName}`;
             
-            if (type === 'Semente Comprada' || type === 'Grão Colhido') {
-                const txType = type === 'Semente Comprada' ? 'gasto' : 'receita';
-                
-                let detailsStr = '';
-                if (type === 'Semente Comprada') {
-                    if (costType === 'Saca') {
-                        detailsStr = ` (${qty} ${unit} a ${formatCurrency(unitPrice, currency)}/${unit === 'Sacas' ? 'sc' : 'kg'})`;
-                    } else if (costType === 'Hectare') {
-                        detailsStr = ` (${area} ha a ${formatCurrency(unitPrice, currency)}/ha)`;
-                    } else {
-                        detailsStr = ` (${qty} ${unit})`;
-                    }
-                } else {
-                    detailsStr = ` (${qty} ${unit})`;
-                }
-                
-                const txDesc = type === 'Semente Comprada'
-                    ? `${translations[currentLanguage].type_seed_bought || 'Compra Sementes'}: ${name}${detailsStr} - ${safraName}`
-                    : `${translations[currentLanguage].type_grain_harvested || 'Colheita Grãos'}: ${name}${detailsStr} - ${safraName}`;
-                
-                db.transactions.unshift({
-                    id: txId,
-                    date: today,
-                    description: txDesc,
-                    category: type === 'Semente Comprada' ? 'Insumos' : 'Colheita',
-                    type: txType,
-                    amount: cost,
-                    currency,
-                    plot_id: ''
+        db.transactions.unshift({
+            id: txId,
+            date,
+            description: desc,
+            category,
+            type: txType,
+            amount: cost,
+            currency,
+            plot_id: plotId,
+            movement_id: id,
+            payment_status: paymentType === 'A prazo' ? 'pendente' : 'pago',
+            due_date: paymentType === 'A prazo' ? dueDate : ''
+        });
+    }
+    
+    saveDatabaseLocally();
+    closeModal('modal-add-semente-grao');
+    renderSeedsGrains();
+    renderInventarioView();
+    renderFinancialView();
+    renderDashboard();
+    
+    showToast(currentLanguage === 'pt-BR' ? 'Movimentação registrada com sucesso!' : '¡Movimiento registrado con éxito!');
+    e.target.reset();
+}
+
+function deleteSeedGrainItem(id) {
+    if (confirm(currentLanguage === 'pt-BR' ? 'Tem certeza que deseja remover esta movimentação?' : '¿Está seguro de que desea eliminar este movimiento?')) {
+        db.transactions = db.transactions.filter(tx => tx.movement_id !== id);
+        db.seedsGrainsMovements = db.seedsGrainsMovements.filter(m => m.id !== id);
+        db.seedsGrains = db.seedsGrains.filter(item => item.id !== id);
+        
+        saveDatabaseLocally();
+        renderSeedsGrains();
+        renderInventarioView();
+        renderFinancialView();
+        renderDashboard();
+        showToast(currentLanguage === 'pt-BR' ? 'Movimentação removida!' : '¡Movimiento eliminado!');
+    }
+}: ''
                 });
             }
         }
@@ -5893,6 +6588,18 @@ window.deleteSeedGrainItem = deleteSeedGrainItem;
 window.handleFormSubmitSafra = handleFormSubmitSafra;
 window.deleteSafraItem = deleteSafraItem;
 window.activateSafraItem = activateSafraItem;
+
+// New stock catalog / movement bindings
+window.onSeedGrainProductChange = onSeedGrainProductChange;
+window.toggleSeedGrainOpFields = toggleSeedGrainOpFields;
+window.toggleSeedGrainDueDate = toggleSeedGrainDueDate;
+window.handleFormSubmitSeedGrainProduct = handleFormSubmitSeedGrainProduct;
+window.deleteSeedGrainProduct = deleteSeedGrainProduct;
+window.handleFormSubmitFuelProduct = handleFormSubmitFuelProduct;
+window.deleteFuelProduct = deleteFuelProduct;
+window.updateFuelGauge = updateFuelGauge;
+window.toggleFuelOpFields = toggleFuelOpFields;
+window.toggleFuelDueDate = toggleFuelDueDate;
 
 // Reports module bindings
 window.initRelatoriosView = initRelatoriosView;
