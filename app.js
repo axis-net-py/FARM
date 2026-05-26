@@ -125,6 +125,7 @@ const translations = {
         label_safra_end: 'Data de Fim do Período',
         label_safra_activate: 'Ativar esta safra imediatamente',
         inv_sect_seeds_grains: 'Sementes & Grãos em Estoque',
+        subnav_seeds_grains_catalog: 'Catálogo de Variedades',
         btn_add_seed_grain: 'Novo Registro',
         modal_add_seed_grain_title: 'Registrar Sementes / Grãos no Estoque',
         label_seed_grain_type: 'Tipo de Registro',
@@ -193,6 +194,8 @@ const translations = {
         type_herbicide: 'Herbicida (Erva daninha)',
         type_insecticide: 'Inseticida (Pragas/Bichos)',
         label_pesticide_stock: 'Estoque Atual (Litros)',
+        label_pesticide_payment_type: 'Forma de Pagamento',
+        label_pesticide_due_date: 'Data de Vencimento',
         modal_add_apply_title: 'Lançar Aplicação no Campo',
         label_apply_plot: 'Lote / Talhão Alvo',
         label_apply_pesticide: 'Insumo Defensivo Utilizado',
@@ -440,6 +443,7 @@ const translations = {
         label_safra_end: 'Fecha de Fin del Período',
         label_safra_activate: 'Activar esta zafra inmediatamente',
         inv_sect_seeds_grains: 'Semillas & Granos en Stock',
+        subnav_seeds_grains_catalog: 'Catálogo de Variedades',
         btn_add_seed_grain: 'Nuevo Registro',
         modal_add_seed_grain_title: 'Registrar Semillas / Granos en Stock',
         label_seed_grain_type: 'Tipo de Registro',
@@ -508,6 +512,8 @@ const translations = {
         type_herbicide: 'Herbicida (Maleza)',
         type_insecticide: 'Insecticida (Plagas/Bichos)',
         label_pesticide_stock: 'Stock Actual (Litros)',
+        label_pesticide_payment_type: 'Forma de Pago',
+        label_pesticide_due_date: 'Fecha de Vencimiento',
         modal_add_apply_title: 'Registrar Aplicación en Campo',
         label_apply_plot: 'Lote / Chacra Objetivo',
         label_apply_pesticide: 'Insumo Defensivo Utilizado',
@@ -1482,6 +1488,14 @@ function togglePesticideEntryDueDate() {
     }
 }
 
+function togglePesticideRegisterDueDate() {
+    const payType = document.getElementById('pesticide-payment-type').value;
+    const group = document.getElementById('pesticide-due-date-group');
+    if (group) {
+        group.style.display = payType === 'A prazo' ? 'block' : 'none';
+    }
+}
+
 function handleFormSubmitPesticideEntry(e) {
     e.preventDefault();
     const pesticideId = document.getElementById('entry-pesticide').value;
@@ -1635,7 +1649,10 @@ function setupFormEventListeners() {
             } else {
                 seedCalcFields.classList.remove('hidden');
                 if (val === 'Saca') {
-                    seedUnitPriceLabel.textContent = currentLanguage === 'pt-BR' ? 'Preço por Saca / Bag' : 'Precio por Saca / Bag';
+                    const selectedProdId = document.getElementById('seed-grain-product').value;
+                    const selectedProd = db.seedsGrainsProducts.find(p => p.id === selectedProdId);
+                    const unitLabel = selectedProd ? selectedProd.unit : 'Saca';
+                    seedUnitPriceLabel.textContent = currentLanguage === 'pt-BR' ? `Preço por ${unitLabel}` : `Precio por ${unitLabel}`;
                     seedAreaGroup.classList.add('hidden');
                     seedArea.removeAttribute('required');
                 } else if (val === 'Hectare') {
@@ -4034,6 +4051,8 @@ function handleFormSubmitPesticideStock(e) {
     const stock = parseInt(document.getElementById('pesticide-stock').value);
     const cost = parseFloat(document.getElementById('pesticide-cost').value) || 0;
     const costCurrency = document.getElementById('pesticide-cost-currency').value || 'BRL';
+    const paymentType = document.getElementById('pesticide-payment-type').value;
+    const paymentDate = document.getElementById('pesticide-payment-date').value;
     
     if (name && stock >= 0) {
         const id = 'pest-' + Date.now();
@@ -4052,7 +4071,8 @@ function handleFormSubmitPesticideStock(e) {
                 unit_price: cost > 0 ? (cost / stock) : 0,
                 total_cost: cost,
                 currency: costCurrency,
-                payment_date: '',
+                payment_type: paymentType,
+                payment_date: paymentType === 'A prazo' ? paymentDate : date,
                 description: currentLanguage === 'pt-BR' ? 'Estoque Inicial' : 'Stock Inicial'
             });
         }
@@ -4071,7 +4091,10 @@ function handleFormSubmitPesticideStock(e) {
                 plot_id: '',
                 pesticide_id: id,
                 amount_purchased: stock,
-                movement_id: movId
+                movement_id: movId,
+                payment_type: paymentType,
+                payment_status: paymentType === 'A prazo' ? 'pendente' : 'pago',
+                due_date: paymentType === 'A prazo' ? paymentDate : ''
             });
         }
 
@@ -5675,7 +5698,10 @@ window.deleteApplication = deleteApplication;
 window.deleteTransaction = deleteTransaction;
 window.calculatePlotUnits = calculatePlotUnits;
 window.setFinanceType = setFinanceType;
-window.toggleFinanceInsumoFields = togglefunction getSeedGrainStock(productId) {
+window.toggleFinanceInsumoFields = toggleFinanceInsumoFields;
+window.togglePesticideRegisterDueDate = togglePesticideRegisterDueDate;
+
+function getSeedGrainStock(productId) {
     if (!db.seedsGrainsMovements) return 0;
     const entries = db.seedsGrainsMovements.filter(m => m.product_id === productId && m.type === 'entrada');
     const exits = db.seedsGrainsMovements.filter(m => m.product_id === productId && m.type === 'saida');
@@ -5792,6 +5818,10 @@ function onSeedGrainProductChange() {
         }
     }
     toggleSeedGrainOpFields();
+    const costTypeSelect = document.getElementById('seed-grain-cost-type');
+    if (costTypeSelect) {
+        costTypeSelect.dispatchEvent(new Event('change'));
+    }
 }
 
 function toggleSeedGrainOpFields() {
@@ -6363,32 +6393,9 @@ function deleteSeedGrainItem(id) {
         renderDashboard();
         showToast(currentLanguage === 'pt-BR' ? 'Movimentação removida!' : '¡Movimiento eliminado!');
     }
-}: ''
-                });
-            }
-        }
-        
-        saveDatabaseLocally();
-        closeModal('modal-add-semente-grao');
-        renderSeedsGrains();
-        renderInventarioView();
-        
-        const msg = currentLanguage === 'pt-BR' ? 'Registro de semente/grão salvo com sucesso!' : '¡Registro de semilla/grano guardado con éxito!';
-        showToast(msg);
-        
-        e.target.reset();
-    }
 }
 
-function deleteSeedGrainItem(id) {
-    if (confirm(currentLanguage === 'pt-BR' ? 'Tem certeza que deseja remover este registro?' : '¿Está seguro de que desea eliminar este registro?')) {
-        db.seedsGrains = db.seedsGrains.filter(item => item.id !== id);
-        saveDatabaseLocally();
-        renderSeedsGrains();
-        renderInventarioView();
-        showToast(currentLanguage === 'pt-BR' ? 'Registro excluído!' : '¡Registro eliminado!');
-    }
-}
+
 
 function renderSafrasView() {
     const t = translations[currentLanguage];

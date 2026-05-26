@@ -114,5 +114,45 @@ payPendingTransaction('tx-defer-1');
 assert.strictEqual(db.transactions[0].payment_status, 'pago', 'Transaction pay status update fails');
 assert.strictEqual(db.seedsGrainsMovements[0].payment_type, 'À vista', 'Linked movement update fails');
 
+// D. Test Pesticide Catalog Registration with Deferred Payment
+const pestId = 'pest-test-1';
+db.pesticides = [{ id: pestId, name: 'Glifosato 480', type: 'Herbicida', stock_liters: 100 }];
+db.pesticideMovements = [];
+
+// Registering initial entry "a prazo"
+const movId = 'mov-init-pest-test-1';
+const txId = 'tx-pest-init-1';
+db.pesticideMovements.push({
+    id: movId,
+    pesticide_id: pestId,
+    type: 'entrada',
+    date: '2026-05-26',
+    quantity: 100,
+    unit_price: 15,
+    total_cost: 1500,
+    currency: 'BRL',
+    payment_type: 'A prazo',
+    payment_date: '2026-06-26',
+    description: 'Estoque Inicial'
+});
+db.transactions.push({
+    id: txId,
+    date: '2026-05-26',
+    type: 'gasto',
+    description: 'Compra de Insumo: Glifosato 480',
+    amount: 1500,
+    currency: 'BRL',
+    category: 'Insumos',
+    pesticide_id: pestId,
+    amount_purchased: 100,
+    movement_id: movId,
+    payment_type: 'A prazo',
+    payment_status: 'pendente',
+    due_date: '2026-06-26'
+});
+
+assert.strictEqual(db.pesticideMovements[0].payment_type, 'A prazo', 'Pesticide movement payment type fails');
+assert.strictEqual(db.transactions[db.transactions.length - 1].payment_status, 'pendente', 'Pesticide transaction status fails');
+
 console.log('✅ Inventory and Deferred Payments unit tests passed successfully!');
 process.exit(0);

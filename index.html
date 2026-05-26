@@ -1193,6 +1193,7 @@
                 <!-- Subnav Tabs -->
                 <div class="tabs-subnav flex gap-2 border-b border-outline-variant pb-2">
                     <button class="tab-subnav-btn active px-4 py-2 font-label-md text-xs rounded-lg transition-all" onclick="switchSubTab('sub-estoque-graos', this)">Estoque Geral</button>
+                    <button class="tab-subnav-btn px-4 py-2 font-label-md text-xs rounded-lg transition-all" onclick="switchSubTab('sub-catalogo-graos', this)" data-i18n="subnav_seeds_grains_catalog">Catálogo de Variedades</button>
                     <button class="tab-subnav-btn px-4 py-2 font-label-md text-xs rounded-lg transition-all" onclick="switchSubTab('sub-metricas-graos', this)">Resumo da Produção</button>
                 </div>
 
@@ -2016,6 +2017,19 @@
                 </div>
                 <p class="text-[9px] text-on-surface-variant opacity-60 mt-2">Se informado, será lançado automaticamente como despesa no financeiro.</p>
             </div>
+
+            <div class="form-group mb-4">
+                <label for="pesticide-payment-type" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_pesticide_payment_type">Forma de Pagamento</label>
+                <select id="pesticide-payment-type" class="form-input" onchange="togglePesticideRegisterDueDate()">
+                    <option value="À vista">À vista (Pago)</option>
+                    <option value="A prazo">A prazo (Pagar depois)</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-4" id="pesticide-due-date-group" style="display: none;">
+                <label for="pesticide-payment-date" class="block text-xs font-bold mb-2 uppercase text-on-surface-variant" data-i18n="label_pesticide_due_date">Data de Vencimento</label>
+                <input type="date" id="pesticide-payment-date" class="form-input"/>
+            </div>
             
             <button type="submit" class="btn btn-primary btn-lg w-full">Salvar Insumo no Catálogo</button>
         </form>
@@ -2468,6 +2482,8 @@
                     <select id="sg-prod-unit" required class="form-input">
                         <option value="Sacas">Sacas</option>
                         <option value="Kg">Kg</option>
+                        <option value="Bag 1000KG">Bag 1000KG</option>
+                        <option value="Hectareas">Hectareas</option>
                     </select>
                 </div>
             </div>
