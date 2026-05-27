@@ -1,0 +1,772 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Currency {
+  PYG
+  USD
+  BRL
+}
+
+enum SifenStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model ExchangeRate {
+  id           String   @id @default(cuid())
+  tenantId     String
+  date         DateTime @default(now())
+  ratePYGtoUSD Decimal  @db.Decimal(18, 4) // Ex: 7350.0000
+  ratePYGtoBRL Decimal  @db.Decimal(18, 4) // Ex: 1320.0000
+  source       String   @default("BCP_API")
+  isManual     Boolean  @default(false)
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  invoices           Invoice[]           @relation("InvoiceOnExchangeRate")
+  commercialInvoices CommercialInvoice[] @relation("CommercialInvoiceOnExchangeRate")
+
+  @@unique([tenantId, date])
+  @@index([tenantId, date])
+}
+
+enum Role {
+  SOVEREIGN // Soberania Total (Bypass)
+  ADMIN     // Gestor do Tenant
+  OPERATOR  // Lançamentos contábeis
+  AUDITOR   // Apenas leitura (Relatórios)
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  action      String   // ex: "accounting:write"
+  role        Role
+  tenantId    String
+  createdAt   DateTime @default(now())
+
+  @@unique([action, role, tenantId])
+  @@index([tenantId, role])
+}
+
+// SIFEN specific enums
+enum TaxType {
+  IVA_10
+  IVA_5
+  EXENTO
+}
+
+enum DocumentType {
+  FACTURA
+  NOTA_CREDITO
+  NOTA_DEBITO
+  REMISION
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum EntityType {
+  CLIENTE
+  PROVEEDOR
+  EMPLEADO
+}
+
+enum TransactionType {
+  INGRESO
+  EGRESO
+}
+
+enum TaxpayerType {
+  FISICA
+  JURIDICA
+}
+
+enum IdentityDocumentType {
+  RUC
+  CEDULA
+  PASAPORTE
+  EXTRANJERO
+}
+
+model Tenant {
+  id   String @id @default(cuid())
+  name String
+
+  // Fiscal / SIFEN Configuration
+  ruc              String?
+  businessName     String? // Razn Social
+  tradeName        String? // Nombre Fantasia
+  address          String?
+  economicActivity String?
+  establishment    String? @default("001") // Establecimiento (ex: 001)
+  emissionPoint    String? @default("001") // Punto de expedicin (ex: 001)
+  certificatePath  String? // Path or ref to digital certificate
+  certificatePass  String? // Encrypted password
+
+  users              User[]
+  products           Product[]
+  transactions       Transaction[]
+  entities           Entity[]
+  invoices           Invoice[] // Módulo 1 (legacy)
+  customers          Customer[] // Módulo 2
+  commercialInvoices CommercialInvoice[] // Módulo 2
+  inventoryMovements InventoryMovement[] // Módulo 2
+  auditLogs          AuditLog[]
+  tasks              Task[]
+  leads              Lead[]
+  quotations         Quotation[]
+  contracts          Contract[]
+  timeOffs           TimeOff[]
+  accounts           Account[]
+  journalEntries     JournalEntry[]
+  ledgerEntries      LedgerEntry[]
+  locations          Location[]
+  stockMoves         StockMove[]
+  exchangeRates      ExchangeRate[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  journalLines JournalLine[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  name      String?
+  role      Role     @default(OPERATOR)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  auditLogs AuditLog[] // Rastreabilidade
+}
+
+// Clientes (Módulo 2)
+model Customer {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name               String
+  document           String? // RUC/CI/CPF/CNPJ
+  documentType       String? // "RUC", "CI", "CNPJ"
+  email              String?
+  phone              String?
+  address            String?
+  city               String?
+  country            String              @default("PY")
+  category           String?             @default("retail") // vip, wholesale, retail
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  commercialInvoices CommercialInvoice[] // Módulo 2
+
+  @@index([tenantId, document])
+  @@map("customers")
+}
+
+model Entity {
+  id           String               @id @default(cuid())
+  tenantId     String
+  tenant       Tenant               @relation(fields: [tenantId], references: [id])
+  type         EntityType
+  name         String // Razn Social o Nombre
+  taxpayerType TaxpayerType         @default(FISICA)
+  docType      IdentityDocumentType @default(RUC)
+  document     String? // RUC o C.I. (Fundamental para SIFEN)
+  email        String?
+  phone        String?
+  address      String?
+  city         String?
+  country      String?              @default("PRY")
+  isActive     Boolean              @default(true)
+  portalToken  String?              @unique // For secure customer portal access
+
+  invoices     Invoice[]
+  transactions Transaction[]
+  leads        Lead[]
+  quotations   Quotation[]
+  contracts    Contract[]
+  timeOffs     TimeOff[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Product {
+  id           String  @id @default(cuid())
+  tenantId     String
+  // Módulo 2 fields
+  sku          String // Código único por tenant
+  name         String
+  price        Decimal @db.Decimal(15, 2) // Preço para PYG/USD
+  cost         Decimal @default(0) @db.Decimal(15, 2)
+  unit         String  @default("un")
+  currentStock Int     @default(0)
+  minStock     Int     @default(0)
+  isActive     Boolean @default(true)
+  // Módulo 1 fields (legacy)
+  code         String? // Internal code
+  unitMeasure  String? // un, kg, ton, l - will migrate to unit
+  costPrice    Decimal @default(0)
+  salePrice    Decimal @default(0)
+  taxType      TaxType @default(IVA_10)
+
+  tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  // Módulo 2 relations
+  movements      InventoryMovement[]
+  invoiceItems   InvoiceItem[]
+  // Módulo 1 relations (legacy)
+  invoiceLines   InvoiceLine[]
+  quotationLines QuotationLine[]
+  stockMoves     StockMove[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, sku])
+  @@map("products")
+}
+
+enum InvoiceDirection {
+  SALE
+  PURCHASE
+}
+
+enum PaymentTerm {
+  CASH
+  CREDIT
+}
+
+model Invoice {
+  id           String           @id @default(cuid())
+  documentType DocumentType     @default(FACTURA)
+  status       DocumentStatus   @default(DRAFT)
+  direction    InvoiceDirection @default(SALE)
+  paymentTerm  PaymentTerm      @default(CASH)
+
+  // SIFEN Data
+  documentNumber String? // ex: 001-001-0000001
+  sifenStatus    SifenStatus @default(PENDING)
+  sifenCdc       String?     @unique // Código de Control de 44 dígitos (legacy: cdc)
+  sifenXmlUrl    String?
+  cdc            String?     @unique // Legacy field - maps to sifenCdc
+  stamp          String? // Timbrado
+  issueDate      DateTime    @default(now())
+  dueDate        DateTime? // For CREDIT payment terms
+
+  // Totals
+  totalAmount  Decimal  @default(0)
+  totalIva10   Decimal  @default(0)
+  totalIva5    Decimal  @default(0)
+  totalExento  Decimal  @default(0)
+  currency     Currency @default(PYG)
+  exchangeRate Decimal  @default(1)
+
+  // Exchange rate snapshot
+  exchangeRateId  String?
+  exchangeRateRef ExchangeRate? @relation("InvoiceOnExchangeRate", fields: [exchangeRateId], references: [id])
+  totalUSD        Decimal       @default(0) @db.Decimal(18, 2)
+  totalBRL        Decimal       @default(0) @db.Decimal(18, 2)
+
+  // Relations
+  entityId String
+  entity   Entity        @relation(fields: [entityId], references: [id])
+  tenantId String
+  tenant   Tenant        @relation(fields: [tenantId], references: [id])
+  lines    InvoiceLine[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvoiceLine {
+  id         String  @id @default(cuid())
+  quantity   Decimal
+  unitPrice  Decimal
+  totalPrice Decimal
+  taxType    TaxType
+  taxAmount  Decimal @default(0)
+
+  description String // Usually product name at the time of sale
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id       String          @id @default(cuid())
+  type     TransactionType @default(INGRESO)
+  category String? // Deprecated
+
+  amount       Float // Original amount (ex: 100)
+  currency     Currency @default(PYG) // PYG, USD, BRL
+  exchangeRate Float    @default(1) // Rate used at the time
+  totalPyg     Float // Final value in Gs. (amount * exchangeRate)
+
+  entityId String?
+  entity   Entity? @relation(fields: [entityId], references: [id])
+
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id])
+
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum AccountType {
+  ASSET // Ativo
+  LIABILITY // Passivo
+  EQUITY // Patrimônio Líquido
+  REVENUE // Receita
+  EXPENSE // Despesa
+}
+
+model Account {
+  id        String      @id @default(cuid())
+  tenantId  String
+  code      String // Ex: 1.1.01.001
+  namePt    String
+  nameEs    String
+  type      AccountType
+  level     Int         @default(1)
+  parentId  String?
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  parent        Account?      @relation("AccountTree", fields: [parentId], references: [id])
+  children      Account[]     @relation("AccountTree")
+  journalLines  JournalLine[]
+  ledgerEntries LedgerEntry[]
+  Transaction   Transaction[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, type])
+  @@map("accounts")
+}
+
+// Lançamento de Diário: O átomo da contabilidade
+model JournalEntry {
+  id            String      @id @default(cuid())
+  tenantId      String
+  number        String // Serial: JE-2026-0001
+  date          DateTime
+  description   String
+  referenceType String? // Ex: "SALES_INVOICE", "PAYMENT"
+  referenceId   String?
+  status        EntryStatus @default(DRAFT)
+  postedAt      DateTime?
+  createdBy     String // Audit trail
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id])
+  lines  JournalLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, date])
+  @@index([tenantId, status])
+  @@map("journal_entries")
+}
+
+enum EntryStatus {
+  DRAFT
+  POSTED
+  VOIDED
+}
+
+// Linhas: Garantia de Partidas Dobradas
+model JournalLine {
+  id             String   @id @default(cuid())
+  tenantId       String
+  journalEntryId String
+  accountId      String
+  type           LineType // DEBIT | CREDIT
+  amount         Decimal  @db.Decimal(18, 2)
+  currency       String   @default("PYG")
+  exchangeRate   Decimal  @default(1) @db.Decimal(18, 4)
+  amountUSD      Decimal  @default(0) @db.Decimal(18, 2)
+
+  journalEntry  JournalEntry  @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account       Account       @relation(fields: [accountId], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  ledgerEntries LedgerEntry[]
+
+  @@index([journalEntryId])
+  @@index([accountId])
+  @@map("journal_lines")
+}
+
+enum LineType {
+  DEBIT
+  CREDIT
+}
+
+// Livro Razão: Saldos por conta
+model LedgerEntry {
+  id            String  @id @default(cuid())
+  tenantId      String
+  accountId     String
+  journalLineId String
+  period        String // YYYY-MM format
+  debit         Decimal @default(0) @db.Decimal(18, 2)
+  credit        Decimal @default(0) @db.Decimal(18, 2)
+  balance       Decimal @default(0) @db.Decimal(18, 2)
+  currency      String  @default("PYG")
+
+  account     Account     @relation(fields: [accountId], references: [id])
+  journalLine JournalLine @relation(fields: [journalLineId], references: [id])
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, accountId, journalLineId])
+  @@index([tenantId, accountId, period])
+  @@map("ledger_entries")
+}
+
+enum TaskStatus {
+  BACKLOG
+  IN_PROGRESS
+  VALIDATION
+  DONE
+}
+
+enum TaskPriority {
+  BAIXA
+  NORMAL
+  URGENTE
+}
+
+model Task {
+  id       String       @id @default(cuid())
+  title    String
+  status   TaskStatus   @default(BACKLOG)
+  priority TaskPriority @default(NORMAL)
+  dueDate  DateTime?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+enum LeadStatus {
+  NEW
+  QUALIFIED
+  PROPOSITION
+  WON
+  LOST
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+}
+
+model Lead {
+  id              String     @id @default(cuid())
+  title           String
+  description     String?
+  status          LeadStatus @default(NEW)
+  expectedRevenue Decimal    @default(0)
+  probability     Int        @default(10) // Percentage 0-100
+
+  entityId String?
+  entity   Entity? @relation(fields: [entityId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  quotations Quotation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Quotation {
+  id          String          @id @default(cuid())
+  number      String? // ex: QUO-001
+  status      QuotationStatus @default(DRAFT)
+  totalAmount Decimal         @default(0)
+  validUntil  DateTime?
+
+  leadId   String?
+  lead     Lead?   @relation(fields: [leadId], references: [id])
+  entityId String
+  entity   Entity  @relation(fields: [entityId], references: [id])
+  tenantId String
+  tenant   Tenant  @relation(fields: [tenantId], references: [id])
+
+  lines QuotationLine[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model QuotationLine {
+  id         String  @id @default(cuid())
+  quantity   Decimal
+  unitPrice  Decimal
+  totalPrice Decimal
+
+  description String
+
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id])
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String   // ex: "LEDGER_ACCESS", "INVOICE_POST"
+  details   Json     // { ip, userAgent, resourceId, oldValue, newValue }
+  userId    String?  // Who performed the action
+  user      User?    @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, action])
+  @@index([userId])
+}
+
+enum InvoiceType {
+  PURCHASE
+  SALES
+}
+
+enum InvoiceStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+}
+
+enum MovementType {
+  ENTRADA
+  SAIDA
+}
+
+enum LocationType {
+  INTERNAL
+  VENDOR
+  CUSTOMER
+  INVENTORY_LOSS
+}
+
+enum MoveType {
+  INBOUND
+  OUTBOUND
+  TRANSFER
+  ADJUSTMENT
+}
+
+model Location {
+  id   String       @id @default(cuid())
+  name String // e.g. "Almoxarifado A"
+  type LocationType @default(INTERNAL)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  sourceMoves      StockMove[] @relation("SourceLocation")
+  destinationMoves StockMove[] @relation("DestinationLocation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model StockMove {
+  id       String   @id @default(cuid())
+  quantity Decimal  @default(0)
+  type     MoveType @default(TRANSFER)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  sourceLocationId      String?
+  sourceLocation        Location? @relation("SourceLocation", fields: [sourceLocationId], references: [id])
+  destinationLocationId String?
+  destinationLocation   Location? @relation("DestinationLocation", fields: [destinationLocationId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([productId])
+}
+
+enum ContractType {
+  FULL_TIME
+  PART_TIME
+  FREELANCE
+}
+
+enum TimeOffType {
+  VACATION
+  SICK_LEAVE
+  UNPAID
+}
+
+enum TimeOffStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Contract {
+  id        String       @id @default(cuid())
+  jobTitle  String
+  wage      Decimal      @default(0)
+  startDate DateTime
+  endDate   DateTime?
+  type      ContractType @default(FULL_TIME)
+  isActive  Boolean      @default(true)
+
+  entityId String
+  entity   Entity @relation(fields: [entityId], references: [id])
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model TimeOff {
+  id        String        @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+  type      TimeOffType   @default(VACATION)
+  status    TimeOffStatus @default(PENDING)
+  reason    String?
+
+  entityId String
+  entity   Entity @relation(fields: [entityId], references: [id])
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+// ─── MÓDULO 2: FATURAMENTO COMERCIAL E ESTOQUE ───────────────────────
+
+model CommercialInvoice {
+  id         String        @id @default(cuid())
+  tenantId   String
+  tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  type       InvoiceType // PURCHASE (Compra) | SALES (Venda)
+  status     InvoiceStatus @default(PENDING)
+  customerId String
+  customer   Customer      @relation(fields: [customerId], references: [id])
+
+  // SIFEN Fields
+  sifenStatus    SifenStatus @default(PENDING)
+  sifenCdc       String?     @unique
+  sifenXmlUrl    String?
+  documentNumber String? // ex: 001-001-0000001
+  attachmentUrl  String?
+
+  issuedAt     DateTime  @default(now())
+  dueDate      DateTime?
+  currency     Currency  @default(PYG)
+  exchangeRate Decimal   @default(1) @db.Decimal(15, 2)
+
+  // Exchange rate snapshot
+  exchangeRateId  String?
+  exchangeRateRef ExchangeRate? @relation("CommercialInvoiceOnExchangeRate", fields: [exchangeRateId], references: [id])
+  totalAmount     Decimal       @default(0) @db.Decimal(15, 2)
+  totalUSD        Decimal       @default(0) @db.Decimal(18, 2)
+  totalBRL        Decimal       @default(0) @db.Decimal(18, 2)
+
+  notes     String?
+  items     InvoiceItem[] // Itens da fatura
+  movements InventoryMovement[] // Movimentações de estoque geradas
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([tenantId, type])
+  @@index([tenantId, customerId])
+  @@index([tenantId, status])
+  @@map("commercial_invoices")
+}
+
+model InvoiceItem {
+  id                  String            @id @default(cuid())
+  commercialInvoiceId String
+  commercialInvoice   CommercialInvoice @relation(fields: [commercialInvoiceId], references: [id], onDelete: Cascade)
+  productId           String
+  product             Product           @relation(fields: [productId], references: [id])
+  quantity            Int // Quantidade em unidades do produto
+  unitPrice           Decimal           @db.Decimal(15, 2) // Preço unitário (venda/compra)
+  totalPrice          Decimal           @db.Decimal(15, 2) // quantity * unitPrice
+  cost                Decimal           @db.Decimal(15, 2) // Custo unitário no momento
+  createdAt           DateTime          @default(now())
+
+  @@index([commercialInvoiceId])
+  @@index([productId])
+  @@map("invoice_items")
+}
+
+model InventoryMovement {
+  id                  String             @id @default(cuid())
+  tenantId            String
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productId           String
+  product             Product            @relation(fields: [productId], references: [id])
+  type                MovementType // ENTRADA (Compra) | SAIDA (Venda/Ajuste)
+  quantity            Int // Quantidade movimentada
+  unitCost            Decimal            @db.Decimal(15, 2) // Custo unitário médio
+  totalCost           Decimal            @db.Decimal(15, 2) // quantity * unitCost
+  reason              String? // Ex: "Fatura #123", "Ajuste de inventário"
+  commercialInvoiceId String? // Fatura que originou (opcional)
+  commercialInvoice   CommercialInvoice? @relation(fields: [commercialInvoiceId], references: [id])
+  createdAt           DateTime           @default(now())
+
+  @@index([tenantId, productId])
+  @@index([commercialInvoiceId])
+  @@index([tenantId, type])
+  @@map("inventory_movements")
+}

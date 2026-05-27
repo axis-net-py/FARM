@@ -1,0 +1,19 @@
+{
+  "name": "@axis/reports",
+  "version": "1.0.0",
+  "description": "AXIS ERP Executive Reports - PDF Generation",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^3.4.0",
+    "@axis/dashboard": "file:../dashboard",
+    "@axis/currency": "file:../currency"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

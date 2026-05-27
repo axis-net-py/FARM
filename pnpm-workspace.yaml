@@ -1,0 +1,15 @@
+packages:
+  - "packages/*"
+  - "STELLIUM"
+  - "AURELIUS"
+allowBuilds:
+  '@axis/core': true
+  '@parcel/watcher': true
+  '@prisma/client': true
+  '@prisma/engines': true
+  '@swc/core': true
+  esbuild: true
+  msw: false
+  prisma: true
+  sharp: true
+  unrs-resolver: true

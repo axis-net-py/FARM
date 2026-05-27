@@ -1,19 +1,13 @@
 {
-  "name": "aurelius",
+  "name": "axis-erp",
   "version": "1.0.0",
-  "description": "Aurelius – Cultivando o Futuro – agricultural management web app",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "STELLIUM"
+  ],
   "scripts": {
-    "dev": "vite --port 3000",
-    "build": "vite build",
-    "preview": "vite preview",
-    "search": "node search.js",
-    "postinstall": "chmod +x ./node_modules/.bin/vite",
-    "audit": "node audit_scripts/run_audit.js"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
-  },
-  "devDependencies": {
-    "vite": "^5.2.0"
+    "dev": "pnpm --filter axis-erp dev",
+    "build": "pnpm --filter axis-erp build"
   }
 }
