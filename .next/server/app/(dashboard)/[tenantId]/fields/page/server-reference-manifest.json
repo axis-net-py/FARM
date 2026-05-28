@@ -1,0 +1,53 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "401863a4d7f0e1ab670f1cc574eba57e6b0c587222": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "getFields",
+          "filename": "Documents/AXIS/src/app/actions/fields.ts"
+        }
+      },
+      "exportedName": "getFields",
+      "filename": "Documents/AXIS/src/app/actions/fields.ts"
+    },
+    "60843adc5d4918c017e11b338e0d5de48d7a352d90": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "createField",
+          "filename": "Documents/AXIS/src/app/actions/fields.ts"
+        }
+      },
+      "exportedName": "createField",
+      "filename": "Documents/AXIS/src/app/actions/fields.ts"
+    },
+    "60ef70be271bb1809f14fc88a8feb5412eae2cdb70": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "deleteField",
+          "filename": "Documents/AXIS/src/app/actions/fields.ts"
+        }
+      },
+      "exportedName": "deleteField",
+      "filename": "Documents/AXIS/src/app/actions/fields.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,77 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 53660,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    },
+    "001537180eae0a37fb24a3e8b291323b32659241e4": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 53660,
+          "async": true,
+          "exportedName": "getSuppliers",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "getSuppliers",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+    },
+    "404ab97079dd4d7f6251ca8f810bbcd0dc605e2093": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 53660,
+          "async": true,
+          "exportedName": "getSupplierById",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "getSupplierById",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+    },
+    "40dae90431c8a858c23daa7803b8bb3745cda328be": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 53660,
+          "async": true,
+          "exportedName": "deleteSupplier",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "deleteSupplier",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+    },
+    "40fbbb4623b844840bc85903c9b021d2757a94f1b3": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 53660,
+          "async": true,
+          "exportedName": "createSupplier",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "createSupplier",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+    },
+    "60237482f6e907c7a12ba078c5e324a5d41d02b631": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 53660,
+          "async": true,
+          "exportedName": "updateSupplier",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "updateSupplier",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/supplier.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,12 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/Documents/AXIS/src/app/(dashboard)/[tenantId]/settings/exchange-rates/page": [
+      "static/media/caa3a2e1cccd8315-s.p.09~u27dqhyhd6.woff2",
+      "static/media/797e433ab948586e-s.p.09zddjkbdep5a.woff2",
+      "static/media/GeistMono_Variable.p.17jn9btb_52pq.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}

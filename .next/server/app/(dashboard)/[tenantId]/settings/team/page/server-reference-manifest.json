@@ -1,0 +1,53 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "40d653bac9cbaf47f33c4a1241484d7e69efad6ec0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "getUsers",
+          "filename": "Documents/AXIS/src/app/actions/team.ts"
+        }
+      },
+      "exportedName": "getUsers",
+      "filename": "Documents/AXIS/src/app/actions/team.ts"
+    },
+    "4084d03fb8a4a5d2eef6e594428b529bb01339e4dc": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "getPermissions",
+          "filename": "Documents/AXIS/src/app/actions/team.ts"
+        }
+      },
+      "exportedName": "getPermissions",
+      "filename": "Documents/AXIS/src/app/actions/team.ts"
+    },
+    "78c95dc64c996d1f4df4a9f25bb35959cb254be25d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "updatePermission",
+          "filename": "Documents/AXIS/src/app/actions/team.ts"
+        }
+      },
+      "exportedName": "updatePermission",
+      "filename": "Documents/AXIS/src/app/actions/team.ts"
+    }
+  },
+  "edge": {}
+}

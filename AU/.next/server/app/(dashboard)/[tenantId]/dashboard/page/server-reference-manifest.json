@@ -1,0 +1,29 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/dashboard/page": {
+          "moduleId": 86465,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    },
+    "40450f020016690001ce21c31f8aaab8df4cacd4f9": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/dashboard/page": {
+          "moduleId": 86465,
+          "async": true,
+          "exportedName": "getDashboardStats",
+          "filename": "Documents/AXIS/AURELIUS/src/lib/dashboard.ts"
+        }
+      },
+      "exportedName": "getDashboardStats",
+      "filename": "Documents/AXIS/AURELIUS/src/lib/dashboard.ts"
+    }
+  },
+  "edge": {}
+}

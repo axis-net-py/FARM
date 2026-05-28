@@ -1,0 +1,257 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "0007d85fd76adc5732ebd2e47142eac4d9156f148d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getLatestExchangeRate",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getLatestExchangeRate",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "00ab06dfea37b508538f197ff4055fdaf805148945": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getInvoices",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getInvoices",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "401e8670d5d9611d050be1fe495634c7caa021c26f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "cancelInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "cancelInvoice",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "402a7bbf6f9276338bdf66b56d1f7f97659661e44e": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "fetchExchangeRatesAction",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "fetchExchangeRatesAction",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "4047be5a9eb05e24cd31fcfb80832d6d87b8205484": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "createPurchaseInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "createPurchaseInvoice",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "40b2b3868669d297a08b0ea4ed79e5028e35bdb737": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "createSalesInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "createSalesInvoice",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "40d7f4a89f8b03c49f6012c21408d653702949c240": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getInvoiceById",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getInvoiceById",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "600328aee6fb341eab2a96cc1e283813db8808cc11": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "updateInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "updateInvoice",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "6041862723c0ed8039495823fcc1f703dfb1229efc": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getNextSalesInvoiceNumber",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getNextSalesInvoiceNumber",
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+    },
+    "401374c9622f3645cd51293e7d16d266014ba2e5c9": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getAccounts",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getAccounts",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "401a2fe51ba1342c357325fb087e9e0ac4c075fb2d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getLedgerEntriesWithShadow",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "40264e918f2b8a085bd01ac5541a9506c23d3ec794": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getTrialBalance",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getTrialBalance",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "4058baf23777b7131bb911c4e26da77737bf645d97": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getLedgerEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getLedgerEntries",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "40ad7409bf1986d3674d555c90cf46bbb54b3b125c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getJournalEntries",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "604e55fb06bf386016aa5ce7af6194cade4ee4aa97": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "voidJournalEntry",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "60c156352e2a1c5befede0a78a89a6531f3702a4d0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "postInvoiceToLedger",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "40dfe80fa8b732617032fe271b4d4f44bb0e2e153c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "retryPendingSifenSubmissions",
+          "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+        }
+      },
+      "exportedName": "retryPendingSifenSubmissions",
+      "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+    },
+    "7003f16df70a330bd070b630286200eff1602ed235": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "submitInvoiceToSifen",
+          "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+        }
+      },
+      "exportedName": "submitInvoiceToSifen",
+      "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+    },
+    "00efb29e504e6081500b75d9c88793822a01eb320f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getCustomers",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "getCustomers",
+      "filename": "Documents/AXIS/src/app/actions/customer.ts"
+    },
+    "0081f070a83fecd20e39de6d703b113d164a53c39a": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getProducts",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "exportedName": "getProducts",
+      "filename": "Documents/AXIS/src/app/actions/product.ts"
+    }
+  },
+  "edge": {}
+}

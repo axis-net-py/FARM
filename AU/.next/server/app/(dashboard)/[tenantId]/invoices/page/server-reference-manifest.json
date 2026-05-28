@@ -1,0 +1,257 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    },
+    "00797be968856da2cbf2cab96ce26c29a14e44c82f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getLatestExchangeRate",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getLatestExchangeRate",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "00cc3a3a32b5cfb7baaafa1088b22909d87a35458e": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getInvoices",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getInvoices",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "402f3335e7a92a6b4da19161dc4f1653ca7e30d2c0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "createSalesInvoice",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "createSalesInvoice",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "402fef6c8d9a5aa5e788e7ebccefe963b29ddd8825": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "fetchExchangeRatesAction",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "fetchExchangeRatesAction",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "4038c6a0ab17b8a6006daa8120e9ff6e3961fb5812": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "createPurchaseInvoice",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "createPurchaseInvoice",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "4062b18edc085502180d17a9debfc45d3cf8073e49": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getInvoiceById",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getInvoiceById",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "406a5b833a73fdd12b96c326092f3f49925efdbdaf": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "cancelInvoice",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "cancelInvoice",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "605218d6aafd919b3474538050355cc9cb3d17b783": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "updateInvoice",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "updateInvoice",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "6092272029602009212725896aca4b266457291679": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getNextSalesInvoiceNumber",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+        }
+      },
+      "exportedName": "getNextSalesInvoiceNumber",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/invoice.ts"
+    },
+    "404fe973b230c419e79c762c2552ce160710781a51": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getTrialBalance",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getTrialBalance",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "405cc589f91f856b222698441e1e204ebea3e3388d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getAccounts",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getAccounts",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "4090f03e87bc8b655c96845a1f4c1f4e6c1722c748": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getLedgerEntries",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getLedgerEntries",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "4093fbc8ac0f21f5c935f3c937d9f2f81bc52df22b": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getLedgerEntriesWithShadow",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "40d4574a725a681530b689bd1d55bfbd945dc1b095": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getJournalEntries",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "6035dbf735013da2fbe9a78144b4f15cae68915de1": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "postInvoiceToLedger",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "6060caed17f4adbed8b9b906fd51c624c03f48a9e0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "voidJournalEntry",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "40cd8f0f940ab6c295af109b95a8f56f73f691cd08": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "retryPendingSifenSubmissions",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/sifen.ts"
+        }
+      },
+      "exportedName": "retryPendingSifenSubmissions",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/sifen.ts"
+    },
+    "704acdfd1af9ba3a058faafd5796dca1e32f1d3203": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "submitInvoiceToSifen",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/sifen.ts"
+        }
+      },
+      "exportedName": "submitInvoiceToSifen",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/sifen.ts"
+    },
+    "0058fa05c739f7d4f43408ceb2fe04978cd36e6f24": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getCustomers",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "getCustomers",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/customer.ts"
+    },
+    "006fdaeb9bf1422f4d372ec9794f52fcf6489ec7a7": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 4890,
+          "async": true,
+          "exportedName": "getProducts",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/product.ts"
+        }
+      },
+      "exportedName": "getProducts",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/product.ts"
+    }
+  },
+  "edge": {}
+}

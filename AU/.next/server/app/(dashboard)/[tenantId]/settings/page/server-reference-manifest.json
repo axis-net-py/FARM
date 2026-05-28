@@ -1,0 +1,17 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/page": {
+          "moduleId": 9104,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    }
+  },
+  "edge": {}
+}

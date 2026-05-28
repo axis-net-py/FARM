@@ -1,0 +1,77 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "00efb29e504e6081500b75d9c88793822a01eb320f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "getCustomers",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "getCustomers",
+      "filename": "Documents/AXIS/src/app/actions/customer.ts"
+    },
+    "4038fede1cb9861fc6e137b25910a54137423d5ebb": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "deleteCustomer",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "deleteCustomer",
+      "filename": "Documents/AXIS/src/app/actions/customer.ts"
+    },
+    "405112469304a4c4978b439fc75bb7c00b99027b79": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "getCustomerById",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "getCustomerById",
+      "filename": "Documents/AXIS/src/app/actions/customer.ts"
+    },
+    "406146c120452b996e47a402bee839851c518e5e29": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "createCustomer",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "createCustomer",
+      "filename": "Documents/AXIS/src/app/actions/customer.ts"
+    },
+    "60c6b5f8752399166b85ad31c1cb529e510cf1497c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "updateCustomer",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "exportedName": "updateCustomer",
+      "filename": "Documents/AXIS/src/app/actions/customer.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,10 @@
+var R=require("../../../../../../chunks/[turbopack]_runtime.js")("server/app/api/v1/invoices/[id]/generate/route.js")
+R.c("server/chunks/[root-of-the-server]__0rteoq1._.js")
+R.c("server/chunks/05e6_next_0c.6.2u._.js")
+R.c("server/chunks/0yu.__pnpm_0buwdfk._.js")
+R.c("server/chunks/[root-of-the-server]__0sj9zwh._.js")
+R.c("server/chunks/Documents_AXIS_0d6xl3w._.js")
+R.c("server/chunks/Documents_AXIS_003mm6q._.js")
+R.c("server/chunks/114h__next-internal_server_app_api_v1_invoices_[id]_generate_route_actions_0jqb63x.js")
+R.m(15062)
+module.exports=R.m(15062).exports

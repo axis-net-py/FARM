@@ -1,0 +1,53 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 43025,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    },
+    "40a33d90e9d69a3d4bad5ff31278fb7b2fb14c9d9d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 43025,
+          "async": false,
+          "exportedName": "getSeasons",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/seasons.ts"
+        }
+      },
+      "exportedName": "getSeasons",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/seasons.ts"
+    },
+    "60b9722434eb43ad92dd130413aca499caa4429e53": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 43025,
+          "async": false,
+          "exportedName": "deleteSeason",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/seasons.ts"
+        }
+      },
+      "exportedName": "deleteSeason",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/seasons.ts"
+    },
+    "60de9b3120d0ebe9a6424abe73cf250011b4f712fc": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 43025,
+          "async": false,
+          "exportedName": "createSeason",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/seasons.ts"
+        }
+      },
+      "exportedName": "createSeason",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/seasons.ts"
+    }
+  },
+  "edge": {}
+}

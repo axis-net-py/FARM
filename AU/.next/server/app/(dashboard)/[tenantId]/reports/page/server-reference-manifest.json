@@ -1,0 +1,41 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/reports/page": {
+          "moduleId": 65396,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    },
+    "7068cc2bd1b2dc4d71a6e1944819e7c9acb151b351": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/reports/page": {
+          "moduleId": 65396,
+          "async": true,
+          "exportedName": "getReportData",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/reports.ts"
+        }
+      },
+      "exportedName": "getReportData",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/reports.ts"
+    },
+    "00aeb404f47bfdc4784784d2155fddc6ef399ca8b3": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/reports/page": {
+          "moduleId": 65396,
+          "async": true,
+          "exportedName": "getProductReportData",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/reports.ts"
+        }
+      },
+      "exportedName": "getProductReportData",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/reports.ts"
+    }
+  },
+  "edge": {}
+}

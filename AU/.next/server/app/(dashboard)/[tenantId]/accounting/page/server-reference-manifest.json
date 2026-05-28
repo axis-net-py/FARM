@@ -1,0 +1,65 @@
+{
+  "node": {
+    "6008aeb5e5c6e598b374fb91862f186291d318dd02": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 26108,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/ai.ts"
+    },
+    "40d4574a725a681530b689bd1d55bfbd945dc1b095": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 26108,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getJournalEntries",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "4093fbc8ac0f21f5c935f3c937d9f2f81bc52df22b": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 26108,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getLedgerEntriesWithShadow",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "6035dbf735013da2fbe9a78144b4f15cae68915de1": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 26108,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "postInvoiceToLedger",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    },
+    "6060caed17f4adbed8b9b906fd51c624c03f48a9e0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 26108,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "voidJournalEntry",
+      "filename": "Documents/AXIS/AURELIUS/src/app/actions/accounting.ts"
+    }
+  },
+  "edge": {}
+}

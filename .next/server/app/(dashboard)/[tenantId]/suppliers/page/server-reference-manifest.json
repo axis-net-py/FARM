@@ -1,0 +1,77 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "0072386b783868b3b3c7c6fa675011452fe5e5c601": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "getSuppliers",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "getSuppliers",
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+    },
+    "409d3d01923a95547b293e061318607d1901a2bd01": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "deleteSupplier",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "deleteSupplier",
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+    },
+    "40c13e5f67a9f81f6f5fca5aa22fe0905f36b5917e": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "createSupplier",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "createSupplier",
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+    },
+    "40e3690a18419ed3d2bbdb1f194586393af87bc7f9": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "getSupplierById",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "getSupplierById",
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+    },
+    "601ac49d86ccabf48aa74c544a0694c0d1cbeb484c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "updateSupplier",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "exportedName": "updateSupplier",
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+    }
+  },
+  "edge": {}
+}

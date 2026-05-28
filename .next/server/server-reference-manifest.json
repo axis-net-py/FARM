@@ -1,0 +1,840 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/dashboard/page": {
+          "moduleId": 85005,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/fleet/page": {
+          "moduleId": 17727,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/reports/page": {
+          "moduleId": 65647,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/page": {
+          "moduleId": 54636,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        },
+        "app/(dashboard)/[tenantId]/testes/thermal/page": {
+          "moduleId": 66450,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/ai.ts",
+      "exportedName": "processAgroVoiceCommand"
+    },
+    "40ad7409bf1986d3674d555c90cf46bbb54b3b125c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "getJournalEntries"
+    },
+    "401a2fe51ba1342c357325fb087e9e0ac4c075fb2d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "getLedgerEntriesWithShadow"
+    },
+    "60c156352e2a1c5befede0a78a89a6531f3702a4d0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "postInvoiceToLedger"
+    },
+    "604e55fb06bf386016aa5ce7af6194cade4ee4aa97": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "voidJournalEntry"
+    },
+    "00efb29e504e6081500b75d9c88793822a01eb320f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "getCustomers",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        },
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getCustomers",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/customer.ts",
+      "exportedName": "getCustomers"
+    },
+    "4038fede1cb9861fc6e137b25910a54137423d5ebb": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "deleteCustomer",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/customer.ts",
+      "exportedName": "deleteCustomer"
+    },
+    "405112469304a4c4978b439fc75bb7c00b99027b79": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "getCustomerById",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/customer.ts",
+      "exportedName": "getCustomerById"
+    },
+    "406146c120452b996e47a402bee839851c518e5e29": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "createCustomer",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/customer.ts",
+      "exportedName": "createCustomer"
+    },
+    "60c6b5f8752399166b85ad31c1cb529e510cf1497c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/customers/page": {
+          "moduleId": 76840,
+          "async": true,
+          "exportedName": "updateCustomer",
+          "filename": "Documents/AXIS/src/app/actions/customer.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/customer.ts",
+      "exportedName": "updateCustomer"
+    },
+    "40a9057e7be70d1fedddea2bb1adc39281df4db5aa": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/dashboard/page": {
+          "moduleId": 85005,
+          "async": true,
+          "exportedName": "getDashboardStats",
+          "filename": "Documents/AXIS/src/lib/dashboard.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/lib/dashboard.ts",
+      "exportedName": "getDashboardStats"
+    },
+    "401863a4d7f0e1ab670f1cc574eba57e6b0c587222": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "getFields",
+          "filename": "Documents/AXIS/src/app/actions/fields.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/fields.ts",
+      "exportedName": "getFields"
+    },
+    "60843adc5d4918c017e11b338e0d5de48d7a352d90": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "createField",
+          "filename": "Documents/AXIS/src/app/actions/fields.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/fields.ts",
+      "exportedName": "createField"
+    },
+    "60ef70be271bb1809f14fc88a8feb5412eae2cdb70": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fields/page": {
+          "moduleId": 47117,
+          "async": false,
+          "exportedName": "deleteField",
+          "filename": "Documents/AXIS/src/app/actions/fields.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/fields.ts",
+      "exportedName": "deleteField"
+    },
+    "402635f18a1ebfbb5a680204c61d18bf33b5bcef8f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fleet/page": {
+          "moduleId": 17727,
+          "async": false,
+          "exportedName": "getMachineries",
+          "filename": "Documents/AXIS/src/app/actions/fleet.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/fleet.ts",
+      "exportedName": "getMachineries"
+    },
+    "60239c8874ea2dee58199d178f5fb5962f76c6a6a8": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fleet/page": {
+          "moduleId": 17727,
+          "async": false,
+          "exportedName": "createMachinery",
+          "filename": "Documents/AXIS/src/app/actions/fleet.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/fleet.ts",
+      "exportedName": "createMachinery"
+    },
+    "604b4a0183ed7b67943a6838aa91af4f069a24ec21": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/fleet/page": {
+          "moduleId": 17727,
+          "async": false,
+          "exportedName": "deleteMachinery",
+          "filename": "Documents/AXIS/src/app/actions/fleet.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/fleet.ts",
+      "exportedName": "deleteMachinery"
+    },
+    "0007d85fd76adc5732ebd2e47142eac4d9156f148d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getLatestExchangeRate",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getLatestExchangeRate",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "getLatestExchangeRate"
+    },
+    "00ab06dfea37b508538f197ff4055fdaf805148945": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getInvoices",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getInvoices",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "getInvoices"
+    },
+    "401e8670d5d9611d050be1fe495634c7caa021c26f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "cancelInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "cancelInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "cancelInvoice"
+    },
+    "402a7bbf6f9276338bdf66b56d1f7f97659661e44e": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "fetchExchangeRatesAction",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "fetchExchangeRatesAction",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "fetchExchangeRatesAction"
+    },
+    "4047be5a9eb05e24cd31fcfb80832d6d87b8205484": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "createPurchaseInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "createPurchaseInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "createPurchaseInvoice"
+    },
+    "40b2b3868669d297a08b0ea4ed79e5028e35bdb737": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "createSalesInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "createSalesInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "createSalesInvoice"
+    },
+    "40d7f4a89f8b03c49f6012c21408d653702949c240": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getInvoiceById",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getInvoiceById",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "getInvoiceById"
+    },
+    "600328aee6fb341eab2a96cc1e283813db8808cc11": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "updateInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "updateInvoice",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "updateInvoice"
+    },
+    "6041862723c0ed8039495823fcc1f703dfb1229efc": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getNextSalesInvoiceNumber",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getNextSalesInvoiceNumber",
+          "filename": "Documents/AXIS/src/app/actions/invoice.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/invoice.ts",
+      "exportedName": "getNextSalesInvoiceNumber"
+    },
+    "401374c9622f3645cd51293e7d16d266014ba2e5c9": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getAccounts",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getAccounts",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "getAccounts"
+    },
+    "40264e918f2b8a085bd01ac5541a9506c23d3ec794": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getTrialBalance",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getTrialBalance",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "getTrialBalance"
+    },
+    "4058baf23777b7131bb911c4e26da77737bf645d97": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getLedgerEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "getLedgerEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts",
+      "exportedName": "getLedgerEntries"
+    },
+    "40dfe80fa8b732617032fe271b4d4f44bb0e2e153c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "retryPendingSifenSubmissions",
+          "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "retryPendingSifenSubmissions",
+          "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/sifen.ts",
+      "exportedName": "retryPendingSifenSubmissions"
+    },
+    "7003f16df70a330bd070b630286200eff1602ed235": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "submitInvoiceToSifen",
+          "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+        },
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "submitInvoiceToSifen",
+          "filename": "Documents/AXIS/src/app/actions/sifen.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/sifen.ts",
+      "exportedName": "submitInvoiceToSifen"
+    },
+    "0081f070a83fecd20e39de6d703b113d164a53c39a": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/invoices/page": {
+          "moduleId": 93055,
+          "async": true,
+          "exportedName": "getProducts",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        },
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "getProducts",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/product.ts",
+      "exportedName": "getProducts"
+    },
+    "40541de61ff1ae1b9a691c6910536259192796c030": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "getProductById",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/product.ts",
+      "exportedName": "getProductById"
+    },
+    "407be6214c1269e0a4a1d7bb9aa68bb67ad10c612d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "getProductBySku",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/product.ts",
+      "exportedName": "getProductBySku"
+    },
+    "40b69a2941156b7a6a3c7a5eb3fd022d8349ca7271": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "createProduct",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/product.ts",
+      "exportedName": "createProduct"
+    },
+    "40fd7d3d64fa42441bb9008f8cd319b8b102e9b30f": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "deleteProduct",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/product.ts",
+      "exportedName": "deleteProduct"
+    },
+    "60f5021e5d0c26b5c080cb4d44a872f19bd93ff88d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/products/page": {
+          "moduleId": 34451,
+          "async": true,
+          "exportedName": "updateProduct",
+          "filename": "Documents/AXIS/src/app/actions/product.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/product.ts",
+      "exportedName": "updateProduct"
+    },
+    "70e02387ec8281c5a3bfdd1d858baca05092391701": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/reports/page": {
+          "moduleId": 65647,
+          "async": true,
+          "exportedName": "getReportData",
+          "filename": "Documents/AXIS/src/app/actions/reports.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/reports.ts",
+      "exportedName": "getReportData"
+    },
+    "0011b0f1e28674498ca5e3a45041020f87da1e9ffa": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/reports/page": {
+          "moduleId": 65647,
+          "async": true,
+          "exportedName": "getProductReportData",
+          "filename": "Documents/AXIS/src/app/actions/reports.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/reports.ts",
+      "exportedName": "getProductReportData"
+    },
+    "40feea2cf2108070996834adbd7618ddff17b6317b": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "getSeasons",
+          "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/seasons.ts",
+      "exportedName": "getSeasons"
+    },
+    "60774fd48be59de751df88ba1c2a5429738ccca11b": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "deleteSeason",
+          "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/seasons.ts",
+      "exportedName": "deleteSeason"
+    },
+    "60d13965e4158004438d681fee6d5c6a1702f1560d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "createSeason",
+          "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/seasons.ts",
+      "exportedName": "createSeason"
+    },
+    "404b00d485f7f0806df3b4aa65559db4a2a8fee109": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/exchange-rates/page": {
+          "moduleId": 56458,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "Documents/AXIS/src/app/(dashboard)/[tenantId]/settings/exchange-rates/page.tsx"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/(dashboard)/[tenantId]/settings/exchange-rates/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "40d653bac9cbaf47f33c4a1241484d7e69efad6ec0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "getUsers",
+          "filename": "Documents/AXIS/src/app/actions/team.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/team.ts",
+      "exportedName": "getUsers"
+    },
+    "4084d03fb8a4a5d2eef6e594428b529bb01339e4dc": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "getPermissions",
+          "filename": "Documents/AXIS/src/app/actions/team.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/team.ts",
+      "exportedName": "getPermissions"
+    },
+    "78c95dc64c996d1f4df4a9f25bb35959cb254be25d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/settings/team/page": {
+          "moduleId": 61575,
+          "async": true,
+          "exportedName": "updatePermission",
+          "filename": "Documents/AXIS/src/app/actions/team.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/team.ts",
+      "exportedName": "updatePermission"
+    },
+    "0072386b783868b3b3c7c6fa675011452fe5e5c601": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "getSuppliers",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts",
+      "exportedName": "getSuppliers"
+    },
+    "409d3d01923a95547b293e061318607d1901a2bd01": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "deleteSupplier",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts",
+      "exportedName": "deleteSupplier"
+    },
+    "40c13e5f67a9f81f6f5fca5aa22fe0905f36b5917e": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "createSupplier",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts",
+      "exportedName": "createSupplier"
+    },
+    "40e3690a18419ed3d2bbdb1f194586393af87bc7f9": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "getSupplierById",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts",
+      "exportedName": "getSupplierById"
+    },
+    "601ac49d86ccabf48aa74c544a0694c0d1cbeb484c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/suppliers/page": {
+          "moduleId": 11503,
+          "async": true,
+          "exportedName": "updateSupplier",
+          "filename": "Documents/AXIS/src/app/actions/supplier.ts"
+        }
+      },
+      "filename": "Documents/AXIS/src/app/actions/supplier.ts",
+      "exportedName": "updateSupplier"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "OAV2VTVsfhy+hd55iGg6huzMZEhGudWEOxE756TXH3c="
+}

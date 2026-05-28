@@ -1,0 +1,65 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "40ad7409bf1986d3674d555c90cf46bbb54b3b125c": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "getJournalEntries",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getJournalEntries",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "401a2fe51ba1342c357325fb087e9e0ac4c075fb2d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "getLedgerEntriesWithShadow",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "getLedgerEntriesWithShadow",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "60c156352e2a1c5befede0a78a89a6531f3702a4d0": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "postInvoiceToLedger",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "postInvoiceToLedger",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    },
+    "604e55fb06bf386016aa5ce7af6194cade4ee4aa97": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/accounting/page": {
+          "moduleId": 82007,
+          "async": true,
+          "exportedName": "voidJournalEntry",
+          "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+        }
+      },
+      "exportedName": "voidJournalEntry",
+      "filename": "Documents/AXIS/src/app/actions/accounting.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,53 @@
+{
+  "node": {
+    "60c13ca3c78dd4fc5801265a8de0008cd0d546d9ad": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "processAgroVoiceCommand",
+          "filename": "Documents/AXIS/src/app/actions/ai.ts"
+        }
+      },
+      "exportedName": "processAgroVoiceCommand",
+      "filename": "Documents/AXIS/src/app/actions/ai.ts"
+    },
+    "40feea2cf2108070996834adbd7618ddff17b6317b": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "getSeasons",
+          "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+        }
+      },
+      "exportedName": "getSeasons",
+      "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+    },
+    "60774fd48be59de751df88ba1c2a5429738ccca11b": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "deleteSeason",
+          "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+        }
+      },
+      "exportedName": "deleteSeason",
+      "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+    },
+    "60d13965e4158004438d681fee6d5c6a1702f1560d": {
+      "workers": {
+        "app/(dashboard)/[tenantId]/seasons/page": {
+          "moduleId": 34732,
+          "async": false,
+          "exportedName": "createSeason",
+          "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+        }
+      },
+      "exportedName": "createSeason",
+      "filename": "Documents/AXIS/src/app/actions/seasons.ts"
+    }
+  },
+  "edge": {}
+}
