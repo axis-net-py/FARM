@@ -99,7 +99,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
               <Plus className="h-4 w-4" /> Novo Maquinário
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[2.5rem] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-8 sm:max-w-[450px]">
+          <DialogContent className="rounded-[2.5rem] bg-card border border-border p-8 sm:max-w-[450px]">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold font-heading text-primary">
                 Cadastrar Novo Maquinário
@@ -116,7 +116,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                   placeholder="Ex: Trator John Deere 6115J"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
 
@@ -127,7 +127,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                     id="type"
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="w-full rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-full bg-background border border-border text-foreground px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="Trator">Trator</option>
                     <option value="Colheitadeira">Colheitadeira</option>
@@ -144,7 +144,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                     placeholder="Ex: 1200"
                     value={hours}
                     onChange={(e) => setHours(e.target.value)}
-                    className="rounded-full bg-slate-50 dark:bg-slate-800"
+                    className="rounded-full bg-background border-border text-foreground"
                   />
                 </div>
               </div>
@@ -157,7 +157,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                     placeholder="Ex: John Deere"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    className="rounded-full bg-slate-50 dark:bg-slate-800"
+                    className="rounded-full bg-background border-border text-foreground"
                   />
                 </div>
                 <div className="space-y-2">
@@ -167,7 +167,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                     placeholder="Ex: 6115J"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    className="rounded-full bg-slate-50 dark:bg-slate-800"
+                    className="rounded-full bg-background border-border text-foreground"
                   />
                 </div>
               </div>
@@ -180,7 +180,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                   placeholder="Ex: 2021"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
 
@@ -206,11 +206,11 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
       </div>
 
       {/* Fleet Table */}
-      <Card className="rounded-[2.5rem] border-slate-200/50 shadow-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden">
+      <Card className="rounded-[2.5rem] border border-border shadow-md bg-card overflow-hidden">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50/50 dark:bg-slate-800/30">
+              <TableRow className="bg-muted/50 border-b border-border">
                 <TableHead className="font-bold">Máquina</TableHead>
                 <TableHead className="font-bold">Tipo</TableHead>
                 <TableHead className="font-bold">Marca / Modelo</TableHead>
@@ -228,7 +228,7 @@ export function FleetList({ initialMachinery, tenantId }: { initialMachinery: Ma
                 </TableRow>
               ) : (
                 machinery.map((machine) => (
-                  <TableRow key={machine.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors">
+                  <TableRow key={machine.id} className="hover:bg-muted/30 border-b border-border transition-colors">
                     <TableCell className="font-medium flex items-center gap-2">
                       <Truck className="h-4 w-4 text-primary shrink-0" />
                       {machine.name}

@@ -4,10 +4,18 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "STELLIUM"
+    "STELLIUM",
+    "AURELIUS"
   ],
   "scripts": {
-    "dev": "pnpm --filter axis-erp dev",
-    "build": "pnpm --filter axis-erp build"
+    "dev": "pnpm --filter aurelius-erp dev",
+    "build": "pnpm --filter aurelius-erp build"
+  },
+  "dependencies": {
+    "next": "16.2.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "prisma": "^6.8.2",
+    "@prisma/client": "6.19.3"
   }
 }

@@ -92,7 +92,7 @@ export function FieldList({ initialFields, tenantId }: { initialFields: Field[];
               <Plus className="h-4 w-4" /> Novo Talhão
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[2.5rem] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-8 sm:max-w-[425px]">
+          <DialogContent className="rounded-[2.5rem] bg-card border border-border p-8 sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold font-heading text-primary">
                 Adicionar Novo Talhão
@@ -109,7 +109,7 @@ export function FieldList({ initialFields, tenantId }: { initialFields: Field[];
                   placeholder="Ex: Talhão Norte"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -120,7 +120,7 @@ export function FieldList({ initialFields, tenantId }: { initialFields: Field[];
                   placeholder="Ex: 150"
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -129,7 +129,7 @@ export function FieldList({ initialFields, tenantId }: { initialFields: Field[];
                   id="soilType"
                   value={soilType}
                   onChange={(e) => setSoilType(e.target.value)}
-                  className="w-full rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-full bg-background border border-border text-foreground px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="Argiloso">Argiloso</option>
                   <option value="Arenoso">Arenoso</option>
@@ -160,11 +160,11 @@ export function FieldList({ initialFields, tenantId }: { initialFields: Field[];
       </div>
 
       {/* Fields Table */}
-      <Card className="rounded-[2.5rem] border-slate-200/50 shadow-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden">
+      <Card className="rounded-[2.5rem] border border-border shadow-md bg-card overflow-hidden">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50/50 dark:bg-slate-800/30">
+              <TableRow className="bg-muted/50 border-b border-border">
                 <TableHead className="font-bold">Nome do Talhão</TableHead>
                 <TableHead className="font-bold">Área (ha)</TableHead>
                 <TableHead className="font-bold">Tipo de Solo</TableHead>
@@ -181,7 +181,7 @@ export function FieldList({ initialFields, tenantId }: { initialFields: Field[];
                 </TableRow>
               ) : (
                 fields.map((field) => (
-                  <TableRow key={field.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors">
+                  <TableRow key={field.id} className="hover:bg-muted/30 border-b border-border transition-colors">
                     <TableCell className="font-medium flex items-center gap-2">
                       <Compass className="h-4 w-4 text-primary shrink-0" />
                       {field.name}

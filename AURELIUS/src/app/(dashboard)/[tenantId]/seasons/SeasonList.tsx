@@ -90,7 +90,7 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
               <Plus className="h-4 w-4" /> Nova Safra
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[2.5rem] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-8 sm:max-w-[425px]">
+          <DialogContent className="rounded-[2.5rem] bg-card border border-border p-8 sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold font-heading text-primary">
                 Adicionar Nova Safra
@@ -107,7 +107,7 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
                   placeholder="Ex: Safra de Soja 2026"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -116,7 +116,7 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
                   id="crop"
                   value={crop}
                   onChange={(e) => setCrop(e.target.value)}
-                  className="w-full rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-full bg-background border border-border text-foreground px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="Soja">Soja</option>
                   <option value="Milho">Milho</option>
@@ -133,7 +133,7 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -143,7 +143,7 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="rounded-full bg-slate-50 dark:bg-slate-800"
+                  className="rounded-full bg-background border-border text-foreground"
                 />
               </div>
 
@@ -169,11 +169,11 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
       </div>
 
       {/* Seasons Table */}
-      <Card className="rounded-[2.5rem] border-slate-200/50 shadow-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden">
+      <Card className="rounded-[2.5rem] border border-border shadow-md bg-card overflow-hidden">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50/50 dark:bg-slate-800/30">
+              <TableRow className="bg-muted/50 border-b border-border">
                 <TableHead className="font-bold">Nome da Safra</TableHead>
                 <TableHead className="font-bold">Cultura</TableHead>
                 <TableHead className="font-bold">Data Início</TableHead>
@@ -191,7 +191,7 @@ export function SeasonList({ initialSeasons, tenantId }: { initialSeasons: Seaso
                 </TableRow>
               ) : (
                 seasons.map((season) => (
-                  <TableRow key={season.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors">
+                  <TableRow key={season.id} className="hover:bg-muted/30 border-b border-border transition-colors">
                     <TableCell className="font-medium flex items-center gap-2">
                       <Sprout className="h-4 w-4 text-primary shrink-0" />
                       {season.name}
