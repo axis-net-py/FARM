@@ -112,15 +112,15 @@ export function AgroWeatherTelemetry() {
   return (
     <div className="grid grid-cols-1 gap-4">
       {/* Geolocation Weather Card */}
-      <Card className="rounded-[2rem] border-slate-200/50 shadow-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden transition-all duration-300 hover:shadow-lg">
-        <CardHeader className="border-b border-border/50 bg-slate-50/50 dark:bg-slate-800/50 px-5 py-4 flex flex-row items-center justify-between">
+      <Card className="rounded-xl border border-border shadow-sm bg-card text-card-foreground overflow-hidden transition-all duration-300 hover:shadow-md">
+        <CardHeader className="border-b border-border bg-muted/30 px-5 py-4 flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-bold flex items-center gap-2 text-primary">
             <CloudSun className="h-4.5 w-4.5" />
             Previsão Agro-Climática (GPS)
           </CardTitle>
           <button 
             onClick={getGeolocation} 
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors"
+            className="p-1.5 hover:bg-muted rounded-full transition-colors"
             title="Recarregar localização"
           >
             <RefreshCw className={`h-3.5 w-3.5 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
@@ -146,7 +146,7 @@ export function AgroWeatherTelemetry() {
                     <CloudSun className="h-8 w-8 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold font-heading text-slate-800 dark:text-slate-100">
+                    <h3 className="text-xl font-bold font-heading text-foreground">
                       {weather?.temp}°C
                     </h3>
                     <p className="text-xs font-semibold text-primary">
@@ -164,25 +164,25 @@ export function AgroWeatherTelemetry() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/50">
-                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl flex flex-col items-center justify-center text-center">
+              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border">
+                <div className="p-2 bg-muted/40 rounded-xl flex flex-col items-center justify-center text-center">
                   <Thermometer className="h-4 w-4 text-amber-500 mb-0.5" />
                   <span className="text-[9px] text-muted-foreground font-medium">Temp.</span>
-                  <span className="text-xs font-bold mt-0.5 text-slate-800 dark:text-slate-100">
+                  <span className="text-xs font-bold mt-0.5 text-foreground">
                     {weather?.temp}°C
                   </span>
                 </div>
-                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl flex flex-col items-center justify-center text-center">
+                <div className="p-2 bg-muted/40 rounded-xl flex flex-col items-center justify-center text-center">
                   <Wind className="h-4 w-4 text-blue-500 mb-0.5" />
                   <span className="text-[9px] text-muted-foreground font-medium">Vento</span>
-                  <span className="text-xs font-bold mt-0.5 text-slate-800 dark:text-slate-100">
+                  <span className="text-xs font-bold mt-0.5 text-foreground">
                     {weather?.windSpeed} km/h
                   </span>
                 </div>
-                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl flex flex-col items-center justify-center text-center">
+                <div className="p-2 bg-muted/40 rounded-xl flex flex-col items-center justify-center text-center">
                   <Droplets className="h-4 w-4 text-indigo-500 mb-0.5" />
                   <span className="text-[9px] text-muted-foreground font-medium">Umidade</span>
-                  <span className="text-xs font-bold mt-0.5 text-slate-800 dark:text-slate-100">
+                  <span className="text-xs font-bold mt-0.5 text-foreground">
                     {weather?.humidity}%
                   </span>
                 </div>
@@ -193,8 +193,8 @@ export function AgroWeatherTelemetry() {
       </Card>
 
       {/* Telemetry Gauge Card */}
-      <Card className="rounded-[2rem] border-slate-200/50 shadow-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden transition-all duration-300 hover:shadow-lg">
-        <CardHeader className="border-b border-border/50 bg-slate-50/50 dark:bg-slate-800/50 px-5 py-4">
+      <Card className="rounded-xl border border-border shadow-sm bg-card text-card-foreground overflow-hidden transition-all duration-300 hover:shadow-md">
+        <CardHeader className="border-b border-border bg-muted/30 px-5 py-4">
           <CardTitle className="text-sm font-bold flex items-center gap-2 text-primary">
             <Gauge className="h-4.5 w-4.5" />
             Telemetria da Frota (Real-Time)
@@ -207,7 +207,7 @@ export function AgroWeatherTelemetry() {
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <svg className="absolute w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-slate-100 dark:text-slate-800"
+                    className="text-border/40"
                     strokeWidth="3.5"
                     stroke="currentColor"
                     fill="none"
@@ -224,7 +224,7 @@ export function AgroWeatherTelemetry() {
                   />
                 </svg>
                 <div className="flex flex-col items-center z-10">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  <span className="text-xs font-bold text-foreground">
                     {telemetry.engineLoad}%
                   </span>
                 </div>
@@ -239,7 +239,7 @@ export function AgroWeatherTelemetry() {
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <svg className="absolute w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-slate-100 dark:text-slate-800"
+                    className="text-border/40"
                     strokeWidth="3.5"
                     stroke="currentColor"
                     fill="none"
@@ -256,7 +256,7 @@ export function AgroWeatherTelemetry() {
                   />
                 </svg>
                 <div className="flex flex-col items-center z-10">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  <span className="text-xs font-bold text-foreground">
                     {telemetry.fuelRate}
                   </span>
                   <span className="text-[8px] text-muted-foreground">L/h</span>
@@ -268,11 +268,11 @@ export function AgroWeatherTelemetry() {
             </div>
           </div>
 
-          <div className="border-t border-border/50 pt-3 flex justify-between items-center text-xs font-medium">
+          <div className="border-t border-border pt-3 flex justify-between items-center text-xs font-medium">
             <span className="text-muted-foreground flex items-center gap-1.5">
               <Zap className="h-3.5 w-3.5 text-primary" /> Velocidade Média
             </span>
-            <span className="font-bold text-slate-800 dark:text-slate-100">{telemetry.speed} km/h</span>
+            <span className="font-bold text-foreground">{telemetry.speed} km/h</span>
           </div>
         </CardContent>
       </Card>
