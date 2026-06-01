@@ -1,28 +1,50 @@
-# build output
-dist/
-# generated types
-.astro/
-
 # dependencies
 node_modules/
 
+# build outputs
+.next/
+.next-turbo/
+
+# environment
+.env
+.env.local
+.env.*.local
+
+# build artifacts
+build/
+dist/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
 # logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
+# testing
+coverage/
+.nyc_output/
 
-# environment variables
-.env
-.env.production
+# misc
+*.tsbuildinfo
+.next-env.d.ts
+tsconfig.tsbuildinfo
 
-# macOS-specific files
-.DS_Store
+# vercel
+.vercel/
 
-# jetbrains setting folder
-.idea/
+# drizzle
+drizzle/
 
 .vercel
-.env*.local
 .tmp.driveupload/

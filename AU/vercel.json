@@ -1,5 +1,0 @@
-{
-  "installCommand": "pnpm install --no-frozen-lockfile",
-  "buildCommand": "pnpm --filter aurelius-erp build",
-  "outputDirectory": "AURELIUS/.next"
-}
