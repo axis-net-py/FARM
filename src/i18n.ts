@@ -1,12 +1,13 @@
-import { notFound } from 'next/navigation';
 import { getRequestConfig } from 'next-intl/server';
+import { cookies } from 'next/headers';
 
-export default getRequestConfig(async ({ locale }) => {
-  const loc = locale as string;
-  if (!['pt-BR', 'es-PY'].includes(loc)) notFound();
+export default getRequestConfig(async () => {
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get('NEXT_LOCALE')?.value || 'pt-BR';
+  const locale = ['pt-BR', 'es-PY'].includes(rawLocale) ? rawLocale : 'pt-BR';
 
   return {
-    locale: loc,
-    messages: (await import(`../messages/${loc}.json`)).default,
+    locale,
+    messages: (await import(`../messages/${locale}.json`)).default,
   };
 });
