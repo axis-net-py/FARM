@@ -162,10 +162,68 @@ function localNlpProcessor(text: string) {
     };
   }
 
+  // 5. CONTRATO
+  if (cleanText.includes("contrato")) {
+    let contractNumber = `CT-${Math.floor(100 + Math.random() * 900)}`;
+    let siloName = "Silo Geral";
+    let grainType = "soja";
+    let quantity = 100;
+    let unit = "TON";
+    let pricePerUnit = 20;
+    let currency = "USD";
+
+    const numMatch = cleanText.match(/(?:número|nro|nº|numero|contrato)\s*([a-zA-Z0-9-]+)/i);
+    if (numMatch) contractNumber = numMatch[1].toUpperCase();
+
+    const siloMatch = cleanText.match(/(?:silo|silos|comprador)\s+([a-zA-Z0-9áàâãäéèêëíìîïóòôõöúùûüçñÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇÑ]+)/i);
+    if (siloMatch) {
+      const potentialSilo = siloMatch[1].trim();
+      if (!["soja", "milho", "trigo", "arroz", "algodao", "tonelada", "toneladas", "sacas", "quilos"].includes(potentialSilo.toLowerCase())) {
+        siloName = "Silo " + potentialSilo.charAt(0).toUpperCase() + potentialSilo.slice(1);
+      }
+    }
+
+    const grainMatch = cleanText.match(/(soja|milho|trigo|algodão|algodao|arroz)/i);
+    if (grainMatch) grainType = grainMatch[1].toLowerCase().replace("algodão", "algodao");
+
+    const qtyMatch = cleanText.match(/(\d+(?:[.,]\d+)?)\s*(toneladas|tonelada|ton|sacas|saca|sc|quilos|quilo|kg)/i);
+    if (qtyMatch) {
+      quantity = parseFloat(qtyMatch[1].replace(",", "."));
+      const unitStr = qtyMatch[2].toLowerCase();
+      if (unitStr.startsWith("ton")) unit = "TON";
+      else if (unitStr.startsWith("saca") || unitStr.startsWith("sc")) unit = "BAG";
+      else if (unitStr.startsWith("kg") || unitStr.startsWith("quilo")) unit = "KG";
+    }
+
+    const priceMatch = cleanText.match(/(?:por|a|preço|precio)\s*(\d+(?:[.,]\d+)?)\s*(dolares|dólares|usd|\$|reais|brl|r\$|guaranis|pyg|g\$)/i);
+    if (priceMatch) {
+      pricePerUnit = parseFloat(priceMatch[1].replace(",", "."));
+      const curStr = priceMatch[2].toLowerCase();
+      if (curStr.includes("dolar") || curStr.includes("usd") || curStr.includes("$")) currency = "USD";
+      else if (curStr.includes("real") || curStr.includes("brl") || curStr.includes("r$")) currency = "BRL";
+      else if (curStr.includes("guarani") || curStr.includes("pyg") || curStr.includes("g$")) currency = "PYG";
+    }
+
+    return {
+      action: "create_contract",
+      data: {
+        contractNumber,
+        siloName,
+        grainType,
+        quantity,
+        unit,
+        pricePerUnit,
+        currency,
+        status: "ACTIVE",
+      },
+      message: `Contrato de venda "${contractNumber}" para o ${siloName} (${quantity} ${unit.toLowerCase()} de ${grainType}) cadastrado com sucesso!`
+    };
+  }
+
   // default response
   return {
     action: "chat",
-    message: `Olá! Eu entendi: "${text}". Posso ajudar você a gerenciar safras, talhões, frota ou funcionários. Diga comandos como "cadastrar safra Soja 2026" ou "adicionar talhão Norte de 15 hectares".`
+    message: `Olá! Eu entendi: "${text}". Posso ajudar você a gerenciar safras, talhões, frota, funcionários ou contratos de grãos. Diga comandos como "cadastrar contrato 202 de soja para silo Alfa de 500 toneladas".`
   };
 }
 
@@ -233,11 +291,12 @@ export async function POST(req: NextRequest) {
 
       if (process.env.GEMINI_API_KEY) {
         const prompt = `Analise a intenção do usuário: "${text}".
-Temos quatro ações possíveis de cadastro no ERP agrícola:
+Tenemos cinco ações possíveis de cadastro no ERP agrícola:
 1. "create_harvest" (Safra): campos { name: string, cropType: "soja"|"milho"|"trigo"|"algodao"|"arroz"|"outro", startDate: ISOString, endDate: ISOString }
 2. "create_plot" (Talhão): campos { name: string, area: number, unit: "HECTARE"|"ALQUEIRE", status: "PLANTED"|"FALLOW"|"PREPARING" }
 3. "create_vehicle" (Frota): campos { name: string, type: "trator"|"colheitadeira"|"pulverizador"|"caminhao"|"implemento"|"outro", status: "OPERATIONAL"|"MAINTENANCE"|"OUT_OF_SERVICE" }
 4. "create_employee" (Funcionário): campos { name: string, role: string, status: "ACTIVE"|"INACTIVE"|"LEAVE" }
+5. "create_contract" (Contrato): campos { contractNumber: string, siloName: string, grainType: string, quantity: number, unit: "TON"|"BAG"|"KG", pricePerUnit: number, currency: "USD"|"PYG"|"BRL", notes?: string }
 
 Se a intenção do usuário corresponder a um cadastro, retorne um objeto JSON puro (sem markdown \`\`\`) contendo:
 {
@@ -248,7 +307,7 @@ Se a intenção do usuário corresponder a um cadastro, retorne um objeto JSON p
 Se for apenas conversa ou dúvida, retorne:
 {
   "action": "chat",
-  "message": "Sua resposta amigável sobre o sistema AURELIUS ERP agrícola"
+  "message": "Sua resposta amigável sobre o sistema AURELIUS ERP agrícola contendo contratos de grãos"
 }`;
         const geminiResponse = await callGemini(prompt);
         if (geminiResponse) {
@@ -305,6 +364,22 @@ Se for apenas conversa ou dúvida, retorne:
             name: result.data.name,
             role: result.data.role,
             status: result.data.status || "ACTIVE"
+          }
+        });
+      } else if (result.action === "create_contract") {
+        await prisma.contract.create({
+          data: {
+            tenantId,
+            contractNumber: result.data.contractNumber,
+            siloName: result.data.siloName,
+            grainType: result.data.grainType,
+            quantity: new Decimal(result.data.quantity),
+            unit: result.data.unit || "TON",
+            pricePerUnit: new Decimal(result.data.pricePerUnit),
+            currency: result.data.currency || "USD",
+            status: result.data.status || "ACTIVE",
+            notes: result.data.notes || null,
+            harvestId: result.data.harvestId === "none" || !result.data.harvestId ? null : result.data.harvestId
           }
         });
       }

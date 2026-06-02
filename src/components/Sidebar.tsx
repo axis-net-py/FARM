@@ -17,6 +17,7 @@ import {
   Map,
   Tractor,
   UserCheck,
+  Handshake,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -35,6 +36,7 @@ const navItems = [
   { icon: Map,             key: "talhoes",    defaultLabel: "Talhões",      href: "talhoes" },
   { icon: Tractor,         key: "frota",      defaultLabel: "Frota",        href: "frota" },
   { icon: UserCheck,       key: "funcionarios", defaultLabel: "Funcionários", href: "funcionarios" },
+  { icon: Handshake,       key: "contratos",  defaultLabel: "Contratos",    href: "contratos" },
   { icon: BookOpen,        key: "accounting", defaultLabel: "Contabilidade",href: "accounting" },
   { icon: BarChart3,       key: "reports",    defaultLabel: "Relatórios",   href: "reports" },
 ];
@@ -59,6 +61,7 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
       talhoes: "Talhões",
       frota: "Frota",
       funcionarios: "Funcionários",
+      contratos: "Contratos",
       accounting: "Contabilidade",
       reports: "Relatórios",
       cambio: "Câmbio",
@@ -74,6 +77,7 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
       talhoes: "Parcelas",
       frota: "Flota",
       funcionarios: "Personal",
+      contratos: "Contratos",
       accounting: "Contabilidad",
       reports: "Reportes",
       cambio: "Cambio",

@@ -8,37 +8,73 @@ export async function getDashboardStats(dateRange?: { start?: Date; end?: Date }
   if (!session?.user?.tenantId) throw new Error("Tenant nao encontrado");
   const tenantId = session.user.tenantId;
 
-  const startDate = dateRange?.start || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const endDate = dateRange?.end || new Date();
-
-  const [sales, purchases, lowStock, liquidity] = await Promise.all([
-    prisma.commercialInvoice.aggregate({
-      where: { tenantId, type: "SALES", status: "APPROVED", issuedAt: { gte: startDate, lte: endDate } },
-      _sum: { totalAmount: true },
-      _count: true,
+  const [
+    activeHarvestsCount,
+    totalHarvestsCount,
+    activePlots,
+    allPlots,
+    operationalVehiclesCount,
+    totalVehiclesCount,
+    activeEmployeesCount,
+    totalEmployeesCount,
+  ] = await Promise.all([
+    prisma.harvest.count({
+      where: { tenantId, status: "ACTIVE" },
     }),
-    prisma.commercialInvoice.aggregate({
-      where: { tenantId, type: "PURCHASE", status: "APPROVED", issuedAt: { gte: startDate, lte: endDate } },
-      _sum: { totalAmount: true },
-      _count: true,
+    prisma.harvest.count({
+      where: { tenantId },
     }),
-    prisma.$queryRaw<[{ count: bigint }]>`
-      SELECT COUNT(*)::bigint as count FROM "Product"
-      WHERE "tenantId" = ${tenantId} AND "isActive" = true AND "currentStock" <= "minStock"
-    `.then((r) => Number(r[0]?.count ?? 0)),
-    prisma.commercialInvoice.aggregate({
-      where: { tenantId, type: "SALES", status: "APPROVED" },
-      _sum: { totalAmount: true },
+    prisma.plot.findMany({
+      where: { tenantId, status: "PLANTED" },
+      select: { area: true, unit: true },
+    }),
+    prisma.plot.findMany({
+      where: { tenantId },
+      select: { area: true, unit: true },
+    }),
+    prisma.vehicle.count({
+      where: { tenantId, status: "OPERATIONAL" },
+    }),
+    prisma.vehicle.count({
+      where: { tenantId },
+    }),
+    prisma.employee.count({
+      where: { tenantId, status: "ACTIVE" },
+    }),
+    prisma.employee.count({
+      where: { tenantId },
     }),
   ]);
 
+  const activeArea = { HECTARE: 0, ALQUEIRE: 0 };
+  for (const plot of activePlots) {
+    const val = Number(plot.area || 0);
+    if (plot.unit === "ALQUEIRE") {
+      activeArea.ALQUEIRE += val;
+    } else {
+      activeArea.HECTARE += val;
+    }
+  }
+
+  const totalArea = { HECTARE: 0, ALQUEIRE: 0 };
+  for (const plot of allPlots) {
+    const val = Number(plot.area || 0);
+    if (plot.unit === "ALQUEIRE") {
+      totalArea.ALQUEIRE += val;
+    } else {
+      totalArea.HECTARE += val;
+    }
+  }
+
   return {
-    salesTotal: sales._sum.totalAmount || 0,
-    salesCount: sales._count || 0,
-    purchasesTotal: purchases._sum.totalAmount || 0,
-    purchasesCount: purchases._count || 0,
-    lowStockAlerts: lowStock,
-    liquidity: liquidity._sum.totalAmount || 0,
+    activeHarvests: activeHarvestsCount,
+    totalHarvests: totalHarvestsCount,
+    activeArea,
+    totalArea,
+    operationalVehicles: operationalVehiclesCount,
+    totalVehicles: totalVehiclesCount,
+    activeEmployees: activeEmployeesCount,
+    totalEmployees: totalEmployeesCount,
   };
 }
 

@@ -89,6 +89,7 @@ model Tenant {
   plots             Plot[]
   vehicles          Vehicle[]
   employees         Employee[]
+  contracts         Contract[]
 }
 
 // ─── User ───────────────────────────────────────────────────
@@ -402,6 +403,7 @@ model Harvest {
   updatedAt   DateTime @updatedAt
 
   plots       Plot[]
+  contracts   Contract[]
 
   @@index([tenantId])
 }
@@ -451,4 +453,27 @@ model Employee {
   updatedAt   DateTime @updatedAt
 
   @@index([tenantId])
+}
+
+model Contract {
+  id             String    @id @default(cuid())
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  contractNumber String
+  harvestId      String?
+  harvest        Harvest?  @relation(fields: [harvestId], references: [id])
+  siloName       String
+  grainType      String    // soja, milho, trigo, etc.
+  quantity       Decimal   @db.Decimal(12, 2)
+  unit           String    @default("TON") // TON, BAG, KG
+  pricePerUnit   Decimal   @db.Decimal(12, 2)
+  currency       Currency  @default(USD)
+  status         String    @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  deliveryDate   DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([harvestId])
 }
