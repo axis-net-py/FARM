@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email e senha são obrigatórios");
+          return null;
         }
 
         const user = await prisma.user.findUnique({
@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
-          throw new Error("Credenciais inválidas");
+          return null;
         }
 
         const isValidPassword = await compare(
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isValidPassword) {
-          throw new Error("Credenciais inválidas");
+          return null;
         }
 
         return {
