@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { DashboardShell } from "@/components/DashboardShell";
+import { AIAssistant } from "@/components/AIAssistant";
 
 export default async function DashboardLayout({
   children,
@@ -21,5 +22,10 @@ export default async function DashboardLayout({
     redirect(`/${session.user.tenantId}/dashboard`);
   }
 
-  return <DashboardShell tenantId={tenantId}>{children}</DashboardShell>;
+  return (
+    <>
+      <DashboardShell tenantId={tenantId}>{children}</DashboardShell>
+      <AIAssistant tenantId={tenantId} />
+    </>
+  );
 }

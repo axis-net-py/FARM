@@ -12,7 +12,7 @@ export type ReportItem = {
 };
 
 export async function getReportData(
-  type: "sales" | "purchases" | "inventory",
+  type: "sales" | "purchases" | "inventory" | "harvests" | "plots" | "vehicles" | "employees",
   startDateStr?: string,
   endDateStr?: string
 ): Promise<ReportItem[]> {
@@ -69,8 +69,7 @@ export async function getReportData(
       currency: inv.currency as string,
       details: inv.supplier?.name || "Fornecedor",
     }));
-  } else {
-    // Inventory
+  } else if (type === "inventory") {
     const movements = await prisma.inventoryMovement.findMany({
       where: {
         tenantId,
@@ -89,6 +88,73 @@ export async function getReportData(
       total: Number(mov.quantity),
       currency: mov.type === "ENTRADA" ? "ENTRADA" : "SAÍDA",
       details: `${mov.product?.sku} - ${mov.product?.name}`,
+    }));
+  } else if (type === "harvests") {
+    const harvests = await prisma.harvest.findMany({
+      where: {
+        tenantId,
+        startDate: {
+          gte: startDate,
+        },
+      },
+      orderBy: { startDate: "desc" },
+    });
+
+    return harvests.map((h) => {
+      const days = Math.ceil((new Date(h.endDate).getTime() - new Date(h.startDate).getTime()) / 86400000);
+      return {
+        id: h.id,
+        date: h.startDate.toISOString().split("T")[0],
+        total: days,
+        currency: h.cropType,
+        details: `${h.name} (${h.status === "ACTIVE" ? "Ativa" : h.status === "COMPLETED" ? "Concluída" : "Planejada"})`,
+      };
+    });
+  } else if (type === "plots") {
+    const plots = await prisma.plot.findMany({
+      where: {
+        tenantId,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return plots.map((p) => ({
+      id: p.id,
+      date: p.createdAt.toISOString().split("T")[0],
+      total: Number(p.area),
+      currency: p.unit,
+      details: `${p.name} - Cultura: ${p.currentCrop || "Nenhuma"} (${p.status === "PLANTED" ? "Plantado" : p.status === "FALLOW" ? "Pousio" : "Preparando"})`,
+    }));
+  } else if (type === "vehicles") {
+    const vehicles = await prisma.vehicle.findMany({
+      where: {
+        tenantId,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return vehicles.map((v) => ({
+      id: v.id,
+      date: v.lastMaintenance ? v.lastMaintenance.toISOString().split("T")[0] : v.createdAt.toISOString().split("T")[0],
+      total: 0,
+      currency: v.type,
+      details: `${v.name} (Placa: ${v.plate || "S/N"}) - Status: ${v.status === "OPERATIONAL" ? "Operando" : v.status === "MAINTENANCE" ? "Em Manutenção" : "Fora de Serviço"}`,
+    }));
+  } else {
+    // employees
+    const employees = await prisma.employee.findMany({
+      where: {
+        tenantId,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return employees.map((e) => ({
+      id: e.id,
+      date: e.createdAt.toISOString().split("T")[0],
+      total: 0,
+      currency: e.role,
+      details: `${e.name} (Contato: ${e.phone || "S/T"}) - Status: ${e.status === "ACTIVE" ? "Ativo" : e.status === "INACTIVE" ? "Inativo" : "Afastado"}`,
     }));
   }
 }

@@ -13,6 +13,10 @@ import {
   Settings,
   RefreshCw,
   ChevronRight,
+  Sprout,
+  Map,
+  Tractor,
+  UserCheck,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -27,6 +31,10 @@ const navItems = [
   { icon: Package,         key: "products",   defaultLabel: "Produtos",     href: "products" },
   { icon: Users,           key: "customers",  defaultLabel: "Clientes",     href: "customers" },
   { icon: Truck,           key: "suppliers",  defaultLabel: "Fornecedores", href: "suppliers" },
+  { icon: Sprout,          key: "safra",      defaultLabel: "Safras",       href: "safra" },
+  { icon: Map,             key: "talhoes",    defaultLabel: "Talhões",      href: "talhoes" },
+  { icon: Tractor,         key: "frota",      defaultLabel: "Frota",        href: "frota" },
+  { icon: UserCheck,       key: "funcionarios", defaultLabel: "Funcionários", href: "funcionarios" },
   { icon: BookOpen,        key: "accounting", defaultLabel: "Contabilidade",href: "accounting" },
   { icon: BarChart3,       key: "reports",    defaultLabel: "Relatórios",   href: "reports" },
 ];
@@ -47,6 +55,10 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
       products: "Produtos",
       customers: "Clientes",
       suppliers: "Fornecedores",
+      safra: "Safras",
+      talhoes: "Talhões",
+      frota: "Frota",
+      funcionarios: "Funcionários",
       accounting: "Contabilidade",
       reports: "Relatórios",
       cambio: "Câmbio",
@@ -58,6 +70,10 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
       products: "Productos",
       customers: "Clientes",
       suppliers: "Proveedores",
+      safra: "Cosechas",
+      talhoes: "Parcelas",
+      frota: "Flota",
+      funcionarios: "Personal",
       accounting: "Contabilidad",
       reports: "Reportes",
       cambio: "Cambio",

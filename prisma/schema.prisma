@@ -85,6 +85,10 @@ model Tenant {
   permissions       Permission[]
   journalEntries    JournalEntry[]
   auditLogs         AuditLog[]
+  harvests          Harvest[]
+  plots             Plot[]
+  vehicles          Vehicle[]
+  employees         Employee[]
 }
 
 // ─── User ───────────────────────────────────────────────────
@@ -381,4 +385,70 @@ model AuditLog {
 
   @@index([tenantId])
   @@index([entity, entityId])
+}
+
+// ─── Agricultural Modules ───────────────────────────────────
+
+model Harvest {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  name        String
+  cropType    String   // soja, milho, trigo, etc.
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, PLANNED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plots       Plot[]
+
+  @@index([tenantId])
+}
+
+model Plot {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  name        String
+  area        Decimal  @db.Decimal(10, 2)
+  unit        String   @default("HECTARE") // HECTARE, ALQUEIRE
+  currentCrop String?
+  status      String   @default("PLANTED") // FALLOW, PLANTED, PREPARING
+  harvestId   String?
+  harvest     Harvest? @relation(fields: [harvestId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([harvestId])
+}
+
+model Vehicle {
+  id               String    @id @default(cuid())
+  tenantId         String
+  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  name             String
+  type             String    // trator, colheitadeira, pulverizador, caminhao, etc.
+  plate            String?
+  status           String    @default("OPERATIONAL") // OPERATIONAL, MAINTENANCE, OUT_OF_SERVICE
+  lastMaintenance  DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([tenantId])
+}
+
+model Employee {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  name        String
+  role        String   // tratorista, agronomo, operador, auxiliar, etc.
+  phone       String?
+  status      String   @default("ACTIVE") // ACTIVE, INACTIVE, LEAVE
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
 }

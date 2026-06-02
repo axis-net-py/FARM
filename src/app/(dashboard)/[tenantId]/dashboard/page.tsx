@@ -4,6 +4,7 @@ import { SalesChart } from '@/components/dashboard/SalesChart';
 import { TopProducts } from '@/components/dashboard/TopProducts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { WeatherCard } from '@/components/dashboard/WeatherCard';
 
 // Default date range - last 30 days
 const defaultDateRange = {
@@ -25,6 +26,9 @@ export default function DashboardPage() {
           Last 30 days
         </span>
       </div>
+
+      {/* GPS Weather Card */}
+      <WeatherCard />
 
       {/* Stats Cards */}
       <Suspense

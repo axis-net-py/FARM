@@ -13,7 +13,9 @@ import { formatCurrency } from "@/lib/format";
 export default function ReportsDashboard() {
   const { language } = useLanguage();
   const [loading, setLoading] = useState(false);
-  const [reportType, setReportType] = useState<"sales" | "purchases" | "inventory">("sales");
+  const [reportType, setReportType] = useState<
+    "sales" | "purchases" | "inventory" | "harvests" | "plots" | "vehicles" | "employees"
+  >("sales");
   const [startDate, setStartDate] = useState<string>(
     new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]
   );
@@ -25,11 +27,15 @@ export default function ReportsDashboard() {
   const labels = {
     pt: {
       title: "Relatórios",
-      subtitle: "Análise comercial, de compras e movimentação de inventário",
+      subtitle: "Análise comercial, compras, estoque e módulos agrícolas",
       type: "Tipo de Relatório",
       sales: "Relatório de Vendas",
       purchases: "Relatório de Compras",
       inventory: "Relatório de Estoque",
+      harvests: "Relatório de Safras",
+      plots: "Relatório de Talhões",
+      vehicles: "Relatório de Frota",
+      employees: "Relatório de Funcionários",
       startDate: "Data Inicial",
       endDate: "Data Final",
       filter: "Filtrar",
@@ -43,14 +49,30 @@ export default function ReportsDashboard() {
       movementType: "Tipo",
       loading: "Carregando...",
       noData: "Nenhum registro encontrado para o período",
+      // Agricultural fields
+      harvestDetails: "Safra / Cultura Principal",
+      cropType: "Cultura",
+      plotDetails: "Talhão / Cultura Atual",
+      plotUnit: "Unidade",
+      vehicleDetails: "Veículo / Modelo / Placa",
+      vehicleType: "Tipo de Veículo",
+      employeeDetails: "Funcionário / Contato",
+      employeeRole: "Cargo / Função",
+      cycleDuration: "Duração (Dias)",
+      areaSize: "Área",
+      count: "Quantidade Total",
     },
     es: {
       title: "Informes",
-      subtitle: "Análisis comercial, de compras y movimiento de inventario",
+      subtitle: "Análisis comercial, compras, inventario y módulos agrícolas",
       type: "Tipo de Informe",
       sales: "Informe de Ventas",
       purchases: "Informe de Compras",
       inventory: "Informe de Inventario",
+      harvests: "Informe de Cosechas",
+      plots: "Informe de Parcelas",
+      vehicles: "Informe de Flota",
+      employees: "Informe de Personal",
       startDate: "Fecha Inicial",
       endDate: "Fecha Final",
       filter: "Filtrar",
@@ -64,6 +86,18 @@ export default function ReportsDashboard() {
       movementType: "Tipo",
       loading: "Cargando...",
       noData: "No se encontraron registros para el período",
+      // Agricultural fields
+      harvestDetails: "Cosecha / Cultivo Principal",
+      cropType: "Cultivo",
+      plotDetails: "Parcela / Cultivo Actual",
+      plotUnit: "Unidad",
+      vehicleDetails: "Vehículo / Modelo / Chapa",
+      vehicleType: "Tipo de Vehículo",
+      employeeDetails: "Personal / Contacto",
+      employeeRole: "Cargo / Función",
+      cycleDuration: "Duración (Días)",
+      areaSize: "Área",
+      count: "Cantidad Total",
     },
   };
 
@@ -93,7 +127,7 @@ export default function ReportsDashboard() {
 
   // Calculate currency totals (grouped by currency) for sales and purchases
   const currencyTotals = data.reduce((acc, row) => {
-    if (reportType === "inventory") return acc;
+    if (reportType !== "sales" && reportType !== "purchases") return acc;
     const curr = row.currency || "PYG";
     acc[curr] = (acc[curr] || 0) + row.total;
     return acc;
@@ -108,6 +142,29 @@ export default function ReportsDashboard() {
     .filter(row => row.currency === "SAÍDA")
     .reduce((sum, row) => sum + row.total, 0);
 
+  // Agricultural specific calculations
+  const totalAreaByUnit = data.reduce((acc, row) => {
+    if (reportType !== "plots") return acc;
+    const unit = row.currency || "HECTARE";
+    acc[unit] = (acc[unit] || 0) + row.total;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const isAgriReport = ["harvests", "plots", "vehicles", "employees"].includes(reportType);
+
+  const getReportTitle = () => {
+    switch (reportType) {
+      case "sales": return t("sales");
+      case "purchases": return t("purchases");
+      case "inventory": return t("inventory");
+      case "harvests": return t("harvests");
+      case "plots": return t("plots");
+      case "vehicles": return t("vehicles");
+      case "employees": return t("employees");
+      default: return "";
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Print-Only Premium Document Header */}
@@ -116,11 +173,7 @@ export default function ReportsDashboard() {
           <div>
             <span className="text-[10px] uppercase tracking-widest text-primary font-bold">AXIS ERP — AURELIUS</span>
             <h1 className="text-2xl font-bold tracking-tight text-foreground mt-1 uppercase">
-              {reportType === "sales"
-                ? t("sales")
-                : reportType === "purchases"
-                ? t("purchases")
-                : t("inventory")}
+              {getReportTitle()}
             </h1>
             <p className="text-[11px] text-muted-foreground mt-1">
               Período: {startDate.split("-").reverse().join("/")} a {endDate.split("-").reverse().join("/")}
@@ -154,13 +207,17 @@ export default function ReportsDashboard() {
               value={reportType}
               onValueChange={(val: any) => setReportType(val)}
             >
-              <SelectTrigger className="w-[180px] rounded-lg border-border bg-card h-9 text-[13px] font-medium shadow-sm">
+              <SelectTrigger className="w-[220px] rounded-lg border-border bg-card h-9 text-[13px] font-medium shadow-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-lg border-border bg-card">
                 <SelectItem value="sales" className="text-[13px]">{t("sales")}</SelectItem>
                 <SelectItem value="purchases" className="text-[13px]">{t("purchases")}</SelectItem>
                 <SelectItem value="inventory" className="text-[13px]">{t("inventory")}</SelectItem>
+                <SelectItem value="harvests" className="text-[13px]">{t("harvests")}</SelectItem>
+                <SelectItem value="plots" className="text-[13px]">{t("plots")}</SelectItem>
+                <SelectItem value="vehicles" className="text-[13px]">{t("vehicles")}</SelectItem>
+                <SelectItem value="employees" className="text-[13px]">{t("employees")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -219,11 +276,7 @@ export default function ReportsDashboard() {
         <CardHeader className="border-b border-border pb-4 no-print">
           <CardTitle className="text-[14px] font-bold text-foreground/80 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-primary" />
-            {reportType === "sales"
-              ? t("sales")
-              : reportType === "purchases"
-              ? t("purchases")
-              : t("inventory")}
+            {getReportTitle()}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -231,22 +284,46 @@ export default function ReportsDashboard() {
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold w-[120px]">
-                  {t("date")}
+                  {reportType === "vehicles" ? "Manutenção" : t("date")}
                 </TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                   {reportType === "sales"
                     ? t("customer")
                     : reportType === "purchases"
                     ? t("supplier")
-                    : t("product")}
+                    : reportType === "inventory"
+                    ? t("product")
+                    : reportType === "harvests"
+                    ? t("harvestDetails")
+                    : reportType === "plots"
+                    ? t("plotDetails")
+                    : reportType === "vehicles"
+                    ? t("vehicleDetails")
+                    : t("employeeDetails")}
                 </TableHead>
-                {reportType === "inventory" && (
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold w-[120px]">
-                    {t("movementType")}
+                {(reportType === "inventory" || isAgriReport) && (
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold w-[150px]">
+                    {reportType === "inventory"
+                      ? t("movementType")
+                      : reportType === "harvests"
+                      ? t("cropType")
+                      : reportType === "plots"
+                      ? t("plotUnit")
+                      : reportType === "vehicles"
+                      ? t("vehicleType")
+                      : t("employeeRole")}
                   </TableHead>
                 )}
                 <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-right w-[180px]">
-                  {reportType === "inventory" ? t("quantity") : t("total")}
+                  {reportType === "inventory"
+                    ? t("quantity")
+                    : reportType === "harvests"
+                    ? t("cycleDuration")
+                    : reportType === "plots"
+                    ? t("areaSize")
+                    : reportType === "vehicles" || reportType === "employees"
+                    ? ""
+                    : t("total")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -254,7 +331,7 @@ export default function ReportsDashboard() {
               {loading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={reportType === "inventory" ? 4 : 3}
+                    colSpan={reportType === "inventory" || isAgriReport ? 4 : 3}
                     className="text-center py-20"
                   >
                     <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
@@ -266,7 +343,7 @@ export default function ReportsDashboard() {
               ) : data.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={reportType === "inventory" ? 4 : 3}
+                    colSpan={reportType === "inventory" || isAgriReport ? 4 : 3}
                     className="text-center py-20"
                   >
                     <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest">
@@ -283,22 +360,38 @@ export default function ReportsDashboard() {
                     <TableCell className="text-[12px] text-foreground/75 font-medium">
                       {row.details}
                     </TableCell>
-                    {reportType === "inventory" && (
+                    {(reportType === "inventory" || isAgriReport) && (
                       <TableCell className="text-[12px]">
                         <span
-                          className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                          className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize"
                           style={{
-                            backgroundColor: row.currency === "ENTRADA" ? "var(--badge-posted-bg)" : "#fee2e2",
-                            color: row.currency === "ENTRADA" ? "var(--badge-posted-text)" : "#991b1b"
+                            backgroundColor:
+                              row.currency === "ENTRADA" || row.currency === "HECTARE"
+                                ? "var(--badge-posted-bg)"
+                                : row.currency === "SAÍDA" || row.currency === "ALQUEIRE"
+                                ? "#fee2e2"
+                                : "var(--accent-bg, rgba(var(--primary-rgb), 0.05))",
+                            color:
+                              row.currency === "ENTRADA" || row.currency === "HECTARE"
+                                ? "var(--badge-posted-text)"
+                                : row.currency === "SAÍDA" || row.currency === "ALQUEIRE"
+                                ? "#991b1b"
+                                : "var(--primary)",
                           }}
                         >
-                          {row.currency}
+                          {row.currency === "HECTARE" ? "Hectares (ha)" : row.currency === "ALQUEIRE" ? "Alqueires (alq)" : row.currency}
                         </span>
                       </TableCell>
                     )}
                     <TableCell className="text-right font-mono font-bold text-[12px] text-foreground/80">
                       {reportType === "inventory"
                         ? row.total.toFixed(2)
+                        : reportType === "harvests"
+                        ? `${row.total} dias`
+                        : reportType === "plots"
+                        ? `${row.total.toFixed(2)} ${row.currency === "HECTARE" ? "ha" : "alq"}`
+                        : reportType === "vehicles" || reportType === "employees"
+                        ? ""
                         : formatCurrency(row.total, row.currency)}
                     </TableCell>
                   </TableRow>
@@ -313,7 +406,7 @@ export default function ReportsDashboard() {
       {data.length > 0 && (
         <Card className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <div className="p-5 flex flex-wrap justify-end gap-8 bg-gradient-to-r from-muted/20 to-muted/5 print:bg-transparent print:border-t print:border-border">
-            {reportType !== "inventory" ? (
+            {reportType === "sales" || reportType === "purchases" ? (
               Object.entries(currencyTotals).map(([curr, total]) => (
                 <div key={curr} className="text-right">
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold block">
@@ -324,7 +417,7 @@ export default function ReportsDashboard() {
                   </span>
                 </div>
               ))
-            ) : (
+            ) : reportType === "inventory" ? (
               <>
                 <div className="text-right">
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold block">
@@ -343,6 +436,26 @@ export default function ReportsDashboard() {
                   </span>
                 </div>
               </>
+            ) : reportType === "plots" ? (
+              Object.entries(totalAreaByUnit).map(([unit, total]) => (
+                <div key={unit} className="text-right">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold block">
+                    Área Total ({unit === "HECTARE" ? "ha" : "alq"})
+                  </span>
+                  <span className="text-lg font-bold text-primary print:text-black mt-1 block">
+                    {total.toFixed(2)} {unit === "HECTARE" ? "ha" : "alq"}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-right">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold block">
+                  {t("count")}
+                </span>
+                <span className="text-lg font-bold text-primary print:text-black mt-1 block">
+                  {data.length}
+                </span>
+              </div>
             )}
           </div>
         </Card>
