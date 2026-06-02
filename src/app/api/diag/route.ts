@@ -9,6 +9,7 @@ export async function GET() {
       NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'not set',
       VERCEL_URL: process.env.VERCEL_URL || 'not set',
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'configured' : 'not set',
+      AUTH_SECRET: process.env.AUTH_SECRET ? 'configured' : 'not set',
       DATABASE_URL_SET: process.env.DATABASE_URL ? 'configured' : 'not set',
     }
   }
