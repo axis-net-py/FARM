@@ -129,7 +129,7 @@ export function WeatherCard() {
         message: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
         icon: <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 animate-pulse" />,
         bgColor: "bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 border-l-4 border-l-rose-500",
-        textColor: "text-rose-800 dark:text-rose-350",
+        textColor: "text-black dark:text-rose-300",
       };
     }
     if (wind > 20) {
@@ -139,7 +139,7 @@ export function WeatherCard() {
         message: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
         bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
-        textColor: "text-amber-800 dark:text-amber-350",
+        textColor: "text-black dark:text-amber-300",
       };
     }
     if (temp > 35) {
@@ -149,7 +149,7 @@ export function WeatherCard() {
         message: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
         bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
-        textColor: "text-amber-800 dark:text-amber-350",
+        textColor: "text-black dark:text-amber-300",
       };
     }
     return {
@@ -158,7 +158,7 @@ export function WeatherCard() {
       message: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
       icon: <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
       bgColor: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 border-l-4 border-l-emerald-500",
-      textColor: "text-emerald-800 dark:text-emerald-350",
+      textColor: "text-black dark:text-emerald-300",
     };
   };
 
