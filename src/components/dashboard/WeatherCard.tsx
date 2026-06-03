@@ -138,7 +138,7 @@ export function WeatherCard() {
         message: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
         icon: <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 animate-pulse" />,
         bgColor: "bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 border-l-4 border-l-rose-500",
-        textColor: "text-black dark:text-rose-300",
+        textColor: "text-rose-900 dark:text-rose-300",
       };
     }
     if (wind > 20) {
@@ -148,7 +148,7 @@ export function WeatherCard() {
         message: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
         bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
-        textColor: "text-black dark:text-amber-300",
+        textColor: "text-amber-900 dark:text-amber-300",
       };
     }
     if (temp > 35) {
@@ -158,7 +158,7 @@ export function WeatherCard() {
         message: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
         bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
-        textColor: "text-black dark:text-amber-300",
+        textColor: "text-amber-900 dark:text-amber-300",
       };
     }
     return {
@@ -167,7 +167,7 @@ export function WeatherCard() {
       message: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
       icon: <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
       bgColor: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 border-l-4 border-l-emerald-500",
-      textColor: "text-black dark:text-emerald-300",
+      textColor: "text-emerald-900 dark:text-emerald-300",
     };
   };
 
@@ -203,14 +203,14 @@ export function WeatherCard() {
         <div className="flex items-center gap-4 md:border-r border-border/50 md:pr-4">
           {getWeatherIcon(weather.weatherCode)}
           <div>
-            <div className="flex items-center text-xs text-black dark:text-slate-300 font-bold gap-1 uppercase tracking-wider mb-0.5">
+            <div className="flex items-center text-xs text-slate-800 dark:text-slate-200 font-bold gap-1 uppercase tracking-wider mb-0.5">
               <MapPin className="w-3.5 h-3.5 text-primary" />
               <span>{weather.locationName}</span>
             </div>
-            <div className="text-3xl font-extrabold tracking-tighter text-black dark:text-slate-50">
+            <div className="text-3xl font-extrabold tracking-tighter text-slate-900 dark:text-slate-50">
               {weather.temp.toFixed(1)}°C
             </div>
-            <div className="text-xs font-bold text-black dark:text-slate-400 uppercase tracking-widest mt-0.5">
+            <div className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mt-0.5">
               {getWeatherDescription(weather.weatherCode)}
             </div>
           </div>
@@ -220,18 +220,18 @@ export function WeatherCard() {
         <div className="grid grid-cols-3 gap-4 md:border-r border-border/50 md:pr-4">
           <div className="flex flex-col items-center justify-center text-center">
             <Droplets className="w-5 h-5 text-sky-600 dark:text-sky-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-black dark:text-slate-400 tracking-widest">Umidade</span>
-            <span className="text-sm font-extrabold text-black dark:text-slate-50 mt-0.5">{weather.humidity}%</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Umidade</span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.humidity}%</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
             <Wind className="w-5 h-5 text-teal-600 dark:text-teal-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-black dark:text-slate-400 tracking-widest">Ventos</span>
-            <span className="text-sm font-extrabold text-black dark:text-slate-50 mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Ventos</span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
             <CloudRain className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-black dark:text-slate-400 tracking-widest">Chuva</span>
-            <span className="text-sm font-extrabold text-black dark:text-slate-50 mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Chuva</span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
           </div>
         </div>
 
@@ -239,18 +239,8 @@ export function WeatherCard() {
         <div className={`p-4 rounded-lg ${advice.bgColor} flex gap-3 h-full items-start transition-all`}>
           {advice.icon}
           <div>
-            <div 
-              className={`text-xs font-extrabold uppercase tracking-widest mb-1 ${advice.textColor}`}
-              style={isDark ? {} : { color: '#000000' }}
-            >
-              {advice.title}
-            </div>
-            <p 
-              className="text-[11.5px] font-bold leading-relaxed text-black dark:text-slate-100"
-              style={isDark ? {} : { color: '#000000' }}
-            >
-              {advice.message}
-            </p>
+            <div className={`text-xs font-extrabold uppercase tracking-widest mb-1 ${advice.textColor}`}>{advice.title}</div>
+            <p className="text-[11.5px] font-semibold leading-relaxed text-slate-800 dark:text-slate-100">{advice.message}</p>
           </div>
         </div>
       </div>
