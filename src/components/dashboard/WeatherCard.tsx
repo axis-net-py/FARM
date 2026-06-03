@@ -128,8 +128,8 @@ export function WeatherCard() {
         title: "Alerta de Chuva",
         message: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
         icon: <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 animate-pulse" />,
-        bgColor: "bg-rose-500/5 dark:bg-rose-500/10 border-rose-500/20 border-l-4 border-l-rose-500",
-        textColor: "text-rose-700 dark:text-rose-400",
+        bgColor: "bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/40 border-l-4 border-l-rose-500",
+        textColor: "text-rose-800 dark:text-rose-300",
       };
     }
     if (wind > 20) {
@@ -138,8 +138,8 @@ export function WeatherCard() {
         title: "Vento Forte Detectado",
         message: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-        bgColor: "bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/20 border-l-4 border-l-amber-500",
-        textColor: "text-amber-700 dark:text-amber-400",
+        bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 border-l-4 border-l-amber-500",
+        textColor: "text-amber-800 dark:text-amber-300",
       };
     }
     if (temp > 35) {
@@ -148,8 +148,8 @@ export function WeatherCard() {
         title: "Calor Extremo",
         message: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-        bgColor: "bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/20 border-l-4 border-l-amber-500",
-        textColor: "text-amber-700 dark:text-amber-400",
+        bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 border-l-4 border-l-amber-500",
+        textColor: "text-amber-800 dark:text-amber-300",
       };
     }
     return {
@@ -157,8 +157,8 @@ export function WeatherCard() {
       title: "Condições Ideais",
       message: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
       icon: <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />,
-      bgColor: "bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/20 border-l-4 border-l-emerald-500",
-      textColor: "text-emerald-700 dark:text-emerald-400",
+      bgColor: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 border-l-4 border-l-emerald-500",
+      textColor: "text-emerald-800 dark:text-emerald-300",
     };
   };
 
@@ -191,7 +191,7 @@ export function WeatherCard() {
     <div className="border border-border rounded-xl bg-card overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl">
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
         {/* Left Side: Current Temperature and Location */}
-        <div className="flex items-center gap-4 border-r border-border/50 pr-4">
+        <div className="flex items-center gap-4 md:border-r border-border/50 md:pr-4">
           {getWeatherIcon(weather.weatherCode)}
           <div>
             <div className="flex items-center text-xs text-muted-foreground font-semibold gap-1 uppercase tracking-wider mb-0.5">
@@ -208,7 +208,7 @@ export function WeatherCard() {
         </div>
 
         {/* Center: Meteorological Details */}
-        <div className="grid grid-cols-3 gap-4 border-r border-border/50 pr-4">
+        <div className="grid grid-cols-3 gap-4 md:border-r border-border/50 md:pr-4">
           <div className="flex flex-col items-center justify-center text-center">
             <Droplets className="w-5 h-5 text-sky-400/80 mb-1" />
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Umidade</span>

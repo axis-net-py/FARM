@@ -170,8 +170,8 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
               className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 rounded-lg border border-border bg-background hover:bg-accent text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all"
               title={language === "pt" ? "Cambiar a Español" : "Mudar para Português"}
             >
-              <Globe className="h-3.5 w-3.5" />
-              <span>{language === "pt" ? "ES" : "PT"}</span>
+              <span className="text-sm leading-none">{language === "pt" ? "🇧🇷" : "🇵🇾"}</span>
+              <span>{language === "pt" ? "PT" : "ES"}</span>
             </button>
 
             {/* Theme Toggle Button */}

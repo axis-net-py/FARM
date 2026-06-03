@@ -45,12 +45,12 @@ export function Header({ tenantId, onToggleSidebar }: HeaderProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-2 font-mono text-[11px] font-bold text-muted-foreground hover:text-foreground"
+          className="h-8 px-2 font-sans text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1"
           onClick={() => setLanguage(language === "pt" ? "es" : "pt")}
           title={language === "pt" ? "Cambiar a Español" : "Mudar para Português"}
         >
-          <Globe className="h-3.5 w-3.5 mr-1" />
-          {language.toUpperCase()}
+          <span className="text-sm leading-none">{language === "pt" ? "🇧🇷" : "🇵🇾"}</span>
+          <span>{language.toUpperCase()}</span>
         </Button>
 
         {/* Theme Switcher */}

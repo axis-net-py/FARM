@@ -54,7 +54,7 @@ export function DashboardShell({ tenantId, children }: DashboardShellProps) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background relative w-full">
+    <div className="flex h-screen h-[100dvh] overflow-hidden bg-background relative w-full">
       {/* Backdrop for Mobile Sidebar Drawer */}
       {mobileOpen && (
         <div
