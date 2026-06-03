@@ -6,6 +6,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
 
+export const dynamic = 'force-dynamic';
+
 // Default date range - last 30 days
 const defaultDateRange = {
   from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),

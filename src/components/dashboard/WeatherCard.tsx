@@ -30,14 +30,14 @@ export function WeatherCard() {
   const [error, setError] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isDark = mounted && theme === "dark";
+  const isDark = mounted && resolvedTheme === "dark";
 
   // Default coordinate: Alto Paraná (Paraguay agricultural region)
   const defaultLat = -25.5061;
