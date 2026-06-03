@@ -110,8 +110,8 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
         body: JSON.stringify({ text: userText }),
       });
 
-      if (!res.ok) throw new Error("Erro de resposta da IA");
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro de resposta da IA");
 
       setMessages((prev) => [...prev, { sender: "bot", text: data.message }]);
       
@@ -122,7 +122,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
     } catch (err: any) {
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: "Desculpe, tive um problema ao processar seu comando." },
+        { sender: "bot", text: err.message || "Desculpe, tive um problema ao processar seu comando." },
       ]);
     } finally {
       setLoading(false);
@@ -187,8 +187,8 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
         }),
       });
 
-      if (!res.ok) throw new Error(purpose === "invoice" ? "Erro ao importar fatura por IA" : "Erro ao diagnosticar imagem");
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || (purpose === "invoice" ? "Erro ao importar fatura por IA" : "Erro ao diagnosticar imagem"));
 
       setMessages((prev) => [
         ...prev,
@@ -198,14 +198,14 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
       if (purpose === "invoice") {
         router.refresh();
       }
-    } catch (err) {
+    } catch (err: any) {
       setMessages((prev) => [
         ...prev,
         {
           sender: "bot",
-          text: purpose === "invoice"
+          text: err.message || (purpose === "invoice"
             ? "Erro ao processar e cadastrar a fatura enviada. Verifique o arquivo e tente novamente."
-            : "Erro ao tentar diagnosticar a folha enviada.",
+            : "Erro ao tentar diagnosticar a folha enviada."),
         },
       ]);
     } finally {
