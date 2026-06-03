@@ -128,8 +128,8 @@ export function WeatherCard() {
         title: "Alerta de Chuva",
         message: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
         icon: <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 animate-pulse" />,
-        bgColor: "bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/40 border-l-4 border-l-rose-500",
-        textColor: "text-rose-800 dark:text-rose-300",
+        bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-rose-500",
+        textColor: "text-rose-600 dark:text-rose-450",
       };
     }
     if (wind > 20) {
@@ -138,8 +138,8 @@ export function WeatherCard() {
         title: "Vento Forte Detectado",
         message: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-        bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 border-l-4 border-l-amber-500",
-        textColor: "text-amber-800 dark:text-amber-300",
+        bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-amber-500",
+        textColor: "text-amber-600 dark:text-amber-450",
       };
     }
     if (temp > 35) {
@@ -148,8 +148,8 @@ export function WeatherCard() {
         title: "Calor Extremo",
         message: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
         icon: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-        bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 border-l-4 border-l-amber-500",
-        textColor: "text-amber-800 dark:text-amber-300",
+        bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-amber-500",
+        textColor: "text-amber-600 dark:text-amber-450",
       };
     }
     return {
@@ -157,8 +157,8 @@ export function WeatherCard() {
       title: "Condições Ideais",
       message: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
       icon: <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />,
-      bgColor: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 border-l-4 border-l-emerald-500",
-      textColor: "text-emerald-800 dark:text-emerald-300",
+      bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-emerald-500",
+      textColor: "text-emerald-600 dark:text-emerald-450",
     };
   };
 
