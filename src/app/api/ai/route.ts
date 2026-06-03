@@ -4,6 +4,49 @@ import prisma from "@/lib/prisma";
 import { Decimal } from "decimal.js";
 import { createPurchaseInvoice, createSalesInvoice } from "@/app/actions/invoice";
 
+// Normalizes numbers (integer for PYG, float for quantity) and cleans LatAm separators
+function parseExtractedNumber(val: any, isPyg: boolean = false): number {
+  if (val === undefined || val === null) return 0;
+  
+  if (typeof val === "string") {
+    let s = val.replace(/\s/g, "");
+    if (isPyg) {
+      if (s.includes(".") && s.includes(",")) {
+        s = s.replace(/\./g, "").replace(/,/g, ".");
+      } else if (s.includes(".")) {
+        s = s.replace(/\./g, "");
+      } else if (s.includes(",")) {
+        s = s.replace(/,/g, ".");
+      }
+      return parseFloat(s) || 0;
+    } else {
+      if (s.includes(".") && s.includes(",")) {
+        s = s.replace(/\./g, "").replace(/,/g, ".");
+      } else if (s.includes(",")) {
+        s = s.replace(/,/g, ".");
+      }
+      return parseFloat(s) || 0;
+    }
+  }
+  
+  if (typeof val === "number") {
+    if (isPyg && val > 0 && val < 1000) {
+      if (val % 1 !== 0) {
+        const strVal = val.toString();
+        const decimalPart = strVal.split(".")[1] || "";
+        const decimalCount = decimalPart.length;
+        const factor = Math.max(1000, Math.pow(10, decimalCount));
+        return Math.round(val * factor);
+      } else {
+        return val * 1000;
+      }
+    }
+    return val;
+  }
+  
+  return 0;
+}
+
 // Helper to query Gemini API via fetch (avoids adding npm dependencies that could fail to build)
 async function callGemini(prompt: string, imageBase64?: string, mimeType?: string) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -322,6 +365,18 @@ export async function POST(req: NextRequest) {
         const prompt = `Você é um leitor especialista em Notas Fiscais e Faturas de Compra (especialmente do Paraguai e América Latina).
 Analise o documento anexo (PDF ou Imagem) e extraia as informações necessárias para cadastrar a fatura de compra no sistema ERP.
 
+Atenção especial para Fornecedor (Emissor):
+- O fornecedor (supplier) é quem vendeu/emitiu a fatura, não o cliente/receptor (comprador). Tente extrair a Razão Social ou Nome Fantasia e RUC do fornecedor (localizado no cabeçalho do documento). Não utilize os dados da própria empresa receptora da fatura.
+- Se houver logo da empresa emitente no topo do documento, use o nome dessa empresa como name/businessName do fornecedor.
+
+Atenção extrema para números e pontuação (Paraguai/América Latina):
+- A quantidade (quantity) e preço unitário (unitPrice) devem ser retornados no formato correto.
+- Na fatura original, o ponto '.' é usado como separador de milhar e a vírgula ',' como separador decimal.
+- Por exemplo:
+  * Uma quantidade '33,75' significa 33.75 (trinta e três ponto setenta e cinco). Você deve retornar como número ou string '33.75' (ou '33,75').
+  * Um preço unitário '8.890' em PYG (Guaranis) significa 8890 (oito mil oitocentos e noventa). Você deve retornar como número ou string '8890' (ou '8.890'). NUNCA retorne 8.89 ou 8.890 como um decimal em PYG, pois isso desvalorizaria o produto em 1000x!
+  * Um total '300.000' em PYG significa 300000. Retorne como número ou string '300000' (ou '300.000').
+
 Campos a extrair:
 - Nro da Fatura (documentNumber): Geralmente no formato XXX-XXX-XXXXXXX.
 - Timbrado: Número de 8 dígitos (específico do Paraguai, se disponível).
@@ -330,15 +385,15 @@ Campos a extrair:
 - Taxa de Câmbio (exchangeRate): se a moeda for PYG, é 1. Se for USD, tente obter a taxa ou use 7800. Se BRL, use 1350.
 - Condição de Pagamento (paymentMethod): "A_VISTA" (se for à vista/contado/pagamento imediato) ou "A_PRAZO" (se for a prazo/crédito/pagamento futuro).
 - Fornecedor (supplier):
-  * name: Nome Fantasia ou Razão Social limpa.
-  * businessName: Razão Social completa.
-  * document: Documento fiscal (RUC, CPF ou CNPJ). Tente extrair o RUC se for Paraguai (geralmente formato XXXXXXX-X).
+  * name: Nome Fantasia ou Razão Social limpa do emitente.
+  * businessName: Razão Social completa do emitente.
+  * document: Documento fiscal (RUC, CPF ou CNPJ) do emitente. Tente extrair o RUC do Paraguai (geralmente formato XXXXXXX-X).
   * documentType: Tipo do documento ("RUC" se Paraguai, "CNPJ" ou "CPF" se Brasil, etc.).
 - Itens da fatura (items): Array contendo para cada produto:
   * name: Nome descritivo do produto ou serviço.
   * sku: SKU ou código do produto (se houver no documento. Se não houver, crie um SKU único amigável baseado no nome do produto, sem espaços ou caracteres especiais, máximo 15 letras, ex: ADUBO-UREIA).
-  * quantity: Quantidade física (numérica).
-  * unitPrice: Preço unitário na moeda especificada no cabeçalho.
+  * quantity: Quantidade (numérica ou string formatada, ex: '33.75' ou '33,75').
+  * unitPrice: Preço unitário na moeda especificada no cabeçalho (numérica ou string formatada, ex: '8890' ou '8.890').
   * unit: Unidade de medida (ex: "un", "kg", "l", "sc").
   * taxType: Tipo de IVA ("IVA_10", "IVA_5" ou "EXENTO").
 
@@ -348,7 +403,7 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
   "timbrado": "string ou null",
   "issuedAt": "string (YYYY-MM-DD) ou null",
   "currency": "PYG" | "USD" | "BRL",
-  "exchangeRate": number,
+  "exchangeRate": number | string,
   "paymentMethod": "A_VISTA" | "A_PRAZO",
   "supplier": {
     "name": "string",
@@ -360,8 +415,8 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
     {
       "name": "string",
       "sku": "string",
-      "quantity": number,
-      "unitPrice": number,
+      "quantity": number | string,
+      "unitPrice": number | string,
       "unit": "string",
       "taxType": "IVA_10" | "IVA_5" | "EXENTO"
     }
@@ -422,6 +477,7 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
 
       // Resolve Products without duplication
       const resolvedItems: any[] = [];
+      const isPygInvoice = (extracted.currency || "PYG") === "PYG";
       for (const item of extracted.items) {
         let product: any = null;
         if (item.sku) {
@@ -435,6 +491,9 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
           });
         }
 
+        const qty = parseExtractedNumber(item.quantity, false);
+        const unitPrice = parseExtractedNumber(item.unitPrice, isPygInvoice);
+
         if (!product && item.name) {
           const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
           product = await prisma.product.create({
@@ -442,8 +501,8 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
               tenantId,
               sku: cleanSku,
               name: item.name,
-              price: new Decimal(item.unitPrice * 1.3),
-              cost: new Decimal(item.unitPrice),
+              price: new Decimal(unitPrice * 1.3),
+              cost: new Decimal(unitPrice),
               currency: extracted.currency || "PYG",
               unit: item.unit || "un",
               taxType: item.taxType || "IVA_10",
@@ -456,8 +515,8 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
         if (product) {
           resolvedItems.push({
             productId: product.id,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
+            quantity: qty,
+            unitPrice: unitPrice,
             taxType: item.taxType || product.taxType
           });
         }
@@ -626,16 +685,20 @@ Se for apenas conversa ou dúvida, retorne:
         });
       } else if (result.action === "create_product") {
         const sku = result.data.sku || `PROD-${result.data.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+        const isPyg = (result.data.currency || "PYG") === "PYG";
+        const price = parseExtractedNumber(result.data.price, isPyg);
+        const cost = parseExtractedNumber(result.data.cost, isPyg);
+        const currentStock = parseExtractedNumber(result.data.currentStock, false);
         await prisma.product.create({
           data: {
             tenantId,
             sku,
             name: result.data.name,
-            price: new Decimal(result.data.price || 0),
-            cost: new Decimal(result.data.cost || 0),
+            price: new Decimal(price || 0),
+            cost: new Decimal(cost || 0),
             currency: result.data.currency || "PYG",
             unit: result.data.unit || "un",
-            currentStock: new Decimal(result.data.currentStock || 0),
+            currentStock: new Decimal(currentStock || 0),
             isActive: true
           }
         });
@@ -702,10 +765,14 @@ Se for apenas conversa ou dúvida, retorne:
         }
 
         const resolvedItems: any[] = [];
+        const isPygInvoiceText = (result.data.currency || "PYG") === "PYG";
         for (const item of result.data.items) {
           let product = await prisma.product.findFirst({
             where: { tenantId, name: { equals: item.name, mode: "insensitive" } }
           });
+
+          const qty = parseExtractedNumber(item.quantity, false);
+          const unitPrice = parseExtractedNumber(item.unitPrice, isPygInvoiceText);
 
           if (!product) {
             const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -714,8 +781,8 @@ Se for apenas conversa ou dúvida, retorne:
                 tenantId,
                 sku: cleanSku,
                 name: item.name,
-                price: new Decimal(item.unitPrice * 1.3),
-                cost: new Decimal(item.unitPrice),
+                price: new Decimal(unitPrice * 1.3),
+                cost: new Decimal(unitPrice),
                 currency: result.data.currency || "PYG",
                 unit: "un",
                 taxType: item.taxType || "IVA_10",
@@ -727,13 +794,13 @@ Se for apenas conversa ou dúvida, retorne:
 
           resolvedItems.push({
             productId: product.id,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
+            quantity: qty,
+            unitPrice: unitPrice,
             taxType: item.taxType || product.taxType
           });
         }
 
-        const exchangeRate = result.data.exchangeRate || 1;
+        const exchangeRate = parseExtractedNumber(result.data.exchangeRate || 1, false) || 1;
         const parsedIssuedAt = new Date();
         const dueDate = result.data.paymentMethod === "A_PRAZO"
           ? new Date(parsedIssuedAt.getTime() + 30 * 24 * 60 * 60 * 1000)
@@ -779,10 +846,14 @@ Se for apenas conversa ou dúvida, retorne:
         }
 
         const resolvedItems: any[] = [];
+        const isPygInvoiceText = (result.data.currency || "PYG") === "PYG";
         for (const item of result.data.items) {
           let product = await prisma.product.findFirst({
             where: { tenantId, name: { equals: item.name, mode: "insensitive" } }
           });
+
+          const qty = parseExtractedNumber(item.quantity, false);
+          const unitPrice = parseExtractedNumber(item.unitPrice, isPygInvoiceText);
 
           if (!product) {
             const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -791,17 +862,17 @@ Se for apenas conversa ou dúvida, retorne:
                 tenantId,
                 sku: cleanSku,
                 name: item.name,
-                price: new Decimal(item.unitPrice),
-                cost: new Decimal(item.unitPrice * 0.7),
+                price: new Decimal(unitPrice),
+                cost: new Decimal(unitPrice * 0.7),
                 currency: result.data.currency || "PYG",
                 unit: "un",
                 taxType: item.taxType || "IVA_10",
-                currentStock: new Decimal(item.quantity),
+                currentStock: new Decimal(qty),
                 isActive: true
               }
             });
-          } else if (Number(product.currentStock) < item.quantity) {
-            const needed = item.quantity - Number(product.currentStock);
+          } else if (Number(product.currentStock) < qty) {
+            const needed = qty - Number(product.currentStock);
             await prisma.product.update({
               where: { id: product.id },
               data: { currentStock: { increment: needed } }
@@ -810,8 +881,8 @@ Se for apenas conversa ou dúvida, retorne:
 
           resolvedItems.push({
             productId: product.id,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
+            quantity: qty,
+            unitPrice: unitPrice,
             taxType: item.taxType || product.taxType
           });
         }

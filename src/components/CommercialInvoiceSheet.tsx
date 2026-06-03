@@ -11,8 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus, Trash2, Coins, FileCheck2, CalendarRange, Landmark, Printer, Receipt, Paperclip } from "lucide-react";
 import { createPurchaseInvoice, createSalesInvoice, getLatestExchangeRate, updateInvoice } from "@/app/actions/invoice";
 import { getCustomers } from "@/app/actions/customer";
+import { getSuppliers } from "@/app/actions/supplier";
 import { getProducts } from "@/app/actions/product";
-import type { Customer, Product } from "@prisma/client";
+import type { Customer, Supplier, Product } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/format";
 import { supabase } from "@/lib/supabase";
@@ -59,6 +60,7 @@ export function CommercialInvoiceSheet({
   }>({ ratePYGtoUSD: 7800, ratePYGtoBRL: 1350 });
 
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState(invoice ? (invoice.customerId || invoice.supplierId || "") : "");
   
@@ -87,12 +89,14 @@ export function CommercialInvoiceSheet({
     setOpen(true);
     setLoading(true);
     try {
-      const [custs, prods, rate] = await Promise.all([
+      const [custs, supps, prods, rate] = await Promise.all([
         getCustomers(),
+        getSuppliers(),
         getProducts(),
         getLatestExchangeRate()
       ]);
       setCustomers(custs as any);
+      setSuppliers(supps as any);
       setProducts(prods as any);
       if (rate) {
         const ratesObj = {
@@ -117,17 +121,26 @@ export function CommercialInvoiceSheet({
     }
   }
 
-  function handleCustomerChange(custId: string) {
-    setSelectedCustomer(custId);
-    const cust = customers.find((c) => c.id === custId);
-    if (cust) {
-      // Automatically set payment terms based on customer profile category
-      if (cust.category === "juridica") {
-        setPaymentMethod("A_PRAZO");
-        const futureDate = new Date();
-        futureDate.setDate(futureDate.getDate() + 30);
-        setDueDate(futureDate.toISOString().split("T")[0]);
-      } else {
+  function handleCustomerChange(id: string) {
+    setSelectedCustomer(id);
+    if (type === "SALES") {
+      const cust = customers.find((c) => c.id === id);
+      if (cust) {
+        // Automatically set payment terms based on customer profile category
+        if (cust.category === "juridica") {
+          setPaymentMethod("A_PRAZO");
+          const futureDate = new Date();
+          futureDate.setDate(futureDate.getDate() + 30);
+          setDueDate(futureDate.toISOString().split("T")[0]);
+        } else {
+          setPaymentMethod("A_VISTA");
+          setDueDate("");
+        }
+      }
+    } else {
+      const supp = suppliers.find((s) => s.id === id);
+      if (supp) {
+        // For purchase, check if paymentTerms or category applies, default A_VISTA
         setPaymentMethod("A_VISTA");
         setDueDate("");
       }
@@ -500,11 +513,19 @@ export function CommercialInvoiceSheet({
                     <SelectValue placeholder={`Selecione o ${type === "SALES" ? "cliente" : "fornecedor"}`} />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
-                    {customers.map((c) => (
-                      <SelectItem key={c.id} value={c.id} className="text-[12px]">
-                        {c.name} {c.document ? `(${c.document})` : ""} — {c.category?.toUpperCase()}
-                      </SelectItem>
-                    ))}
+                    {type === "SALES" ? (
+                      customers.map((c) => (
+                        <SelectItem key={c.id} value={c.id} className="text-[12px]">
+                          {c.name} {c.document ? `(${c.document})` : ""} — {c.category?.toUpperCase()}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      suppliers.map((s) => (
+                        <SelectItem key={s.id} value={s.id} className="text-[12px]">
+                          {s.name} {s.document ? `(${s.document})` : ""} — {s.category?.toUpperCase()}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
