@@ -20,6 +20,8 @@ interface Message {
   sender: "user" | "bot";
   text: string;
   isDiagnostic?: boolean;
+  options?: { label: string; value: string }[];
+  filePending?: { base64: string; mimeType: string; fileName: string };
 }
 
 export function AIAssistant({ tenantId }: { tenantId: string }) {
@@ -131,56 +133,84 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const isInvoice = file.type === "application/pdf" || pathname.includes("/invoices");
     const fileLabel = file.type === "application/pdf" ? "PDF" : "Imagem";
-
-    setMessages((prev) => [
-      ...prev,
-      { sender: "user", text: `[${fileLabel} Enviado: ${file.name}]` },
-    ]);
-    setLoading(true);
+    const fileName = file.name;
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
       const base64Data = (reader.result as string).split(",")[1];
       
-      try {
-        const res = await fetch("/api/ai", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            file: base64Data,
-            mimeType: file.type,
-            purpose: isInvoice ? "invoice" : "diagnostic"
-          }),
-        });
-
-        if (!res.ok) throw new Error(isInvoice ? "Erro ao importar fatura por IA" : "Erro ao diagnosticar imagem");
-        const data = await res.json();
-
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: data.message, isDiagnostic: !isInvoice },
-        ]);
-
-        if (isInvoice) {
-          router.refresh();
-        }
-      } catch (err) {
-        setMessages((prev) => [
-          ...prev,
-          { 
-            sender: "bot", 
-            text: isInvoice 
-              ? "Erro ao processar e cadastrar a fatura enviada. Verifique o arquivo e tente novamente." 
-              : "Erro ao tentar diagnosticar a folha enviada." 
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
+      setMessages((prev) => [
+        ...prev,
+        { sender: "user", text: `[${fileLabel} Enviado: ${fileName}]` },
+        {
+          sender: "bot",
+          text: `Como você deseja processar o arquivo "${fileName}"?`,
+          filePending: { base64: base64Data, mimeType: file.type, fileName },
+          options: [
+            { label: "Importar como Fatura", value: "invoice" },
+            { label: "Diagnosticar Doença de Planta", value: "diagnostic" },
+          ],
+        },
+      ]);
     };
+    
+    if (e.target) e.target.value = "";
+  };
+
+  const handleOptionSelect = async (
+    purpose: string,
+    filePending?: { base64: string; mimeType: string; fileName: string }
+  ) => {
+    if (!filePending) return;
+
+    // Remove options from the message that contained them
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.filePending?.fileName === filePending.fileName
+          ? { ...msg, options: undefined }
+          : msg
+      )
+    );
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file: filePending.base64,
+          mimeType: filePending.mimeType,
+          purpose: purpose,
+        }),
+      });
+
+      if (!res.ok) throw new Error(purpose === "invoice" ? "Erro ao importar fatura por IA" : "Erro ao diagnosticar imagem");
+      const data = await res.json();
+
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: data.message, isDiagnostic: purpose === "diagnostic" },
+      ]);
+
+      if (purpose === "invoice") {
+        router.refresh();
+      }
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: purpose === "invoice"
+            ? "Erro ao processar e cadastrar a fatura enviada. Verifique o arquivo e tente novamente."
+            : "Erro ao tentar diagnosticar a folha enviada.",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const triggerImageSelect = () => {
@@ -237,6 +267,20 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
                   }`}
                 >
                   <p className="whitespace-pre-line">{msg.text}</p>
+                  {msg.options && (
+                    <div className="mt-2.5 flex flex-col gap-1.5 pt-2.5 border-t border-border/40">
+                      {msg.options.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => handleOptionSelect(opt.value, msg.filePending)}
+                          className="w-full text-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all active:scale-[0.98] shadow-sm"
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

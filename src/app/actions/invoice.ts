@@ -62,6 +62,7 @@ export async function getInvoices() {
     orderBy: { issuedAt: 'desc' },
     include: { 
       customer: { select: { id: true, name: true } },
+      supplier: { select: { id: true, name: true } },
       items: true
     },
   })
@@ -77,6 +78,7 @@ export async function getInvoiceById(id: string) {
     where: { id, tenantId },
     include: {
       customer: { select: { id: true, name: true, document: true } },
+      supplier: { select: { id: true, name: true, document: true } },
       items: {
         include: { product: { select: { id: true, sku: true, name: true } } },
       },
@@ -100,7 +102,8 @@ export async function createPurchaseInvoice(data: InvoiceFormData) {
         tenantId,
         type: 'PURCHASE',
         status: 'APPROVED',
-        customerId: data.customerId,
+        customerId: null,
+        supplierId: data.customerId,
         documentNumber: data.documentNumber,
         timbrado: data.timbrado,
         issuedAt: data.issuedAt ?? new Date(),

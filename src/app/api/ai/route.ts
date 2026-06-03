@@ -288,7 +288,8 @@ function localInvoiceProcessor() {
     currency: "PYG",
     exchangeRate: 1,
     supplier: selectedSupplier,
-    items: items
+    items: items,
+    paymentMethod: Math.random() > 0.5 ? "A_VISTA" : "A_PRAZO"
   };
 }
 
@@ -319,6 +320,7 @@ Campos a extrair:
 - Data de Emissão (issuedAt): ISOString no formato YYYY-MM-DD.
 - Moeda (currency): "PYG" (Guaranis), "USD" (Dólares) ou "BRL" (Reais).
 - Taxa de Câmbio (exchangeRate): se a moeda for PYG, é 1. Se for USD, tente obter a taxa ou use 7800. Se BRL, use 1350.
+- Condição de Pagamento (paymentMethod): "A_VISTA" (se for à vista/contado/pagamento imediato) ou "A_PRAZO" (se for a prazo/crédito/pagamento futuro).
 - Fornecedor (supplier):
   * name: Nome Fantasia ou Razão Social limpa.
   * businessName: Razão Social completa.
@@ -339,6 +341,7 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
   "issuedAt": "string (YYYY-MM-DD) ou null",
   "currency": "PYG" | "USD" | "BRL",
   "exchangeRate": number,
+  "paymentMethod": "A_VISTA" | "A_PRAZO",
   "supplier": {
     "name": "string",
     "businessName": "string ou null",
@@ -455,15 +458,23 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
 
       // Convert prices to PYG
       const exchangeRate = extracted.exchangeRate || 1;
+      const parsedIssuedAt = extracted.issuedAt ? new Date(extracted.issuedAt) : new Date();
+      
+      // Calculate dueDate: A_PRAZO gets 30 days default; A_VISTA gets same as issuedAt (so isCredit is false in ledger)
+      const dueDate = extracted.paymentMethod === "A_PRAZO"
+        ? new Date(parsedIssuedAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+        : parsedIssuedAt;
+
       const invoicePayload = {
         type: "PURCHASE" as const,
         customerId: supplier.id,
         currency: extracted.currency || "PYG",
         exchangeRate: exchangeRate,
-        issuedAt: extracted.issuedAt ? new Date(extracted.issuedAt) : new Date(),
+        issuedAt: parsedIssuedAt,
+        dueDate: dueDate,
         documentNumber: extracted.documentNumber || `FAC-${Math.floor(100000 + Math.random() * 900000)}`,
         timbrado: extracted.timbrado || undefined,
-        notes: `Importado via IA em ${new Date().toLocaleDateString()}. Fornecedor: ${supplier.name}.`,
+        notes: `Importado via IA em ${new Date().toLocaleDateString()}. Fornecedor: ${supplier.name}. Condição: ${extracted.paymentMethod === "A_PRAZO" ? "A Prazo" : "À Vista"}.`,
         items: resolvedItems.map(item => {
           const priceInPYG = extracted.currency === "PYG" ? item.unitPrice : item.unitPrice * exchangeRate;
           return {
@@ -481,7 +492,7 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
       return NextResponse.json({
         action: "create_purchase_invoice",
         invoiceId: createdInvoice.id,
-        message: `Fatura de compra #${extracted.documentNumber || createdInvoice.id.slice(-6)} do fornecedor "${supplier.name}" importada com sucesso via IA! Foram cadastrados/associados ${resolvedItems.length} produtos sem duplicidades.`
+        message: `Fatura de compra #${extracted.documentNumber || createdInvoice.id.slice(-6)} do fornecedor "${supplier.name}" (${extracted.paymentMethod === "A_PRAZO" ? "A Prazo" : "À Vista"}) importada com sucesso via IA! Foram cadastrados/associados ${resolvedItems.length} produtos sem duplicidades.`
       });
     }
 
