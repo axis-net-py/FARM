@@ -47,6 +47,33 @@ function parseExtractedNumber(val: any, isPyg: boolean = false): number {
   return 0;
 }
 
+// Normalizes and maps product units (e.g. diesel/combustivel -> L, UNI -> un)
+function normalizeUnit(name: string, extractedUnit?: string): string {
+  const n = (name || "").toLowerCase();
+  if (
+    n.includes("diesel") ||
+    n.includes("gasolina") ||
+    n.includes("combustivel") ||
+    n.includes("combustível") ||
+    n.includes("etanol") ||
+    n.includes("ethanol") ||
+    n.includes("lubrificante") ||
+    n.includes("oleo") ||
+    n.includes("óleo")
+  ) {
+    return "L";
+  }
+  
+  const u = (extractedUnit || "").toLowerCase().trim();
+  if (u === "uni" || u === "unidade" || u === "unidades" || u === "un") return "un";
+  if (u === "kg" || u === "kilo" || u === "quilo" || u === "kilogramas") return "kg";
+  if (u === "l" || u === "litro" || u === "litros") return "L";
+  if (u === "sc" || u === "saca" || u === "sacas" || u === "bag") return "sc";
+  if (u === "ton" || u === "tonelada" || u === "toneladas") return "ton";
+  
+  return extractedUnit || "un";
+}
+
 // Helper to query Gemini API via fetch (avoids adding npm dependencies that could fail to build)
 async function callGemini(prompt: string, imageBase64?: string, mimeType?: string) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -368,6 +395,7 @@ Analise o documento anexo (PDF ou Imagem) e extraia as informações necessária
 Atenção especial para Fornecedor (Emissor):
 - O fornecedor (supplier) é quem vendeu/emitiu a fatura, não o cliente/receptor (comprador). Tente extrair a Razão Social ou Nome Fantasia e RUC do fornecedor (localizado no cabeçalho do documento). Não utilize os dados da própria empresa receptora da fatura.
 - Se houver logo da empresa emitente no topo do documento, use o nome dessa empresa como name/businessName do fornecedor.
+- Extraia o e-mail de contato do emissor/fornecedor (ex: 'MARIVONEPRESSI@HOTMAIL.COM') do cabeçalho de dados da empresa fornecedora.
 
 Atenção extrema para números e pontuação (Paraguai/América Latina):
 - A quantidade (quantity) e preço unitário (unitPrice) devem ser retornados no formato correto.
@@ -389,6 +417,10 @@ Campos a extrair:
   * businessName: Razão Social completa do emitente.
   * document: Documento fiscal (RUC, CPF ou CNPJ) do emitente. Tente extrair o RUC do Paraguai (geralmente formato XXXXXXX-X).
   * documentType: Tipo do documento ("RUC" se Paraguai, "CNPJ" ou "CPF" se Brasil, etc.).
+  * email: E-mail de contato do emitente/fornecedor (se houver, ex: 'MARIVONEPRESSI@HOTMAIL.COM').
+  * phone: Telefone de contato do emitente (se houver).
+  * address: Endereço do emitente (se houver).
+  * city: Cidade do emitente (se houver).
 - Itens da fatura (items): Array contendo para cada produto:
   * name: Nome descritivo do produto ou serviço.
   * sku: SKU ou código do produto (se houver no documento. Se não houver, crie um SKU único amigável baseado no nome do produto, sem espaços ou caracteres especiais, máximo 15 letras, ex: ADUBO-UREIA).
@@ -409,7 +441,11 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
     "name": "string",
     "businessName": "string ou null",
     "document": "string",
-    "documentType": "string"
+    "documentType": "string",
+    "email": "string ou null",
+    "phone": "string ou null",
+    "address": "string ou null",
+    "city": "string ou null"
   },
   "items": [
     {
@@ -464,9 +500,24 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
             businessName: extracted.supplier.businessName || supplierName,
             document: supplierDoc || null,
             documentType: extracted.supplier.documentType || "RUC",
+            email: extracted.supplier.email || null,
+            phone: extracted.supplier.phone || null,
+            address: extracted.supplier.address || null,
+            city: extracted.supplier.city || null,
             isActive: true,
             category: "retail",
             country: "PY"
+          }
+        });
+      } else if (supplier && !supplier.email && extracted.supplier?.email) {
+        // Update existing supplier missing email or contact details
+        await prisma.supplier.update({
+          where: { id: supplier.id },
+          data: {
+            email: extracted.supplier.email,
+            phone: supplier.phone || extracted.supplier.phone || null,
+            address: supplier.address || extracted.supplier.address || null,
+            city: supplier.city || extracted.supplier.city || null,
           }
         });
       }
@@ -496,15 +547,16 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
 
         if (!product && item.name) {
           const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+          const unit = normalizeUnit(item.name, item.unit);
           product = await prisma.product.create({
             data: {
               tenantId,
               sku: cleanSku,
               name: item.name,
-              price: new Decimal(unitPrice * 1.3),
+              price: new Decimal(unitPrice), // Cost as price (no markup)
               cost: new Decimal(unitPrice),
               currency: extracted.currency || "PYG",
-              unit: item.unit || "un",
+              unit: unit,
               taxType: item.taxType || "IVA_10",
               currentStock: new Decimal(0),
               isActive: true
@@ -776,15 +828,16 @@ Se for apenas conversa ou dúvida, retorne:
 
           if (!product) {
             const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+            const unit = normalizeUnit(item.name, item.unit);
             product = await prisma.product.create({
               data: {
                 tenantId,
                 sku: cleanSku,
                 name: item.name,
-                price: new Decimal(unitPrice * 1.3),
+                price: new Decimal(unitPrice), // Cost as price (no markup)
                 cost: new Decimal(unitPrice),
                 currency: result.data.currency || "PYG",
-                unit: "un",
+                unit: unit,
                 taxType: item.taxType || "IVA_10",
                 currentStock: new Decimal(0),
                 isActive: true
@@ -857,6 +910,7 @@ Se for apenas conversa ou dúvida, retorne:
 
           if (!product) {
             const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+            const unit = normalizeUnit(item.name, item.unit);
             product = await prisma.product.create({
               data: {
                 tenantId,
@@ -865,7 +919,7 @@ Se for apenas conversa ou dúvida, retorne:
                 price: new Decimal(unitPrice),
                 cost: new Decimal(unitPrice * 0.7),
                 currency: result.data.currency || "PYG",
-                unit: "un",
+                unit: unit,
                 taxType: item.taxType || "IVA_10",
                 currentStock: new Decimal(qty),
                 isActive: true
