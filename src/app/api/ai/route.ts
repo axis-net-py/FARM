@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { Decimal } from "decimal.js";
-import { createPurchaseInvoice } from "@/app/actions/invoice";
+import { createPurchaseInvoice, createSalesInvoice } from "@/app/actions/invoice";
 
 // Helper to query Gemini API via fetch (avoids adding npm dependencies that could fail to build)
 async function callGemini(prompt: string, imageBase64?: string, mimeType?: string) {
@@ -300,6 +300,14 @@ export async function POST(req: NextRequest) {
   }
   const tenantId = session.user.tenantId;
 
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: "A chave GEMINI_API_KEY não está configurada no servidor. A IA integrada precisa da chave para processar comandos reais." },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { text, image, file, mimeType, purpose } = body;
@@ -371,7 +379,10 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
       }
 
       if (!extracted) {
-        extracted = localInvoiceProcessor();
+        return NextResponse.json(
+          { error: "Não foi possível analisar ou extrair os dados estruturados da fatura usando a IA do Gemini." },
+          { status: 500 }
+        );
       }
 
       // Check / Create Supplier without duplication
@@ -498,33 +509,38 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
 
     // 2. Leaf disease image diagnostic request
     if (activePurpose === "diagnostic" && fileBase64) {
-      if (process.env.GEMINI_API_KEY) {
-        const prompt = "Analise esta imagem de folha/planta. Identifique se há alguma praga ou doença (como Ferrugem Asiática, Oídio, Mancha Alvo, etc.). Retorne o nome da doença detectada, gravidade estimada e as recomendações técnicas agronômicas detalhadas de tratamento em português.";
-        const geminiResponse = await callGemini(prompt, fileBase64, mimeType || "image/jpeg");
-        if (geminiResponse) {
-          return NextResponse.json({
-            action: "diagnostic",
-            message: geminiResponse
-          });
-        }
+      const prompt = "Analise esta imagem de folha/planta. Identifique se há alguma praga ou doença (como Ferrugem Asiática, Oídio, Mancha Alvo, etc.). Retorne o nome da doença detectada, gravidade estimada e as recomendações técnicas agronômicas detalhadas de tratamento em português.";
+      const geminiResponse = await callGemini(prompt, fileBase64, mimeType || "image/jpeg");
+      if (geminiResponse) {
+        return NextResponse.json({
+          action: "diagnostic",
+          message: geminiResponse
+        });
       }
       
-      const diag = localDiseaseDiagnostic();
-      return NextResponse.json(diag);
+      return NextResponse.json(
+        { error: "Falha na análise de diagnóstico de folhas pelo Gemini." },
+        { status: 500 }
+      );
     }
 
-    // 2. Text command request
+    // 3. Text command request
     if (text) {
       let result: any = null;
 
-      if (process.env.GEMINI_API_KEY) {
-        const prompt = `Analise a intenção do usuário: "${text}".
-Tenemos cinco ações possíveis de cadastro no ERP agrícola:
+      const prompt = `Analise a intenção do usuário: "${text}".
+Temos as seguintes ações possíveis de cadastro no ERP agrícola:
 1. "create_harvest" (Safra): campos { name: string, cropType: "soja"|"milho"|"trigo"|"algodao"|"arroz"|"outro", startDate: ISOString, endDate: ISOString }
 2. "create_plot" (Talhão): campos { name: string, area: number, unit: "HECTARE"|"ALQUEIRE", status: "PLANTED"|"FALLOW"|"PREPARING" }
 3. "create_vehicle" (Frota): campos { name: string, type: "trator"|"colheitadeira"|"pulverizador"|"caminhao"|"implemento"|"outro", status: "OPERATIONAL"|"MAINTENANCE"|"OUT_OF_SERVICE" }
 4. "create_employee" (Funcionário): campos { name: string, role: string, status: "ACTIVE"|"INACTIVE"|"LEAVE" }
 5. "create_contract" (Contrato): campos { contractNumber: string, siloName: string, grainType: string, quantity: number, unit: "TON"|"BAG"|"KG", pricePerUnit: number, currency: "USD"|"PYG"|"BRL", notes?: string }
+6. "create_product" (Produto): campos { name: string, sku?: string, price: number, cost: number, currency: "PYG"|"USD"|"BRL", unit?: string, currentStock?: number }
+7. "create_customer" (Cliente): campos { name: string, document?: string, documentType?: "RUC"|"CI"|"CPF"|"CNPJ", email?: string, phone?: string, address?: string, city?: string }
+8. "create_supplier" (Fornecedor): campos { name: string, document?: string, documentType?: "RUC"|"CI"|"CPF"|"CNPJ", email?: string, phone?: string, address?: string, city?: string }
+9. "create_finance_transaction" (Transação Financeira/Caixa): campos { type: "RECEIVABLE"|"PAYABLE"|"TRANSFER", entityId?: string, currency: "PYG"|"USD"|"BRL", amount: number, exchangeRate: number, category?: string }
+10. "create_purchase_invoice" (Fatura de Compra): campos { supplierName: string, documentNumber?: string, currency: "PYG"|"USD"|"BRL", exchangeRate: number, paymentMethod: "A_VISTA"|"A_PRAZO", items: [{ name: string, sku?: string, quantity: number, unitPrice: number, taxType?: "IVA_10"|"IVA_5"|"EXENTO" }] }
+11. "create_sales_invoice" (Fatura de Venda): campos { customerName: string, documentNumber?: string, currency: "PYG"|"USD"|"BRL", exchangeRate: number, paymentMethod: "A_VISTA"|"A_PRAZO", items: [{ name: string, sku?: string, quantity: number, unitPrice: number, taxType?: "IVA_10"|"IVA_5"|"EXENTO" }] }
 
 Se a intenção do usuário corresponder a um cadastro, retorne um objeto JSON puro (sem markdown \`\`\`) contendo:
 {
@@ -535,23 +551,21 @@ Se a intenção do usuário corresponder a um cadastro, retorne um objeto JSON p
 Se for apenas conversa ou dúvida, retorne:
 {
   "action": "chat",
-  "message": "Sua resposta amigável sobre o sistema AURELIUS ERP agrícola contendo contratos de grãos"
+  "message": "Sua resposta amigável sobre o sistema AURELIUS ERP agrícola"
 }`;
-        const geminiResponse = await callGemini(prompt);
-        if (geminiResponse) {
-          try {
-            // Clean markdown blocks if Gemini returned them
-            const cleanJsonStr = geminiResponse.replace(/```json/g, "").replace(/```/g, "").trim();
-            result = JSON.parse(cleanJsonStr);
-          } catch {
-            result = null;
-          }
+
+      const geminiResponse = await callGemini(prompt);
+      if (geminiResponse) {
+        try {
+          const cleanJsonStr = geminiResponse.replace(/```json/g, "").replace(/```/g, "").trim();
+          result = JSON.parse(cleanJsonStr);
+        } catch (e) {
+          console.error("Erro ao parsear resposta do Gemini:", e);
         }
       }
 
-      // Fallback to local regex NLP if Gemini is not set or failed
       if (!result) {
-        result = localNlpProcessor(text);
+        return NextResponse.json({ error: "Falha ao interpretar o comando do assistente de IA." }, { status: 500 });
       }
 
       // Execute database actions if detected
@@ -610,6 +624,226 @@ Se for apenas conversa ou dúvida, retorne:
             harvestId: result.data.harvestId === "none" || !result.data.harvestId ? null : result.data.harvestId
           }
         });
+      } else if (result.action === "create_product") {
+        const sku = result.data.sku || `PROD-${result.data.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+        await prisma.product.create({
+          data: {
+            tenantId,
+            sku,
+            name: result.data.name,
+            price: new Decimal(result.data.price || 0),
+            cost: new Decimal(result.data.cost || 0),
+            currency: result.data.currency || "PYG",
+            unit: result.data.unit || "un",
+            currentStock: new Decimal(result.data.currentStock || 0),
+            isActive: true
+          }
+        });
+      } else if (result.action === "create_customer") {
+        await prisma.customer.create({
+          data: {
+            tenantId,
+            name: result.data.name,
+            document: result.data.document || null,
+            documentType: result.data.documentType || "RUC",
+            email: result.data.email || null,
+            phone: result.data.phone || null,
+            address: result.data.address || null,
+            city: result.data.city || null,
+            isActive: true
+          }
+        });
+      } else if (result.action === "create_supplier") {
+        await prisma.supplier.create({
+          data: {
+            tenantId,
+            name: result.data.name,
+            businessName: result.data.businessName || result.data.name,
+            document: result.data.document || null,
+            documentType: result.data.documentType || "RUC",
+            email: result.data.email || null,
+            phone: result.data.phone || null,
+            address: result.data.address || null,
+            city: result.data.city || null,
+            isActive: true
+          }
+        });
+      } else if (result.action === "create_finance_transaction") {
+        const amount = Number(result.data.amount || 0);
+        const exchangeRate = Number(result.data.exchangeRate || 1);
+        await prisma.transaction.create({
+          data: {
+            tenantId,
+            type: result.data.type || "PAYABLE",
+            entityId: result.data.entityId || "Geral",
+            currency: result.data.currency || "PYG",
+            amount: new Decimal(amount),
+            exchangeRate: new Decimal(exchangeRate),
+            totalPyg: new Decimal(result.data.currency === "PYG" ? amount : amount * exchangeRate),
+            category: result.data.category || "Outros"
+          }
+        });
+      } else if (result.action === "create_purchase_invoice") {
+        const supplierName = result.data.supplierName;
+        let supplier = await prisma.supplier.findFirst({
+          where: { tenantId, name: { equals: supplierName, mode: "insensitive" } }
+        });
+        if (!supplier) {
+          supplier = await prisma.supplier.create({
+            data: {
+              tenantId,
+              name: supplierName,
+              businessName: supplierName,
+              isActive: true,
+              category: "retail",
+              country: "PY"
+            }
+          });
+        }
+
+        const resolvedItems: any[] = [];
+        for (const item of result.data.items) {
+          let product = await prisma.product.findFirst({
+            where: { tenantId, name: { equals: item.name, mode: "insensitive" } }
+          });
+
+          if (!product) {
+            const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+            product = await prisma.product.create({
+              data: {
+                tenantId,
+                sku: cleanSku,
+                name: item.name,
+                price: new Decimal(item.unitPrice * 1.3),
+                cost: new Decimal(item.unitPrice),
+                currency: result.data.currency || "PYG",
+                unit: "un",
+                taxType: item.taxType || "IVA_10",
+                currentStock: new Decimal(0),
+                isActive: true
+              }
+            });
+          }
+
+          resolvedItems.push({
+            productId: product.id,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            taxType: item.taxType || product.taxType
+          });
+        }
+
+        const exchangeRate = result.data.exchangeRate || 1;
+        const parsedIssuedAt = new Date();
+        const dueDate = result.data.paymentMethod === "A_PRAZO"
+          ? new Date(parsedIssuedAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+          : parsedIssuedAt;
+
+        const invoicePayload = {
+          type: "PURCHASE" as const,
+          customerId: supplier.id,
+          currency: result.data.currency || "PYG",
+          exchangeRate: exchangeRate,
+          issuedAt: parsedIssuedAt,
+          dueDate: dueDate,
+          documentNumber: result.data.documentNumber || `FAC-${Math.floor(100000 + Math.random() * 900000)}`,
+          notes: `Registrado via comando de texto IA em ${new Date().toLocaleDateString()}. Condição: ${result.data.paymentMethod === "A_PRAZO" ? "A Prazo" : "À Vista"}.`,
+          items: resolvedItems.map(item => {
+            const priceInPYG = result.data.currency === "PYG" ? item.unitPrice : item.unitPrice * exchangeRate;
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: priceInPYG,
+              taxType: item.taxType,
+              cost: priceInPYG
+            };
+          })
+        };
+
+        await createPurchaseInvoice(invoicePayload);
+      } else if (result.action === "create_sales_invoice") {
+        const customerName = result.data.customerName;
+        let customer = await prisma.customer.findFirst({
+          where: { tenantId, name: { equals: customerName, mode: "insensitive" } }
+        });
+        if (!customer) {
+          customer = await prisma.customer.create({
+            data: {
+              tenantId,
+              name: customerName,
+              isActive: true,
+              category: "retail",
+              country: "PY"
+            }
+          });
+        }
+
+        const resolvedItems: any[] = [];
+        for (const item of result.data.items) {
+          let product = await prisma.product.findFirst({
+            where: { tenantId, name: { equals: item.name, mode: "insensitive" } }
+          });
+
+          if (!product) {
+            const cleanSku = item.sku || `PROD-${item.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+            product = await prisma.product.create({
+              data: {
+                tenantId,
+                sku: cleanSku,
+                name: item.name,
+                price: new Decimal(item.unitPrice),
+                cost: new Decimal(item.unitPrice * 0.7),
+                currency: result.data.currency || "PYG",
+                unit: "un",
+                taxType: item.taxType || "IVA_10",
+                currentStock: new Decimal(item.quantity),
+                isActive: true
+              }
+            });
+          } else if (Number(product.currentStock) < item.quantity) {
+            const needed = item.quantity - Number(product.currentStock);
+            await prisma.product.update({
+              where: { id: product.id },
+              data: { currentStock: { increment: needed } }
+            });
+          }
+
+          resolvedItems.push({
+            productId: product.id,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            taxType: item.taxType || product.taxType
+          });
+        }
+
+        const exchangeRate = result.data.exchangeRate || 1;
+        const parsedIssuedAt = new Date();
+        const dueDate = result.data.paymentMethod === "A_PRAZO"
+          ? new Date(parsedIssuedAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+          : parsedIssuedAt;
+
+        const invoicePayload = {
+          type: "SALES" as const,
+          customerId: customer.id,
+          currency: result.data.currency || "PYG",
+          exchangeRate: exchangeRate,
+          issuedAt: parsedIssuedAt,
+          dueDate: dueDate,
+          documentNumber: result.data.documentNumber || undefined,
+          notes: `Registrado via comando de texto IA em ${new Date().toLocaleDateString()}. Condição: ${result.data.paymentMethod === "A_PRAZO" ? "A Prazo" : "À Vista"}.`,
+          items: resolvedItems.map(item => {
+            const priceInPYG = result.data.currency === "PYG" ? item.unitPrice : item.unitPrice * exchangeRate;
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: priceInPYG,
+              taxType: item.taxType,
+              cost: priceInPYG * 0.7
+            };
+          })
+        };
+
+        await createSalesInvoice(invoicePayload);
       }
 
       return NextResponse.json({
