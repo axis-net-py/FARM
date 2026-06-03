@@ -60,8 +60,8 @@ export function RecentContracts({ limit = 5 }: RecentContractsProps) {
   const contracts = data || [];
 
   return (
-    <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.01] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-emerald-500/80 group">
-      <CardHeader className="pb-4 flex flex-row items-center justify-between space-y-0">
+    <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-emerald-500/80 group">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
           Contratos Recentes (Venda de Grãos)
         </CardTitle>
