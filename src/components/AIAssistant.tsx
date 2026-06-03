@@ -251,10 +251,10 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
   };
 
   return (
-    <div className="fixed bottom-24 md:bottom-6 right-6 z-50 no-print">
+    <div className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] md:bottom-6 right-6 z-50 no-print">
       {/* Floating expanded chat box */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-[380px] h-[500px] rounded-2xl border border-border bg-card/95 backdrop-blur-md shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-100 origin-bottom-right">
+        <div className="absolute bottom-16 right-0 w-[calc(100vw-3rem)] sm:w-[380px] h-[500px] max-h-[calc(100dvh-12rem)] rounded-2xl border border-border bg-card/95 backdrop-blur-md shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-100 origin-bottom-right">
           {/* Header */}
           <div className="p-4 border-b border-border bg-muted/50 flex items-center justify-between">
             <div className="flex items-center gap-2">

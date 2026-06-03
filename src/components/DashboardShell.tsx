@@ -17,8 +17,16 @@ interface DashboardShellProps {
 export function DashboardShell({ tenantId, children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
   const { language } = useLanguage();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Close mobile drawer when route changes
   useEffect(() => {
@@ -70,7 +78,7 @@ export function DashboardShell({ tenantId, children }: DashboardShellProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <Sidebar tenantId={tenantId} collapsed={collapsed} />
+        <Sidebar tenantId={tenantId} collapsed={isMobile ? false : collapsed} />
       </div>
 
       {/* Main Layout Area */}
@@ -91,7 +99,7 @@ export function DashboardShell({ tenantId, children }: DashboardShellProps) {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border flex justify-around items-center h-16 md:hidden px-2 shadow-lg safe-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border flex justify-around items-center h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] md:hidden px-2 shadow-lg">
         <Link
           href={`/${tenantId}/dashboard`}
           className={cn(

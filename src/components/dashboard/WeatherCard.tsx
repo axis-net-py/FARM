@@ -127,9 +127,9 @@ export function WeatherCard() {
         status: "critical",
         title: "Alerta de Chuva",
         message: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
-        icon: <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 animate-pulse" />,
-        bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-rose-500",
-        textColor: "text-rose-600 dark:text-rose-450",
+        icon: <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 animate-pulse" />,
+        bgColor: "bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 border-l-4 border-l-rose-500",
+        textColor: "text-rose-800 dark:text-rose-350",
       };
     }
     if (wind > 20) {
@@ -137,9 +137,9 @@ export function WeatherCard() {
         status: "warning",
         title: "Vento Forte Detectado",
         message: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
-        icon: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-        bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-amber-500",
-        textColor: "text-amber-600 dark:text-amber-450",
+        icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
+        bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
+        textColor: "text-amber-800 dark:text-amber-350",
       };
     }
     if (temp > 35) {
@@ -147,18 +147,18 @@ export function WeatherCard() {
         status: "warning",
         title: "Calor Extremo",
         message: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
-        icon: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-        bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-amber-500",
-        textColor: "text-amber-600 dark:text-amber-450",
+        icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
+        bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
+        textColor: "text-amber-800 dark:text-amber-350",
       };
     }
     return {
       status: "ideal",
       title: "Condições Ideais",
       message: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
-      icon: <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />,
-      bgColor: "bg-card dark:bg-muted/30 border border-border border-l-4 border-l-emerald-500",
-      textColor: "text-emerald-600 dark:text-emerald-450",
+      icon: <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
+      bgColor: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 border-l-4 border-l-emerald-500",
+      textColor: "text-emerald-800 dark:text-emerald-350",
     };
   };
 
@@ -194,14 +194,14 @@ export function WeatherCard() {
         <div className="flex items-center gap-4 md:border-r border-border/50 md:pr-4">
           {getWeatherIcon(weather.weatherCode)}
           <div>
-            <div className="flex items-center text-xs text-muted-foreground font-semibold gap-1 uppercase tracking-wider mb-0.5">
+            <div className="flex items-center text-xs text-slate-700 dark:text-slate-300 font-bold gap-1 uppercase tracking-wider mb-0.5">
               <MapPin className="w-3.5 h-3.5 text-primary" />
               <span>{weather.locationName}</span>
             </div>
-            <div className="text-3xl font-extrabold tracking-tighter text-foreground">
+            <div className="text-3xl font-extrabold tracking-tighter text-slate-900 dark:text-slate-50">
               {weather.temp.toFixed(1)}°C
             </div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mt-0.5">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
               {getWeatherDescription(weather.weatherCode)}
             </div>
           </div>
@@ -210,19 +210,19 @@ export function WeatherCard() {
         {/* Center: Meteorological Details */}
         <div className="grid grid-cols-3 gap-4 md:border-r border-border/50 md:pr-4">
           <div className="flex flex-col items-center justify-center text-center">
-            <Droplets className="w-5 h-5 text-sky-400/80 mb-1" />
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Umidade</span>
-            <span className="text-sm font-bold text-foreground mt-0.5">{weather.humidity}%</span>
+            <Droplets className="w-5 h-5 text-sky-600 dark:text-sky-400 mb-1" />
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Umidade</span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.humidity}%</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
-            <Wind className="w-5 h-5 text-teal-400/80 mb-1" />
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Ventos</span>
-            <span className="text-sm font-bold text-foreground mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
+            <Wind className="w-5 h-5 text-teal-600 dark:text-teal-400 mb-1" />
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Ventos</span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
-            <CloudRain className="w-5 h-5 text-indigo-400/80 mb-1" />
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Chuva</span>
-            <span className="text-sm font-bold text-foreground mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
+            <CloudRain className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mb-1" />
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Chuva</span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export function WeatherCard() {
           {advice.icon}
           <div>
             <div className={`text-xs font-extrabold uppercase tracking-widest mb-1 ${advice.textColor}`}>{advice.title}</div>
-            <p className="text-[11px] font-medium leading-relaxed text-foreground/80 dark:text-slate-200">{advice.message}</p>
+            <p className="text-[11.5px] font-bold leading-relaxed text-slate-950 dark:text-slate-100">{advice.message}</p>
           </div>
         </div>
       </div>

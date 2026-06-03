@@ -82,7 +82,7 @@ export function VehicleSheet({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="axis-btn-primary h-[32px] px-4 text-[13px]">
+        <button className="axis-btn-primary min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] flex items-center justify-center font-bold shadow-md cursor-pointer">
           {isEdit ? "Editar" : "Novo Veículo"}
         </button>
       </DialogTrigger>

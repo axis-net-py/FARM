@@ -129,9 +129,9 @@ export function AIInvoiceImporter() {
       <button
         type="button"
         onClick={triggerFileSelect}
-        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-[36px] px-4 rounded-lg text-xs shadow-sm flex items-center gap-2 active:scale-98 transition-all"
+        className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] flex items-center justify-center font-bold shadow-md cursor-pointer rounded-lg gap-2 active:scale-98 transition-all"
       >
-        <Sparkles className="w-4 h-4 text-emerald-200 animate-pulse" />
+        <Sparkles className="w-4 h-4 text-emerald-200 animate-pulse shrink-0" />
         Importar Fatura com IA
       </button>
 

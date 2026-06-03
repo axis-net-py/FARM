@@ -15,12 +15,14 @@ export default async function TalhoesPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Talhões</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Talões</h1>
           <p className="text-muted-foreground text-sm">Gerencie as áreas cultiváveis, hectares/alqueires e culturas</p>
         </div>
-        <PlotSheet tenantId={tenantId} harvests={harvests} />
+        <div className="self-start sm:self-auto">
+          <PlotSheet tenantId={tenantId} harvests={harvests} />
+        </div>
       </div>
 
       <PlotList plots={plots} harvests={harvests} tenantId={tenantId} />

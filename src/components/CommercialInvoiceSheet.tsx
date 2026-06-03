@@ -409,9 +409,9 @@ export function CommercialInvoiceSheet({
         <DialogTrigger asChild>
           {trigger || (
             <button
-              className="bg-primary hover:bg-primary/95 text-primary-foreground font-bold h-[36px] px-5 rounded-lg text-xs shadow-sm flex items-center gap-2 active:scale-98 transition-all"
+              className="bg-primary hover:bg-primary/95 text-primary-foreground font-bold min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] rounded-lg shadow-sm flex items-center gap-2 active:scale-98 transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 shrink-0" />
               Faturar Venda / Compra
             </button>
           )}
