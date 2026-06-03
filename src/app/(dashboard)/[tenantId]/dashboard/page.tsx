@@ -22,9 +22,6 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold uppercase tracking-widest text-foreground">
           Dashboard
         </h1>
-        <span className="text-xs text-muted-foreground uppercase tracking-wider">
-          Painel Agrícola
-        </span>
       </div>
 
       {/* GPS Weather Card */}

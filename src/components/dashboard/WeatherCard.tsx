@@ -194,14 +194,14 @@ export function WeatherCard() {
         <div className="flex items-center gap-4 md:border-r border-border/50 md:pr-4">
           {getWeatherIcon(weather.weatherCode)}
           <div>
-            <div className="flex items-center text-xs text-slate-700 dark:text-slate-300 font-bold gap-1 uppercase tracking-wider mb-0.5">
+            <div className="flex items-center text-xs text-black dark:text-slate-300 font-bold gap-1 uppercase tracking-wider mb-0.5">
               <MapPin className="w-3.5 h-3.5 text-primary" />
               <span>{weather.locationName}</span>
             </div>
-            <div className="text-3xl font-extrabold tracking-tighter text-slate-900 dark:text-slate-50">
+            <div className="text-3xl font-extrabold tracking-tighter text-black dark:text-slate-50">
               {weather.temp.toFixed(1)}°C
             </div>
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
+            <div className="text-xs font-bold text-black dark:text-slate-400 uppercase tracking-widest mt-0.5">
               {getWeatherDescription(weather.weatherCode)}
             </div>
           </div>
@@ -211,18 +211,18 @@ export function WeatherCard() {
         <div className="grid grid-cols-3 gap-4 md:border-r border-border/50 md:pr-4">
           <div className="flex flex-col items-center justify-center text-center">
             <Droplets className="w-5 h-5 text-sky-600 dark:text-sky-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Umidade</span>
-            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.humidity}%</span>
+            <span className="text-[10px] uppercase font-extrabold text-black dark:text-slate-400 tracking-widest">Umidade</span>
+            <span className="text-sm font-extrabold text-black dark:text-slate-50 mt-0.5">{weather.humidity}%</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
             <Wind className="w-5 h-5 text-teal-600 dark:text-teal-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Ventos</span>
-            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
+            <span className="text-[10px] uppercase font-extrabold text-black dark:text-slate-400 tracking-widest">Ventos</span>
+            <span className="text-sm font-extrabold text-black dark:text-slate-50 mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
             <CloudRain className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Chuva</span>
-            <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
+            <span className="text-[10px] uppercase font-extrabold text-black dark:text-slate-400 tracking-widest">Chuva</span>
+            <span className="text-sm font-extrabold text-black dark:text-slate-50 mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export function WeatherCard() {
           {advice.icon}
           <div>
             <div className={`text-xs font-extrabold uppercase tracking-widest mb-1 ${advice.textColor}`}>{advice.title}</div>
-            <p className="text-[11.5px] font-bold leading-relaxed text-slate-950 dark:text-slate-100">{advice.message}</p>
+            <p className="text-[11.5px] font-bold leading-relaxed text-black dark:text-slate-100">{advice.message}</p>
           </div>
         </div>
       </div>
