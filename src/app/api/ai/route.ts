@@ -380,7 +380,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { text, image, file, mimeType, purpose } = body;
+    const { text, image, file, mimeType, purpose, attachmentUrl } = body;
     const fileBase64 = file || image;
     const activePurpose = purpose || (mimeType === "application/pdf" ? "invoice" : "diagnostic");
 
@@ -411,7 +411,9 @@ Campos a extrair:
 - Data de Emissão (issuedAt): ISOString no formato YYYY-MM-DD.
 - Moeda (currency): "PYG" (Guaranis), "USD" (Dólares) ou "BRL" (Reais).
 - Taxa de Câmbio (exchangeRate): se a moeda for PYG, é 1. Se for USD, tente obter a taxa ou use 7800. Se BRL, use 1350.
-- Condição de Pagamento (paymentMethod): "A_VISTA" (se for à vista/contado/pagamento imediato) ou "A_PRAZO" (se for a prazo/crédito/pagamento futuro).
+- Condição de Pagamento (paymentMethod): "A_VISTA" ou "A_PRAZO".
+  * Mapeie termos como "Contado", "contado", "a vista", "à vista" obrigatoriamente para "A_VISTA".
+  * Mapeie termos como "Crédito", "crédito", "credito", "a prazo", "A Prazo" obrigatoriamente para "A_PRAZO".
 - Fornecedor (supplier):
   * name: Nome Fantasia ou Razão Social limpa do emitente.
   * businessName: Razão Social completa do emitente.
@@ -597,6 +599,7 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
         documentNumber: extracted.documentNumber || `FAC-${Math.floor(100000 + Math.random() * 900000)}`,
         timbrado: extracted.timbrado || undefined,
         notes: `Importado via IA em ${new Date().toLocaleDateString()}. Fornecedor: ${supplier.name}. Condição: ${extracted.paymentMethod === "A_PRAZO" ? "A Prazo" : "À Vista"}.`,
+        attachmentUrl: attachmentUrl || undefined,
         items: resolvedItems.map(item => {
           const priceInPYG = extracted.currency === "PYG" ? item.unitPrice : item.unitPrice * exchangeRate;
           return {
@@ -652,6 +655,10 @@ Temos as seguintes ações possíveis de cadastro no ERP agrícola:
 9. "create_finance_transaction" (Transação Financeira/Caixa): campos { type: "RECEIVABLE"|"PAYABLE"|"TRANSFER", entityId?: string, currency: "PYG"|"USD"|"BRL", amount: number, exchangeRate: number, category?: string }
 10. "create_purchase_invoice" (Fatura de Compra): campos { supplierName: string, documentNumber?: string, currency: "PYG"|"USD"|"BRL", exchangeRate: number, paymentMethod: "A_VISTA"|"A_PRAZO", items: [{ name: string, sku?: string, quantity: number, unitPrice: number, taxType?: "IVA_10"|"IVA_5"|"EXENTO" }] }
 11. "create_sales_invoice" (Fatura de Venda): campos { customerName: string, documentNumber?: string, currency: "PYG"|"USD"|"BRL", exchangeRate: number, paymentMethod: "A_VISTA"|"A_PRAZO", items: [{ name: string, sku?: string, quantity: number, unitPrice: number, taxType?: "IVA_10"|"IVA_5"|"EXENTO" }] }
+
+Atenção especial para Condição de Pagamento (paymentMethod):
+- Se o usuário citar termos de condição de pagamento como "contado", "a vista", "à vista", "cash", mapeie "paymentMethod" para "A_VISTA".
+- Se o usuário citar "credito", "crédito", "a prazo", "prazo", mapeie "paymentMethod" para "A_PRAZO".
 
 Se a intenção do usuário corresponder a um cadastro, retorne um objeto JSON puro (sem markdown \`\`\`) contendo:
 {

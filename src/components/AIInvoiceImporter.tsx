@@ -10,6 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader2, Sparkles, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export function AIInvoiceImporter() {
   const router = useRouter();
@@ -30,9 +31,28 @@ export function AIInvoiceImporter() {
     setOpen(true);
     setLoading(true);
     setStatus("processing");
-    setMessage("Preparando arquivo para processamento...");
+    setMessage("Preparando arquivo e enviando para o armazenamento...");
 
     try {
+      // 1. Upload to Supabase Storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}_original_invoice.${fileExt}`;
+      const filePath = `purchases/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("attachments")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw new Error("Erro no upload do anexo: " + uploadError.message);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("attachments")
+        .getPublicUrl(filePath);
+
+      const attachmentUrl = publicUrlData?.publicUrl || undefined;
+
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = async () => {
@@ -48,6 +68,7 @@ export function AIInvoiceImporter() {
               file: base64Data,
               mimeType: file.type,
               purpose: "invoice",
+              attachmentUrl,
             }),
           });
 

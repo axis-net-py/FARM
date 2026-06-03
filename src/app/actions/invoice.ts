@@ -244,6 +244,7 @@ export async function createSalesInvoice(data: InvoiceFormData) {
         exchangeRate: new Prisma.Decimal(data.exchangeRate ?? 1),
         notes: data.notes,
         sifenStatus: data.isSifen ? 'PENDING' : 'RECIBO_COMUN',
+        attachmentUrl: data.attachmentUrl,
         totalAmount: new Prisma.Decimal(0),
       },
     })

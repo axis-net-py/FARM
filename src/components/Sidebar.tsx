@@ -2,6 +2,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/language-provider";
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   FileText,
@@ -18,6 +19,9 @@ import {
   Tractor,
   UserCheck,
   Handshake,
+  Sun,
+  Moon,
+  Globe,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -48,7 +52,8 @@ const bottomItems = [
 
 export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
   const pathname = usePathname();
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
+  const { theme, setTheme } = useTheme();
 
   const labelsMap: Record<string, Record<string, string>> = {
     pt: {
@@ -149,10 +154,47 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
       </nav>
 
       {/* Bottom nav */}
-      <div className="border-t border-border px-2 py-3 space-y-0.5">
-        {bottomItems.map((item) => (
-          <NavLink key={item.href} icon={item.icon} labelKey={item.key} defaultLabel={item.defaultLabel} href={item.href} />
-        ))}
+      <div className="border-t border-border px-2 py-3 space-y-2">
+        <div className="space-y-0.5">
+          {bottomItems.map((item) => (
+            <NavLink key={item.href} icon={item.icon} labelKey={item.key} defaultLabel={item.defaultLabel} href={item.href} />
+          ))}
+        </div>
+        
+        {!collapsed && (
+          <div className="pt-2 flex items-center justify-between gap-1.5 border-t border-border/50">
+            {/* Language Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setLanguage(language === "pt" ? "es" : "pt")}
+              className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 rounded-lg border border-border bg-background hover:bg-accent text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all"
+              title={language === "pt" ? "Cambiar a Español" : "Mudar para Português"}
+            >
+              <Globe className="h-3.5 w-3.5" />
+              <span>{language === "pt" ? "ES" : "PT"}</span>
+            </button>
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 rounded-lg border border-border bg-background hover:bg-accent text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all"
+              title="Alternar Tema"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-3.5 w-3.5 text-yellow-500" />
+                  <span>CLARO</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-3.5 w-3.5 text-slate-700" />
+                  <span>ESCURO</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

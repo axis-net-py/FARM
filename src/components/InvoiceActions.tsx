@@ -77,27 +77,31 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
         }
       />
 
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={printingA4}
-        onClick={() => handlePrint(a4Url, setPrintingA4)}
-        className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
-      >
-        <Printer className="w-3.5 h-3.5 text-muted-foreground" />
-        <span>A4</span>
-      </Button>
+      {invoice.type !== "PURCHASE" && (
+        <>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={printingA4}
+            onClick={() => handlePrint(a4Url, setPrintingA4)}
+            className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
+          >
+            <Printer className="w-3.5 h-3.5 text-muted-foreground" />
+            <span>A4</span>
+          </Button>
 
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={printingReceipt}
-        onClick={() => handlePrint(receiptUrl, setPrintingReceipt)}
-        className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
-      >
-        <Receipt className="w-3.5 h-3.5 text-muted-foreground" />
-        <span>80mm</span>
-      </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={printingReceipt}
+            onClick={() => handlePrint(receiptUrl, setPrintingReceipt)}
+            className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
+          >
+            <Receipt className="w-3.5 h-3.5 text-muted-foreground" />
+            <span>80mm</span>
+          </Button>
+        </>
+      )}
     </div>
   );
 }

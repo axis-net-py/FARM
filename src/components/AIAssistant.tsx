@@ -15,13 +15,14 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 interface Message {
   sender: "user" | "bot";
   text: string;
   isDiagnostic?: boolean;
   options?: { label: string; value: string }[];
-  filePending?: { base64: string; mimeType: string; fileName: string };
+  filePending?: { base64: string; mimeType: string; fileName: string; attachmentUrl?: string };
 }
 
 export function AIAssistant({ tenantId }: { tenantId: string }) {
@@ -136,32 +137,63 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
     const fileLabel = file.type === "application/pdf" ? "PDF" : "Imagem";
     const fileName = file.name;
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      const base64Data = (reader.result as string).split(",")[1];
-      
+    setLoading(true);
+
+    try {
+      // 1. Upload to Supabase Storage
+      const fileExt = file.name.split(".").pop();
+      const fileNameUnique = `${Date.now()}_original_invoice.${fileExt}`;
+      const filePath = `purchases/${fileNameUnique}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("attachments")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw new Error("Erro no upload do anexo: " + uploadError.message);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("attachments")
+        .getPublicUrl(filePath);
+
+      const attachmentUrl = publicUrlData?.publicUrl || undefined;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const base64Data = (reader.result as string).split(",")[1];
+        
+        setMessages((prev) => [
+          ...prev,
+          { sender: "user", text: `[${fileLabel} Enviado: ${fileName}]` },
+          {
+            sender: "bot",
+            text: `Como você deseja processar o arquivo "${fileName}"?`,
+            filePending: { base64: base64Data, mimeType: file.type, fileName, attachmentUrl },
+            options: [
+              { label: "Importar como Fatura", value: "invoice" },
+              { label: "Diagnosticar Doença de Planta", value: "diagnostic" },
+            ],
+          },
+        ]);
+        setLoading(false);
+      };
+    } catch (error: any) {
+      console.error(error);
       setMessages((prev) => [
         ...prev,
-        { sender: "user", text: `[${fileLabel} Enviado: ${fileName}]` },
-        {
-          sender: "bot",
-          text: `Como você deseja processar o arquivo "${fileName}"?`,
-          filePending: { base64: base64Data, mimeType: file.type, fileName },
-          options: [
-            { label: "Importar como Fatura", value: "invoice" },
-            { label: "Diagnosticar Doença de Planta", value: "diagnostic" },
-          ],
-        },
+        { sender: "bot", text: `Erro ao preparar arquivo: ${error.message || "Desculpe, tive um problema ao salvar seu documento."}` },
       ]);
-    };
+      setLoading(false);
+    }
     
     if (e.target) e.target.value = "";
   };
 
   const handleOptionSelect = async (
     purpose: string,
-    filePending?: { base64: string; mimeType: string; fileName: string }
+    filePending?: { base64: string; mimeType: string; fileName: string; attachmentUrl?: string }
   ) => {
     if (!filePending) return;
 
@@ -184,6 +216,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
           file: filePending.base64,
           mimeType: filePending.mimeType,
           purpose: purpose,
+          attachmentUrl: filePending.attachmentUrl,
         }),
       });
 
@@ -218,7 +251,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 no-print">
+    <div className="fixed bottom-20 md:bottom-6 right-6 z-50 no-print">
       {/* Floating expanded chat box */}
       {isOpen && (
         <div className="absolute bottom-16 right-0 w-[380px] h-[500px] rounded-2xl border border-border bg-card/95 backdrop-blur-md shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-100 origin-bottom-right">
