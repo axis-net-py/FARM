@@ -14,6 +14,7 @@ import {
   Loader2,
   Calendar,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 interface WeatherData {
   temp: number;
@@ -29,6 +30,14 @@ export function WeatherCard() {
   const [error, setError] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted && theme === "dark";
 
   // Default coordinate: Alto Paraná (Paraguay agricultural region)
   const defaultLat = -25.5061;
@@ -230,8 +239,18 @@ export function WeatherCard() {
         <div className={`p-4 rounded-lg ${advice.bgColor} flex gap-3 h-full items-start transition-all`}>
           {advice.icon}
           <div>
-            <div className={`text-xs font-extrabold uppercase tracking-widest mb-1 ${advice.textColor}`}>{advice.title}</div>
-            <p className="text-[11.5px] font-bold leading-relaxed text-black dark:text-slate-100">{advice.message}</p>
+            <div 
+              className={`text-xs font-extrabold uppercase tracking-widest mb-1 ${advice.textColor}`}
+              style={isDark ? {} : { color: '#000000' }}
+            >
+              {advice.title}
+            </div>
+            <p 
+              className="text-[11.5px] font-bold leading-relaxed text-black dark:text-slate-100"
+              style={isDark ? {} : { color: '#000000' }}
+            >
+              {advice.message}
+            </p>
           </div>
         </div>
       </div>
