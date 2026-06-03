@@ -4,6 +4,7 @@ import { Geist_Mono } from 'next/font/google';
 import { useQuery } from '@tanstack/react-query';
 import { getPlotsBreakdown } from '@/lib/dashboard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Map, Sprout, Hammer, Compass } from 'lucide-react';
 
 const geistMono = Geist_Mono({ subsets: ['latin'] });
@@ -26,25 +27,29 @@ export function PlotBreakdown() {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-md">
-        <Skeleton className="h-4 w-32" />
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-12 w-full animate-pulse" />
-        ))}
-      </div>
+      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm border-l-4 border-l-amber-500/80">
+        <CardHeader className="pb-4 flex flex-row items-center justify-between space-y-0">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-4 w-4 rounded-full" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-12 w-full animate-pulse" />
+          ))}
+        </CardContent>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-card border border-border rounded-xl p-6 text-destructive text-sm shadow-md">
+      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm border-l-4 border-l-rose-500/80 p-6 text-destructive text-sm">
         Erro ao carregar análise de talhões.
-      </div>
+      </Card>
     );
   }
 
   const { byStatus = [], byCrop = [] } = data || {};
-
   const totalHectares = byCrop.reduce((sum, item) => sum + item.area, 0);
 
   const getCropStyle = (cropName: string) => {
@@ -70,18 +75,14 @@ export function PlotBreakdown() {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 shadow-md transition-all hover:shadow-lg flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-            <Map className="w-4 h-4" />
-            Distribuição de Cultivos & Status de Áreas
-          </h3>
-          <span className={`text-[10px] font-bold text-muted-foreground ${geistMono.className}`}>
-            Total Ref: {totalHectares.toFixed(1)} ha
-          </span>
-        </div>
-
+    <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.01] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-amber-500/80 group">
+      <CardHeader className="pb-4 flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
+          Distribuição de Cultivos & Status de Áreas
+        </CardTitle>
+        <Map className="h-4 w-4 text-amber-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
+      </CardHeader>
+      <CardContent>
         {byCrop.length === 0 ? (
           <div className="text-center py-8 text-xs text-muted-foreground font-medium">
             Nenhum talhão cadastrado para análise.
@@ -90,7 +91,12 @@ export function PlotBreakdown() {
           <div className="space-y-4">
             {/* Crops Distribution Progress Bars */}
             <div className="space-y-3">
-              <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Distribuição de Cultivos</h4>
+              <div className="flex justify-between items-center">
+                <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Distribuição de Cultivos</h4>
+                <span className={`text-[10px] font-bold text-muted-foreground ${geistMono.className}`}>
+                  Total: {totalHectares.toFixed(1)} ha
+                </span>
+              </div>
               {byCrop.map((c) => {
                 const pct = totalHectares > 0 ? (c.area / totalHectares) * 100 : 0;
                 const style = getCropStyle(c.crop);
@@ -139,7 +145,7 @@ export function PlotBreakdown() {
 
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
