@@ -127,7 +127,7 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "flex flex-col border-r border-border bg-card transition-all duration-200",
+        "flex flex-col border-r border-border bg-card transition-all duration-200 h-full",
         collapsed ? "w-14" : "w-56"
       )}
     >

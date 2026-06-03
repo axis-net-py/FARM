@@ -5,6 +5,9 @@ import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { useLanguage } from "@/components/language-provider";
+import { LayoutDashboard, FileText, Handshake, Map, Menu } from "lucide-react";
 
 interface DashboardShellProps {
   tenantId: string;
@@ -15,11 +18,40 @@ export function DashboardShell({ tenantId, children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { language } = useLanguage();
 
   // Close mobile drawer when route changes
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  const mobileLabels: Record<string, Record<string, string>> = {
+    pt: {
+      dashboard: "Início",
+      invoices: "Faturas",
+      contratos: "Contratos",
+      talhoes: "Talões",
+      menu: "Mais"
+    },
+    es: {
+      dashboard: "Inicio",
+      invoices: "Facturas",
+      contratos: "Contratos",
+      talhoes: "Parcelas",
+      menu: "Más"
+    }
+  };
+
+  const getMobileLabel = (key: string) => {
+    return mobileLabels[language]?.[key] || key;
+  };
+
+  const isTabActive = (href: string) => {
+    if (href === "dashboard") {
+      return pathname.endsWith("/dashboard");
+    }
+    return pathname.includes(`/${href}`);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-background relative w-full">
@@ -53,10 +85,80 @@ export function DashboardShell({ tenantId, children }: DashboardShellProps) {
             }
           }}
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 w-full">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6 w-full">
           {children}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border flex justify-around items-center h-16 md:hidden px-2 shadow-lg safe-bottom">
+        <Link
+          href={`/${tenantId}/dashboard`}
+          className={cn(
+            "flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-all",
+            isTabActive("dashboard")
+              ? "text-primary scale-105 font-semibold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <LayoutDashboard className="h-5 w-5 mb-0.5" />
+          <span className="text-[10px] tracking-wide">{getMobileLabel("dashboard")}</span>
+        </Link>
+
+        <Link
+          href={`/${tenantId}/invoices`}
+          className={cn(
+            "flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-all",
+            isTabActive("invoices")
+              ? "text-primary scale-105 font-semibold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <FileText className="h-5 w-5 mb-0.5" />
+          <span className="text-[10px] tracking-wide">{getMobileLabel("invoices")}</span>
+        </Link>
+
+        <Link
+          href={`/${tenantId}/contratos`}
+          className={cn(
+            "flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-all",
+            isTabActive("contratos")
+              ? "text-primary scale-105 font-semibold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Handshake className="h-5 w-5 mb-0.5" />
+          <span className="text-[10px] tracking-wide">{getMobileLabel("contratos")}</span>
+        </Link>
+
+        <Link
+          href={`/${tenantId}/talhoes`}
+          className={cn(
+            "flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-all",
+            isTabActive("talhoes")
+              ? "text-primary scale-105 font-semibold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Map className="h-5 w-5 mb-0.5" />
+          <span className="text-[10px] tracking-wide">{getMobileLabel("talhoes")}</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          className={cn(
+            "flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-all",
+            mobileOpen
+              ? "text-primary scale-105 font-semibold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Menu className="h-5 w-5 mb-0.5" />
+          <span className="text-[10px] tracking-wide">{getMobileLabel("menu")}</span>
+        </button>
+      </nav>
     </div>
   );
 }
+

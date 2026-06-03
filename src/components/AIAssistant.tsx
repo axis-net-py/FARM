@@ -14,7 +14,7 @@ import {
   User,
   AlertCircle,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface Message {
   sender: "user" | "bot";
@@ -24,11 +24,12 @@ interface Message {
 
 export function AIAssistant({ tenantId }: { tenantId: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "bot",
-      text: "Olá! Sou o Assistente AURELIUS IA. Diga comandos como:\n• 'cadastrar safra Soja 2026'\n• 'adicionar talhão Leste de 25 hectares'\n• 'cadastrar trator John Deere 6100'\n\nOu envie fotos de folhas de plantio para diagnosticar doenças agrícolas.",
+      text: "Olá! Sou o Assistente AURELIUS IA. Diga comandos como:\n• 'cadastrar safra Soja 2026'\n• 'adicionar talhão Leste de 25 hectares'\n• 'cadastrar contrato 104 de soja para silo Lar de 200 toneladas'\n\nOu envie fotos de folhas de plantio para diagnosticar doenças, ou PDFs/Imagens de faturas de compra para cadastrá-las automaticamente.",
     },
   ]);
   const [inputText, setInputText] = useState("");
@@ -126,17 +127,19 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const isInvoice = file.type === "application/pdf" || pathname.includes("/invoices");
+    const fileLabel = file.type === "application/pdf" ? "PDF" : "Imagem";
+
     setMessages((prev) => [
       ...prev,
-      { sender: "user", text: `[Imagem Enviada: ${file.name}]` },
+      { sender: "user", text: `[${fileLabel} Enviado: ${file.name}]` },
     ]);
     setLoading(true);
 
-    // Read file as base64
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
@@ -147,22 +150,32 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            image: base64Data,
-            mimeType: file.type
+            file: base64Data,
+            mimeType: file.type,
+            purpose: isInvoice ? "invoice" : "diagnostic"
           }),
         });
 
-        if (!res.ok) throw new Error("Erro ao diagnosticar imagem");
+        if (!res.ok) throw new Error(isInvoice ? "Erro ao importar fatura por IA" : "Erro ao diagnosticar imagem");
         const data = await res.json();
 
         setMessages((prev) => [
           ...prev,
-          { sender: "bot", text: data.message, isDiagnostic: true },
+          { sender: "bot", text: data.message, isDiagnostic: !isInvoice },
         ]);
+
+        if (isInvoice) {
+          router.refresh();
+        }
       } catch (err) {
         setMessages((prev) => [
           ...prev,
-          { sender: "bot", text: "Erro ao tentar diagnosticar a folha enviada." },
+          { 
+            sender: "bot", 
+            text: isInvoice 
+              ? "Erro ao processar e cadastrar a fatura enviada. Verifique o arquivo e tente novamente." 
+              : "Erro ao tentar diagnosticar a folha enviada." 
+          },
         ]);
       } finally {
         setLoading(false);
@@ -246,10 +259,10 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
             {/* Hidden File Input */}
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf"
               className="hidden"
               ref={fileInputRef}
-              onChange={handleImageUpload}
+              onChange={handleFileUpload}
             />
 
             {/* Upload Image Button */}
@@ -257,7 +270,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
               type="button"
               onClick={triggerImageSelect}
               className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-all shrink-0"
-              title="Diagnosticar Folha"
+              title="Enviar Arquivo (Fatura ou Folha)"
             >
               <ImageIcon className="w-4.5 h-4.5" />
             </button>

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { StatsCards } from '@/components/dashboard/StatsCards';
-import { SalesChart } from '@/components/dashboard/SalesChart';
-import { TopProducts } from '@/components/dashboard/TopProducts';
+import { RecentContracts } from '@/components/dashboard/RecentContracts';
+import { PlotBreakdown } from '@/components/dashboard/PlotBreakdown';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
@@ -23,7 +23,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <span className="text-xs text-muted-foreground uppercase tracking-wider">
-          Last 30 days
+          Painel Agrícola
         </span>
       </div>
 
@@ -54,7 +54,7 @@ export default function DashboardPage() {
             </Card>
           }
         >
-          <SalesChart dateRange={defaultDateRange} currency={defaultCurrency} />
+          <RecentContracts limit={5} />
         </Suspense>
 
         <Suspense
@@ -66,13 +66,10 @@ export default function DashboardPage() {
             </Card>
           }
         >
-          <TopProducts
-            dateRange={defaultDateRange}
-            currency={defaultCurrency}
-            limit={5}
-          />
+          <PlotBreakdown />
         </Suspense>
       </div>
     </div>
   );
 }
+

@@ -66,6 +66,24 @@ export function WeatherCard() {
         if (!res.ok) throw new Error("Falha ao carregar clima");
         const data = await res.json();
 
+        // Reverse geocoding using Nominatim (OpenStreetMap)
+        let locationName = lat === defaultLat ? "Alto Paraná" : "Sua Localização (GPS)";
+        try {
+          const geoRes = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=pt,es,en`
+          );
+          if (geoRes.ok) {
+            const geoData = await geoRes.json();
+            const addr = geoData.address;
+            const cityName = addr?.city || addr?.town || addr?.village || addr?.municipality || addr?.county || addr?.state;
+            if (cityName) {
+              locationName = cityName;
+            }
+          }
+        } catch (geoErr) {
+          console.error("Geocoding failed, falling back to coords:", geoErr);
+        }
+
         const current = data.current;
         setWeather({
           temp: current.temperature_2m,
@@ -73,7 +91,7 @@ export function WeatherCard() {
           precipitation: current.precipitation,
           windSpeed: current.wind_speed_10m,
           weatherCode: current.weather_code,
-          locationName: lat === defaultLat ? "Alto Paraná (Padrão Fazenda)" : "Sua Localização (GPS)",
+          locationName: locationName,
         });
       } catch (err: any) {
         setError(err.message || "Erro de conexão");

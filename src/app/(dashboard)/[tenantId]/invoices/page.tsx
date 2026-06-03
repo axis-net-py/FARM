@@ -1,5 +1,6 @@
 import { getInvoices } from "@/app/actions/invoice";
 import { CommercialInvoiceSheet } from "@/components/CommercialInvoiceSheet";
+import { AIInvoiceImporter } from "@/components/AIInvoiceImporter";
 import { InvoiceList } from "@/components/InvoiceList";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -26,7 +27,10 @@ export default async function InvoicesPage({
             Faturas de Compra e Venda
           </p>
         </div>
-        <CommercialInvoiceSheet tenantId={tenantId} />
+        <div className="flex items-center gap-3">
+          <AIInvoiceImporter />
+          <CommercialInvoiceSheet tenantId={tenantId} />
+        </div>
       </div>
 
       <InvoiceList invoices={invoices} tenantId={tenantId} />
