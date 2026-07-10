@@ -85,7 +85,7 @@ export function StatsCards({ dateRange, currency }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Safras Ativas */}
-      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-emerald-500/80 group">
+      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-emerald-500/80 group animate-fade-up" style={{ animationDelay: '0ms' }}>
         <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
             {labels.harvestsTitle}
@@ -105,7 +105,7 @@ export function StatsCards({ dateRange, currency }: StatsCardsProps) {
       </Card>
 
       {/* Área Cultivada */}
-      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-amber-500/80 group">
+      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-amber-500/80 group animate-fade-up" style={{ animationDelay: '60ms' }}>
         <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
             {labels.areaTitle}
@@ -125,7 +125,7 @@ export function StatsCards({ dateRange, currency }: StatsCardsProps) {
       </Card>
 
       {/* Frota Operacional */}
-      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-sky-500/80 group">
+      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-sky-500/80 group animate-fade-up" style={{ animationDelay: '120ms' }}>
         <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
             {labels.fleetTitle}
@@ -145,7 +145,7 @@ export function StatsCards({ dateRange, currency }: StatsCardsProps) {
       </Card>
 
       {/* Equipe em Campo */}
-      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-indigo-500/80 group">
+      <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-indigo-500/80 group animate-fade-up" style={{ animationDelay: '180ms' }}>
         <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
             {labels.teamTitle}
