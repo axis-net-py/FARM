@@ -1,27 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
-    <!-- Background Gradient (AXIS Farm deep campo green) -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f2b1e" />
-      <stop offset="100%" stop-color="#04130c" />
-    </linearGradient>
-    <!-- Harvest Gold Gradient -->
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f3e098" />
-      <stop offset="50%" stop-color="#c4ad7f" />
-      <stop offset="100%" stop-color="#a98e5b" />
+      <stop offset="0%" stop-color="#2f6b4a" />
+      <stop offset="100%" stop-color="#123521" />
     </linearGradient>
   </defs>
 
   <!-- Base rounded background -->
-  <rect width="32" height="32" rx="7" fill="url(#bgGrad)" />
+  <rect width="32" height="32" rx="8" fill="url(#bgGrad)" />
 
-  <!-- Stylized geometric 'A' (matches the sidebar/login brand badge) -->
-  <path d="M16 6 L25 24 H20.5 L16 14.5 L11.5 24 H7 L16 6 Z" fill="url(#goldGrad)" />
-  <!-- Inner negative space cutout -->
-  <polygon points="16,10 18.5,15.5 13.5,15.5" fill="#0f2b1e" />
+  <!-- Field card -->
+  <rect x="7" y="9" width="18" height="15" rx="3" fill="#faf8f4" />
+  <rect x="7" y="9" width="18" height="4.5" rx="2.2" fill="#c4ad7f" />
 
-  <!-- Wheat-leaf accent tucked at the peak -->
-  <path d="M16 6 C18.8 8.5 19.4 12 17.3 14 C16 12 15.6 9 16 6 Z" fill="#3daa78" opacity="0.9" />
-
+  <!-- Bold sprout mark, thick + few vertices for legibility at 16px -->
+  <path
+    d="M16 24 V14 M16 20 C12.5 20 10.5 17.5 10.5 14 C14.5 14 16 16.5 16 20 M16 17 C19.5 17 21.5 14.5 21.5 11 C17.5 11 16 13.5 16 17"
+    fill="none"
+    stroke="#1f4d3a"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 </svg>
