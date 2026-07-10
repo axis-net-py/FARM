@@ -11,15 +11,21 @@
 
   <!-- Field card -->
   <rect x="7" y="9" width="18" height="15" rx="3" fill="#faf8f4" />
-  <rect x="7" y="9" width="18" height="4.5" rx="2.2" fill="#c4ad7f" />
 
-  <!-- Bold sprout mark, thick + few vertices for legibility at 16px -->
-  <path
-    d="M16 24 V14 M16 20 C12.5 20 10.5 17.5 10.5 14 C14.5 14 16 16.5 16 20 M16 17 C19.5 17 21.5 14.5 21.5 11 C17.5 11 16 13.5 16 17"
-    fill="none"
-    stroke="#1f4d3a"
-    stroke-width="2.2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+  <!-- Exhaust pipe, pokes above the card like the Clinic calendar rings -->
+  <rect x="10.6" y="7" width="1.3" height="4.5" rx="0.65" fill="#1f4d3a" />
+
+  <!-- Cabin -->
+  <rect x="10" y="11.5" width="5.5" height="6" rx="1" fill="#1f4d3a" />
+
+  <!-- Hood -->
+  <path d="M15.5 17 L20.5 18.7 L20.5 20.3 L15.5 20.3 Z" fill="#1f4d3a" />
+
+  <!-- Rear wheel (big) -->
+  <circle cx="12.7" cy="20.1" r="3.4" fill="#1f4d3a" />
+  <circle cx="12.7" cy="20.1" r="1.3" fill="#faf8f4" />
+
+  <!-- Front wheel (small) -->
+  <circle cx="20.5" cy="21.3" r="2.1" fill="#1f4d3a" />
+  <circle cx="20.5" cy="21.3" r="0.8" fill="#faf8f4" />
 </svg>
