@@ -142,7 +142,9 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
           A
         </div>
         {!collapsed && (
-          <span className="text-sm font-semibold tracking-tight text-foreground">AURELIUS</span>
+          <span className="font-serif text-sm font-semibold tracking-tight text-foreground">
+            AXIS <span className="text-primary">Farm</span>
+          </span>
         )}
       </div>
 
