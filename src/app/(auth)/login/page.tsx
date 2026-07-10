@@ -90,17 +90,23 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] p-4">
-      <div className="w-full max-w-[400px]">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="w-full max-w-[400px] animate-fade-up">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-primary tracking-tight uppercase tracking-widest">
-            AURELIUS
+        <div className="text-center mb-10">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground text-lg font-bold">
+            A
+          </div>
+          <h1 className="text-3xl text-foreground">
+            AXIS <span className="text-primary">Farm</span>
           </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Gestão agrícola — safras, talhões e frota
+          </p>
         </div>
 
         {/* Login Card */}
-        <div className="border border-border rounded-xl p-8 bg-card">
+        <div className="border border-border rounded-2xl p-8 bg-card shadow-sm">
           <Suspense
             fallback={
               <div className="flex items-center justify-center py-6">
