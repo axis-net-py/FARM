@@ -95,6 +95,8 @@ model Tenant {
   silos             Silo[]
   siloMovements     SiloMovement[]
   soilAnalyses      SoilAnalysis[]
+  livestockBatches  LivestockBatch[]
+  livestockEvents   LivestockEvent[]
 }
 
 // ─── User ───────────────────────────────────────────────────
@@ -535,6 +537,7 @@ model Employee {
   updatedAt        DateTime          @updatedAt
   vehicleLogs      VehicleLog[]
   plotApplications PlotApplication[]
+  livestockEvents  LivestockEvent[]
 
   @@index([tenantId])
 }
@@ -604,4 +607,48 @@ model SiloMovement {
 
   @@index([tenantId])
   @@index([siloId])
+}
+
+model LivestockBatch {
+  id            String            @id @default(cuid())
+  tenantId      String
+  tenant        Tenant            @relation(fields: [tenantId], references: [id])
+  name          String
+  category      String            // bezerro, novilho, vaca, touro, boi, etc.
+  quantity      Int
+  averageWeight Decimal?          @db.Decimal(8, 2) // kg
+  location      String?           // piquete/pasto atual
+  status        String            @default("ACTIVE") // ACTIVE, SOLD
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  events        LivestockEvent[]
+
+  @@index([tenantId])
+}
+
+enum LivestockEventType {
+  WEIGHING
+  HEALTH
+  MOVEMENT
+}
+
+model LivestockEvent {
+  id          String             @id @default(cuid())
+  tenantId    String
+  tenant      Tenant             @relation(fields: [tenantId], references: [id])
+  batchId     String
+  batch       LivestockBatch     @relation(fields: [batchId], references: [id])
+  type        LivestockEventType
+  date        DateTime
+  weight      Decimal?           @db.Decimal(8, 2) // WEIGHING: peso médio do lote
+  location    String?            // MOVEMENT: novo piquete/pasto
+  description String?           // HEALTH: vacina/tratamento
+  employeeId  String?
+  employee    Employee?          @relation(fields: [employeeId], references: [id])
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([tenantId])
+  @@index([batchId])
 }
