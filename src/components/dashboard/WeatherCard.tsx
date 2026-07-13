@@ -25,10 +25,20 @@ interface WeatherData {
   locationName: string;
 }
 
+interface ForecastDay {
+  date: string;
+  tempMax: number;
+  tempMin: number;
+  precipitation: number;
+  weatherCode: number;
+}
+
 export function WeatherCard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [forecast, setForecast] = useState<ForecastDay[]>([]);
+  const [rain30d, setRain30d] = useState<number | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -70,10 +80,42 @@ export function WeatherCard() {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto`
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&forecast_days=5&timezone=auto`
         );
         if (!res.ok) throw new Error("Falha ao carregar clima");
         const data = await res.json();
+
+        if (data.daily) {
+          const days: ForecastDay[] = data.daily.time.map((date: string, i: number) => ({
+            date,
+            tempMax: data.daily.temperature_2m_max[i],
+            tempMin: data.daily.temperature_2m_min[i],
+            precipitation: data.daily.precipitation_sum[i],
+            weatherCode: data.daily.weather_code[i],
+          }));
+          setForecast(days);
+        }
+
+        // Histórico de chuva dos últimos 30 dias (API de arquivo, gratuita)
+        try {
+          const end = new Date();
+          const start = new Date();
+          start.setDate(start.getDate() - 30);
+          const fmt = (d: Date) => d.toISOString().split("T")[0];
+          const archiveRes = await fetch(
+            `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${fmt(start)}&end_date=${fmt(end)}&daily=precipitation_sum&timezone=auto`
+          );
+          if (archiveRes.ok) {
+            const archiveData = await archiveRes.json();
+            const sum = (archiveData.daily?.precipitation_sum ?? []).reduce(
+              (acc: number, v: number | null) => acc + (v ?? 0),
+              0
+            );
+            setRain30d(sum);
+          }
+        } catch (archiveErr) {
+          console.error("Falha ao buscar histórico de chuva:", archiveErr);
+        }
 
         // Reverse geocoding using Nominatim (OpenStreetMap)
         let locationName = lat === defaultLat ? "Alto Paraná" : "Sua Localização (GPS)";
@@ -244,6 +286,39 @@ export function WeatherCard() {
           </div>
         </div>
       </div>
+
+      {(forecast.length > 0 || rain30d !== null) && (
+        <div className="border-t border-border/50 px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
+          {forecast.length > 0 && (
+            <div className="flex-1 grid grid-cols-5 gap-2">
+              {forecast.map((day) => {
+                const weekday = new Date(day.date + "T00:00:00").toLocaleDateString("pt-BR", { weekday: "short" });
+                return (
+                  <div key={day.date} className="flex flex-col items-center text-center gap-0.5">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">{weekday}</span>
+                    <span className="scale-75">{getWeatherIcon(day.weatherCode)}</span>
+                    <span className="text-xs font-bold text-foreground">
+                      {Math.round(day.tempMax)}° <span className="text-muted-foreground font-medium">{Math.round(day.tempMin)}°</span>
+                    </span>
+                    {day.precipitation > 0 && (
+                      <span className="text-[10px] text-sky-600 dark:text-sky-400 font-semibold">{day.precipitation.toFixed(0)}mm</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {rain30d !== null && (
+            <div className="flex items-center gap-2 sm:border-l border-border/50 sm:pl-4 shrink-0">
+              <Calendar className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <div>
+                <div className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-widest">Chuva (30d)</div>
+                <div className="text-sm font-extrabold text-foreground">{rain30d.toFixed(0)} mm</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
