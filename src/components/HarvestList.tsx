@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { HarvestSheet } from "@/components/HarvestSheet";
@@ -119,7 +120,11 @@ export function HarvestList({ harvests, tenantId }: { harvests: Harvest[]; tenan
             ) : (
               sorted.map((harvest) => (
                 <TableRow key={harvest.id}>
-                  <TableCell className="font-medium">{harvest.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/${tenantId}/safra/${harvest.id}`} className="hover:underline hover:text-primary">
+                      {harvest.name}
+                    </Link>
+                  </TableCell>
                   <TableCell className="capitalize">{harvest.cropType}</TableCell>
                   <TableCell>{formatDate(harvest.startDate)}</TableCell>
                   <TableCell>{formatDate(harvest.endDate)}</TableCell>
