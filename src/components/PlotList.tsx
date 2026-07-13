@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { PlotSheet } from "@/components/PlotSheet";
@@ -122,7 +123,11 @@ export function PlotList({
             ) : (
               sorted.map((plot) => (
                 <TableRow key={plot.id}>
-                  <TableCell className="font-medium">{plot.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/${tenantId}/talhoes/${plot.id}`} className="hover:underline hover:text-primary">
+                      {plot.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>
                     {Number(plot.area).toFixed(2)} {plot.unit === "HECTARE" ? "ha" : "alq"}
                   </TableCell>
