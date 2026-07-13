@@ -31,6 +31,17 @@ export async function getPlots(): Promise<(Plot & { harvest?: { name: string } |
   }) as any
 }
 
+export async function getPlotById(id: string): Promise<(Plot & { harvest?: { name: string } | null }) | null> {
+  const session = await auth()
+  if (!session?.user?.tenantId) throw new Error('Tenant não encontrado')
+  const tenantId = session.user.tenantId
+
+  return prisma.plot.findFirst({
+    where: { id, tenantId },
+    include: { harvest: { select: { name: true } } },
+  }) as any
+}
+
 export async function createPlot(data: PlotFormData) {
   const session = await auth()
   if (!session?.user?.tenantId) throw new Error('Tenant não encontrado')
