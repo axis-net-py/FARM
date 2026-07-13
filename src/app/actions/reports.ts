@@ -135,10 +135,10 @@ export async function getReportData(
 
     return vehicles.map((v) => ({
       id: v.id,
-      date: v.lastMaintenance ? v.lastMaintenance.toISOString().split("T")[0] : v.createdAt.toISOString().split("T")[0],
+      date: v.createdAt.toISOString().split("T")[0],
       total: 0,
       currency: v.type,
-      details: `${v.name} (Placa: ${v.plate || "S/N"}) - Status: ${v.status === "OPERATIONAL" ? "Operando" : v.status === "MAINTENANCE" ? "Em Manutenção" : "Fora de Serviço"}`,
+      details: `${v.name} (Placa: ${v.plate || "S/N"}) - Status: ${v.status === "OPERATIONAL" ? "Operando" : v.status === "MAINTENANCE" ? "Em Manutenção" : "Fora de Serviço"}${v.currentReading ? ` - Leitura: ${Number(v.currentReading).toLocaleString()}` : ""}`,
     }));
   } else {
     // employees

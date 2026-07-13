@@ -10,7 +10,6 @@ export type VehicleFormData = {
   type: string
   plate?: string
   status?: string // OPERATIONAL, MAINTENANCE, OUT_OF_SERVICE
-  lastMaintenance?: Date
 }
 
 export async function getVehicles(): Promise<Vehicle[]> {
@@ -21,6 +20,16 @@ export async function getVehicles(): Promise<Vehicle[]> {
   return prisma.vehicle.findMany({
     where: { tenantId },
     orderBy: { name: 'asc' },
+  })
+}
+
+export async function getVehicleById(id: string): Promise<Vehicle | null> {
+  const session = await auth()
+  if (!session?.user?.tenantId) throw new Error('Tenant não encontrado')
+  const tenantId = session.user.tenantId
+
+  return prisma.vehicle.findFirst({
+    where: { id, tenantId },
   })
 }
 
@@ -36,7 +45,6 @@ export async function createVehicle(data: VehicleFormData) {
       type: data.type,
       plate: data.plate || null,
       status: data.status ?? 'OPERATIONAL',
-      lastMaintenance: data.lastMaintenance ? new Date(data.lastMaintenance) : null,
     },
   })
 
@@ -53,9 +61,6 @@ export async function updateVehicle(id: string, data: Partial<VehicleFormData>) 
   if (data.type !== undefined) updateData.type = data.type
   if (data.plate !== undefined) updateData.plate = data.plate || null
   if (data.status !== undefined) updateData.status = data.status
-  if (data.lastMaintenance !== undefined) {
-    updateData.lastMaintenance = data.lastMaintenance ? new Date(data.lastMaintenance) : null
-  }
 
   await prisma.vehicle.updateMany({
     where: { id, tenantId },

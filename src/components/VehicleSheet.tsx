@@ -28,9 +28,6 @@ export function VehicleSheet({
   const [type, setType] = useState(vehicle?.type ?? "trator");
   const [plate, setPlate] = useState(vehicle?.plate ?? "");
   const [status, setStatus] = useState(vehicle?.status ?? "OPERATIONAL");
-  const [lastMaintenance, setLastMaintenance] = useState(
-    vehicle?.lastMaintenance ? new Date(vehicle.lastMaintenance).toISOString().split("T")[0] : ""
-  );
 
   async function handleDelete() {
     if (!vehicle) return;
@@ -61,7 +58,6 @@ export function VehicleSheet({
         type,
         plate: plate || undefined,
         status,
-        lastMaintenance: lastMaintenance ? new Date(lastMaintenance) : undefined,
       };
 
       if (isEdit && vehicle) {
@@ -148,18 +144,6 @@ export function VehicleSheet({
                   <SelectItem value="OUT_OF_SERVICE" className="text-[12px]">Fora de Serviço</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Última Manutenção</Label>
-              <Input
-                type="date"
-                value={lastMaintenance}
-                onChange={(e) => setLastMaintenance(e.target.value)}
-                className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
-              />
             </div>
           </div>
 

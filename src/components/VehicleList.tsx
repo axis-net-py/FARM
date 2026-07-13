@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { VehicleSheet } from "@/components/VehicleSheet";
@@ -9,10 +10,10 @@ import { Input } from "@/components/ui/input";
 
 export function VehicleList({ vehicles, tenantId }: { vehicles: Vehicle[]; tenantId: string }) {
   const [search, setSearch] = useState("");
-  const [sortField, setSortField] = useState<"name" | "type" | "plate" | "status" | "lastMaintenance" | null>(null);
+  const [sortField, setSortField] = useState<"name" | "type" | "plate" | "status" | "currentReading" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (field: "name" | "type" | "plate" | "status" | "lastMaintenance") => {
+  const handleSort = (field: "name" | "type" | "plate" | "status" | "currentReading") => {
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -38,9 +39,9 @@ export function VehicleList({ vehicles, tenantId }: { vehicles: Vehicle[]; tenan
     let compA: any = aVal;
     let compB: any = bVal;
 
-    if (sortField === "lastMaintenance") {
-      compA = aVal ? new Date(aVal).getTime() : 0;
-      compB = bVal ? new Date(bVal).getTime() : 0;
+    if (sortField === "currentReading") {
+      compA = aVal ? Number(aVal) : 0;
+      compB = bVal ? Number(bVal) : 0;
     } else {
       compA = String(aVal || "").toLowerCase();
       compB = String(bVal || "").toLowerCase();
@@ -54,12 +55,6 @@ export function VehicleList({ vehicles, tenantId }: { vehicles: Vehicle[]; tenan
   const renderSortIndicator = (field: typeof sortField) => {
     if (sortField !== field) return null;
     return sortOrder === "asc" ? " ▴" : " ▾";
-  };
-
-  const formatDate = (dateInput: any) => {
-    if (!dateInput) return "-";
-    const date = new Date(dateInput);
-    return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
   };
 
   const getStatusBadge = (status: string) => {
@@ -104,8 +99,8 @@ export function VehicleList({ vehicles, tenantId }: { vehicles: Vehicle[]; tenan
               <TableHead onClick={() => handleSort("status")} className="cursor-pointer hover:bg-muted/50 select-none">
                 Status{renderSortIndicator("status")}
               </TableHead>
-              <TableHead onClick={() => handleSort("lastMaintenance")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Última Manutenção{renderSortIndicator("lastMaintenance")}
+              <TableHead onClick={() => handleSort("currentReading")} className="cursor-pointer hover:bg-muted/50 select-none">
+                Leitura Atual{renderSortIndicator("currentReading")}
               </TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -120,11 +115,15 @@ export function VehicleList({ vehicles, tenantId }: { vehicles: Vehicle[]; tenan
             ) : (
               sorted.map((vehicle) => (
                 <TableRow key={vehicle.id}>
-                  <TableCell className="font-medium">{vehicle.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/${tenantId}/frota/${vehicle.id}`} className="hover:underline hover:text-primary">
+                      {vehicle.name}
+                    </Link>
+                  </TableCell>
                   <TableCell className="capitalize">{vehicle.type}</TableCell>
                   <TableCell>{vehicle.plate ?? "-"}</TableCell>
                   <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
-                  <TableCell>{formatDate(vehicle.lastMaintenance)}</TableCell>
+                  <TableCell>{vehicle.currentReading ? Number(vehicle.currentReading).toLocaleString() : "-"}</TableCell>
                   <TableCell className="text-right">
                     <VehicleSheet
                       tenantId={tenantId}
