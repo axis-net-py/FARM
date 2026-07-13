@@ -1,9 +1,12 @@
 import { getPlotById } from "@/app/actions/talhao";
 import { getPlotApplications } from "@/app/actions/plotApplication";
+import { getSoilAnalyses } from "@/app/actions/soilAnalysis";
 import { getEmployees } from "@/app/actions/funcionario";
 import { getProducts } from "@/app/actions/product";
 import { PlotApplicationSheet } from "@/components/PlotApplicationSheet";
 import { PlotApplicationTimeline } from "@/components/PlotApplicationTimeline";
+import { SoilAnalysisSheet } from "@/components/SoilAnalysisSheet";
+import { SoilAnalysisTimeline } from "@/components/SoilAnalysisTimeline";
 import { Badge } from "@/components/ui/badge";
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
@@ -35,8 +38,9 @@ export default async function PlotProfilePage({
   const plot = await getPlotById(id);
   if (!plot) notFound();
 
-  const [applications, employees, products] = await Promise.all([
+  const [applications, soilAnalyses, employees, products] = await Promise.all([
     getPlotApplications(id),
+    getSoilAnalyses(id),
     getEmployees(),
     getProducts(),
   ]);
@@ -77,7 +81,18 @@ export default async function PlotProfilePage({
         </div>
       </div>
 
-      <PlotApplicationTimeline applications={applications} />
+      <div>
+        <h2 className="text-lg font-semibold text-foreground mb-3">Aplicações de Insumo</h2>
+        <PlotApplicationTimeline applications={applications} />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-foreground">Análises de Solo</h2>
+          <SoilAnalysisSheet plotId={id} />
+        </div>
+        <SoilAnalysisTimeline analyses={soilAnalyses} />
+      </div>
     </div>
   );
 }
