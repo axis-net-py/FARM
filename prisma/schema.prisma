@@ -94,6 +94,7 @@ model Tenant {
   plotApplications  PlotApplication[]
   silos             Silo[]
   siloMovements     SiloMovement[]
+  soilAnalyses      SoilAnalysis[]
 }
 
 // ─── User ───────────────────────────────────────────────────
@@ -429,9 +430,30 @@ model Plot {
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
   applications PlotApplication[]
+  soilAnalyses SoilAnalysis[]
 
   @@index([tenantId])
   @@index([harvestId])
+}
+
+model SoilAnalysis {
+  id              String   @id @default(cuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  plotId          String
+  plot            Plot     @relation(fields: [plotId], references: [id])
+  date            DateTime
+  ph              Decimal? @db.Decimal(4, 2)
+  phosphorus      Decimal? @db.Decimal(8, 2) // P, mg/dm³
+  potassium       Decimal? @db.Decimal(8, 2) // K, cmolc/dm³
+  organicMatter   Decimal? @db.Decimal(5, 2) // %
+  recommendation  String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([plotId])
 }
 
 model PlotApplication {
