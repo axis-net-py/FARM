@@ -640,6 +640,35 @@ Retorne APENAS um objeto JSON puro no seguinte formato, sem formatação markdow
 
     // 3. Text command request
     if (text) {
+      // Engine nova de tool-calling real (9 módulos novos: frota, talhão, safra, silo, rebanho, certificação).
+      // Se o pedido for de um dos 11 cadastros legados (clientes/fornecedores/produtos/faturas/financeiro/
+      // safra-talhão-veículo-funcionário-contrato NOVOS), o modelo devolve "__FALLBACK__" e cai pro
+      // classificador antigo logo abaixo — nenhum comando que já funcionava deixa de funcionar.
+      try {
+        const { generateText, stepCountIs } = await import("ai");
+        const { farmModel } = await import("@/lib/ai/model");
+        const { buildFarmTools } = await import("@/lib/ai/tools");
+
+        const newEngineResult = await generateText({
+          model: farmModel(),
+          system: `Você é o assistente de IA do AXIS Farm, um ERP agrícola. Responda em português.
+Você só tem ferramentas para: frota (manutenção/combustível de veículos), talhão (aplicação de insumo/análise de solo/turno de irrigação), safra (consulta de rentabilidade), silo (movimento de estoque de grão), rebanho (pesagem/sanidade/movimentação de gado) e certificações.
+Se o pedido do usuário for sobre CLIENTES, FORNECEDORES, PRODUTOS, FATURAS, TRANSAÇÕES FINANCEIRAS, ou CADASTRAR (criar do zero) uma nova safra, talhão, veículo, funcionário ou contrato, responda apenas com o texto exato "__FALLBACK__" e nada mais — esses casos são tratados por outro sistema.
+Para tudo que suas ferramentas cobrem (registrar ou consultar), execute diretamente.`,
+          messages: [{ role: "user", content: text }],
+          tools: buildFarmTools(tenantId),
+          stopWhen: stepCountIs(8),
+        });
+
+        const finalText = (newEngineResult.text || "").trim();
+        if (finalText && finalText !== "__FALLBACK__") {
+          return NextResponse.json({ action: "chat", message: finalText });
+        }
+      } catch (newEngineError) {
+        console.error("Erro na engine de tool-calling, usando classificador antigo:", newEngineError);
+      }
+
+      // Fallback: classificador antigo (11 ações fixas dos módulos legados)
       let result: any = null;
 
       const prompt = `Analise a intenção do usuário: "${text}".
