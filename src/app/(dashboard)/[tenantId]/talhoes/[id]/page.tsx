@@ -1,12 +1,15 @@
 import { getPlotById } from "@/app/actions/talhao";
 import { getPlotApplications } from "@/app/actions/plotApplication";
 import { getSoilAnalyses } from "@/app/actions/soilAnalysis";
+import { getIrrigationEvents } from "@/app/actions/irrigationEvent";
 import { getEmployees } from "@/app/actions/funcionario";
 import { getProducts } from "@/app/actions/product";
 import { PlotApplicationSheet } from "@/components/PlotApplicationSheet";
 import { PlotApplicationTimeline } from "@/components/PlotApplicationTimeline";
 import { SoilAnalysisSheet } from "@/components/SoilAnalysisSheet";
 import { SoilAnalysisTimeline } from "@/components/SoilAnalysisTimeline";
+import { IrrigationEventSheet } from "@/components/IrrigationEventSheet";
+import { IrrigationEventTimeline } from "@/components/IrrigationEventTimeline";
 import { Badge } from "@/components/ui/badge";
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
@@ -38,9 +41,10 @@ export default async function PlotProfilePage({
   const plot = await getPlotById(id);
   if (!plot) notFound();
 
-  const [applications, soilAnalyses, employees, products] = await Promise.all([
+  const [applications, soilAnalyses, irrigationEvents, employees, products] = await Promise.all([
     getPlotApplications(id),
     getSoilAnalyses(id),
+    getIrrigationEvents(id),
     getEmployees(),
     getProducts(),
   ]);
@@ -92,6 +96,14 @@ export default async function PlotProfilePage({
           <SoilAnalysisSheet plotId={id} />
         </div>
         <SoilAnalysisTimeline analyses={soilAnalyses} />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-foreground">Irrigação</h2>
+          <IrrigationEventSheet plotId={id} employees={employees} />
+        </div>
+        <IrrigationEventTimeline events={irrigationEvents} />
       </div>
     </div>
   );
