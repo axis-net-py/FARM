@@ -8,8 +8,54 @@ import type { Product } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tag } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    searchPlaceholder: "Buscar por SKU ou Nome...",
+    filterByTag: "Filtrar por Tag",
+    allTags: "Todas as Tags",
+    filterByType: "Filtrar por Tipo",
+    allTypes: "Todos os Tipos",
+    product: "Produtos",
+    service: "Serviços",
+    sku: "SKU",
+    name: "Nome",
+    price: "Preço",
+    stock: "Estoque",
+    tags: "Tags",
+    status: "Status",
+    actions: "Ações",
+    noProducts: "Nenhum produto encontrado.",
+    serviceLabel: "Serviço",
+    active: "Ativo",
+    inactive: "Inativo",
+  },
+  es: {
+    searchPlaceholder: "Buscar por SKU o Nombre...",
+    filterByTag: "Filtrar por Etiqueta",
+    allTags: "Todas las Etiquetas",
+    filterByType: "Filtrar por Tipo",
+    allTypes: "Todos los Tipos",
+    product: "Productos",
+    service: "Servicios",
+    sku: "SKU",
+    name: "Nombre",
+    price: "Precio",
+    stock: "Stock",
+    tags: "Etiquetas",
+    status: "Estado",
+    actions: "Acciones",
+    noProducts: "No se encontraron productos.",
+    serviceLabel: "Servicio",
+    active: "Activo",
+    inactive: "Inactivo",
+  },
+} as const;
 
 export function ProductList({ products, tenantId }: { products: Product[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
@@ -88,17 +134,17 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="flex gap-2 w-full sm:w-auto">
           <Input
-            placeholder="Buscar por SKU ou Nome..."
+            placeholder={s.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs h-[38px] rounded-lg border-border bg-card"
           />
           <Select value={selectedTag} onValueChange={setSelectedTag}>
             <SelectTrigger className="w-[180px] h-[38px] rounded-lg bg-card">
-              <SelectValue placeholder="Filtrar por Tag" />
+              <SelectValue placeholder={s.filterByTag} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
-              <SelectItem value="all">Todas as Tags</SelectItem>
+              <SelectItem value="all">{s.allTags}</SelectItem>
               {allTags.map((tag) => (
                 <SelectItem key={tag} value={tag} className="capitalize">
                   {tag}
@@ -108,12 +154,12 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
           </Select>
           <Select value={selectedType} onValueChange={setSelectedType}>
             <SelectTrigger className="w-[180px] h-[38px] rounded-lg bg-card">
-              <SelectValue placeholder="Filtrar por Tipo" />
+              <SelectValue placeholder={s.filterByType} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
-              <SelectItem value="all">Todos os Tipos</SelectItem>
-              <SelectItem value="product">Produtos</SelectItem>
-              <SelectItem value="service">Serviços</SelectItem>
+              <SelectItem value="all">{s.allTypes}</SelectItem>
+              <SelectItem value="product">{s.product}</SelectItem>
+              <SelectItem value="service">{s.service}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -125,29 +171,29 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => handleSort("sku")} className="cursor-pointer hover:bg-muted/50 select-none">
-                SKU{renderSortIndicator("sku")}
+                {s.sku}{renderSortIndicator("sku")}
               </TableHead>
               <TableHead onClick={() => handleSort("name")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Nome{renderSortIndicator("name")}
+                {s.name}{renderSortIndicator("name")}
               </TableHead>
               <TableHead onClick={() => handleSort("price")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Preço{renderSortIndicator("price")}
+                {s.price}{renderSortIndicator("price")}
               </TableHead>
               <TableHead onClick={() => handleSort("currentStock")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Estoque{renderSortIndicator("currentStock")}
+                {s.stock}{renderSortIndicator("currentStock")}
               </TableHead>
-              <TableHead>Tags</TableHead>
+              <TableHead>{s.tags}</TableHead>
               <TableHead onClick={() => handleSort("isActive")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status{renderSortIndicator("isActive")}
+                {s.status}{renderSortIndicator("isActive")}
               </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-right">{s.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                  Nenhum produto encontrado.
+                  {s.noProducts}
                 </TableCell>
               </TableRow>
             ) : (
@@ -165,7 +211,7 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
                   </TableCell>
                   <TableCell>
                     {product.isService ? (
-                      <span className="text-muted-foreground italic font-medium">Serviço</span>
+                      <span className="text-muted-foreground italic font-medium">{s.serviceLabel}</span>
                     ) : (
                       <span className={Number(product.currentStock) <= Number(product.minStock) ? "text-red-500 font-bold" : ""}>
                         {Number(product.currentStock)} {product.unit}
@@ -188,7 +234,7 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
                   </TableCell>
                   <TableCell>
                     <Badge variant={product.isActive ? "default" : "secondary"}>
-                      {product.isActive ? "Ativo" : "Inativo"}
+                      {product.isActive ? s.active : s.inactive}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

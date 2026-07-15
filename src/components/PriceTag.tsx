@@ -1,8 +1,14 @@
 "use client";
 
 import { Geist_Mono } from "next/font/google";
+import { useLanguage } from "@/components/language-provider";
 
 const GeistMono = Geist_Mono({ subsets: ["latin"] });
+
+const STRINGS = {
+  pt: { equivalent: "equivalente" },
+  es: { equivalent: "equivalente" },
+} as const;
 
 type CurrencyCode = "PYG" | "USD" | "BRL";
 
@@ -26,6 +32,8 @@ export function PriceTag({
   className = "",
   size = "md",
 }: PriceTagProps) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const sizeClasses = { sm: "text-sm", md: "text-base", lg: "text-lg" };
 
   const getPYGValue = (): number => {
@@ -76,7 +84,7 @@ export function PriceTag({
         </div>
       )}
       {showConversions && (
-        <div className="mt-0.5 text-xs text-muted-foreground/60">equivalente</div>
+        <div className="mt-0.5 text-xs text-muted-foreground/60">{s.equivalent}</div>
       )}
     </div>
   );
