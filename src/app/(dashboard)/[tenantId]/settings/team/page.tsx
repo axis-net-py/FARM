@@ -42,7 +42,12 @@ const translations = {
     operator: "Operador",
     auditor: "Auditor",
     sovereign: "Proprietário",
-    deleteConfirm: "Tem certeza que deseja remover este membro da equipe?"
+    deleteConfirm: "Tem certeza que deseja remover este membro da equipe?",
+    loading: "Carregando...",
+    noName: "Sem nome",
+    delete: "Excluir",
+    selectRole: "Selecione a função",
+    errorLoad: "Erro ao carregar equipe"
   },
   es: {
     title: "Miembros del Equipo",
@@ -69,7 +74,12 @@ const translations = {
     operator: "Operador",
     auditor: "Auditor",
     sovereign: "Propietario",
-    deleteConfirm: "¿Está seguro que desea eliminar a este miembro del equipo?"
+    deleteConfirm: "¿Está seguro que desea eliminar a este miembro del equipo?",
+    loading: "Cargando...",
+    noName: "Sin nombre",
+    delete: "Eliminar",
+    selectRole: "Seleccione la función",
+    errorLoad: "Error al cargar el equipo"
   }
 };
 
@@ -105,7 +115,7 @@ export default function TeamSettingsPage() {
       const usersData = await getUsers(tenantId);
       setUsers(usersData);
     } catch (error: any) {
-      toast.error(error.message || 'Erro ao carregar equipe');
+      toast.error(error.message || t.errorLoad);
     } finally {
       setLoading(false);
     }
@@ -255,7 +265,7 @@ export default function TeamSettingsPage() {
                   <Label className="text-[11px] text-primary uppercase tracking-widest font-extrabold">{t.role}</Label>
                   <Select value={newRole} onValueChange={(val) => setNewRole(val as Role)}>
                     <SelectTrigger className="bg-background border-border text-[13px] min-h-[44px] md:h-[40px] rounded-[8px]">
-                      <SelectValue placeholder="Selecione a função" />
+                      <SelectValue placeholder={t.selectRole} />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border text-popover-foreground">
                       <SelectItem value="ADMIN" className="text-[12px]">{t.admin}</SelectItem>
@@ -322,7 +332,7 @@ export default function TeamSettingsPage() {
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-20">
                   <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
-                  <span className="text-[11px] text-muted-foreground font-extrabold uppercase tracking-wider">Carregando...</span>
+                  <span className="text-[11px] text-muted-foreground font-extrabold uppercase tracking-wider">{t.loading}</span>
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
@@ -339,7 +349,7 @@ export default function TeamSettingsPage() {
                       <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xs font-bold shrink-0">
                         {(user.name || user.email).charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-semibold text-foreground">{user.name || "Sem nome"}</span>
+                      <span className="font-semibold text-foreground">{user.name || t.noName}</span>
                     </div>
                   </TableCell>
                   <TableCell className="p-4 text-sm font-medium text-muted-foreground">
@@ -372,7 +382,7 @@ export default function TeamSettingsPage() {
                       <button
                         onClick={() => handleDeleteUser(user.id)}
                         className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-md transition-all inline-flex items-center justify-center cursor-pointer"
-                        title={t.actions.replace("Ações", "Excluir")}
+                        title={t.delete}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -390,7 +400,7 @@ export default function TeamSettingsPage() {
         {loading ? (
           <div className="border border-border/60 rounded-[12px] p-20 text-center bg-card">
             <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
-            <span className="text-[11px] text-muted-foreground font-extrabold uppercase tracking-wider">Carregando...</span>
+            <span className="text-[11px] text-muted-foreground font-extrabold uppercase tracking-wider">{t.loading}</span>
           </div>
         ) : users.length === 0 ? (
           <div className="border border-border/60 rounded-[12px] p-20 text-center bg-card">
@@ -407,7 +417,7 @@ export default function TeamSettingsPage() {
                   {(user.name || user.email).charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h4 className="text-[14px] font-bold text-foreground">{user.name || "Sem nome"}</h4>
+                  <h4 className="text-[14px] font-bold text-foreground">{user.name || t.noName}</h4>
                   <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Mail className="w-3 h-3 text-muted-foreground" />
                     {user.email}
@@ -447,7 +457,7 @@ export default function TeamSettingsPage() {
                       className="min-h-[44px] px-3 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-md transition-all inline-flex items-center justify-center gap-1 font-bold text-[12px] border border-rose-200 dark:border-rose-900 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span>{t.actions.replace("Ações", "Excluir")}</span>
+                      <span>{t.delete}</span>
                     </button>
                   )}
                 </div>
