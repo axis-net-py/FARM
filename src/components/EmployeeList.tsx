@@ -6,8 +6,38 @@ import { Badge } from "@/components/ui/badge";
 import { EmployeeSheet } from "@/components/EmployeeSheet";
 import type { Employee } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    searchPlaceholder: "Buscar por Nome, Cargo ou Telefone...",
+    name: "Nome completo",
+    role: "Cargo",
+    phone: "Telefone",
+    status: "Status",
+    actions: "Ações",
+    empty: "Nenhum funcionário cadastrado ou encontrado.",
+    statusActive: "Ativo",
+    statusLeave: "Licença",
+    statusInactive: "Inativo",
+  },
+  es: {
+    searchPlaceholder: "Buscar por Nombre, Cargo o Teléfono...",
+    name: "Nombre completo",
+    role: "Cargo",
+    phone: "Teléfono",
+    status: "Estado",
+    actions: "Acciones",
+    empty: "Ningún empleado registrado o encontrado.",
+    statusActive: "Activo",
+    statusLeave: "Licencia",
+    statusInactive: "Inactivo",
+  },
+} as const;
 
 export function EmployeeList({ employees, tenantId }: { employees: Employee[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<"name" | "role" | "phone" | "status" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -51,11 +81,11 @@ export function EmployeeList({ employees, tenantId }: { employees: Employee[]; t
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <Badge className="bg-emerald-600 hover:bg-emerald-600/90 text-white border-none">Ativo</Badge>;
+        return <Badge className="bg-emerald-600 hover:bg-emerald-600/90 text-white border-none">{s.statusActive}</Badge>;
       case "LEAVE":
-        return <Badge className="bg-amber-600 hover:bg-amber-600/90 text-white border-none">Licença</Badge>;
+        return <Badge className="bg-amber-600 hover:bg-amber-600/90 text-white border-none">{s.statusLeave}</Badge>;
       case "INACTIVE":
-        return <Badge variant="secondary">Inativo</Badge>;
+        return <Badge variant="secondary">{s.statusInactive}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -66,7 +96,7 @@ export function EmployeeList({ employees, tenantId }: { employees: Employee[]; t
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <Input
-          placeholder="Buscar por Nome, Cargo ou Telefone..."
+          placeholder={s.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md h-[38px] rounded-lg border-border bg-card"
@@ -79,25 +109,25 @@ export function EmployeeList({ employees, tenantId }: { employees: Employee[]; t
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => handleSort("name")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Nome completo{renderSortIndicator("name")}
+                {s.name}{renderSortIndicator("name")}
               </TableHead>
               <TableHead onClick={() => handleSort("role")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Cargo{renderSortIndicator("role")}
+                {s.role}{renderSortIndicator("role")}
               </TableHead>
               <TableHead onClick={() => handleSort("phone")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Telefone{renderSortIndicator("phone")}
+                {s.phone}{renderSortIndicator("phone")}
               </TableHead>
               <TableHead onClick={() => handleSort("status")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status{renderSortIndicator("status")}
+                {s.status}{renderSortIndicator("status")}
               </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-right">{s.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                  Nenhum funcionário cadastrado ou encontrado.
+                  {s.empty}
                 </TableCell>
               </TableRow>
             ) : (

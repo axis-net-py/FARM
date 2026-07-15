@@ -7,8 +7,42 @@ import { Badge } from "@/components/ui/badge";
 import { HarvestSheet } from "@/components/HarvestSheet";
 import type { Harvest } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    searchPlaceholder: "Buscar por Nome ou Cultura...",
+    name: "Nome da Safra",
+    cropType: "Cultura",
+    startDate: "Data de Início",
+    endDate: "Data de Término",
+    status: "Status",
+    actions: "Ações",
+    empty: "Nenhuma safra cadastrada ou encontrada.",
+    statusActive: "Ativa",
+    statusPlanned: "Planejada",
+    statusCompleted: "Concluída",
+    dateLocale: "pt-BR",
+  },
+  es: {
+    searchPlaceholder: "Buscar por Nombre o Cultivo...",
+    name: "Nombre de la Cosecha",
+    cropType: "Cultivo",
+    startDate: "Fecha de Inicio",
+    endDate: "Fecha de Término",
+    status: "Estado",
+    actions: "Acciones",
+    empty: "Ninguna cosecha registrada o encontrada.",
+    statusActive: "Activa",
+    statusPlanned: "Planificada",
+    statusCompleted: "Concluida",
+    dateLocale: "es-PY",
+  },
+} as const;
 
 export function HarvestList({ harvests, tenantId }: { harvests: Harvest[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<"name" | "cropType" | "startDate" | "endDate" | "status" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -59,17 +93,17 @@ export function HarvestList({ harvests, tenantId }: { harvests: Harvest[]; tenan
   const formatDate = (dateInput: any) => {
     if (!dateInput) return "-";
     const date = new Date(dateInput);
-    return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+    return date.toLocaleDateString(s.dateLocale, { timeZone: "UTC" });
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <Badge className="bg-emerald-600 hover:bg-emerald-600/90 text-white border-none">Ativa</Badge>;
+        return <Badge className="bg-emerald-600 hover:bg-emerald-600/90 text-white border-none">{s.statusActive}</Badge>;
       case "PLANNED":
-        return <Badge className="bg-amber-600 hover:bg-amber-600/90 text-white border-none">Planejada</Badge>;
+        return <Badge className="bg-amber-600 hover:bg-amber-600/90 text-white border-none">{s.statusPlanned}</Badge>;
       case "COMPLETED":
-        return <Badge variant="secondary">Concluída</Badge>;
+        return <Badge variant="secondary">{s.statusCompleted}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -80,7 +114,7 @@ export function HarvestList({ harvests, tenantId }: { harvests: Harvest[]; tenan
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <Input
-          placeholder="Buscar por Nome ou Cultura..."
+          placeholder={s.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md h-[38px] rounded-lg border-border bg-card"
@@ -93,28 +127,28 @@ export function HarvestList({ harvests, tenantId }: { harvests: Harvest[]; tenan
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => handleSort("name")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Nome da Safra{renderSortIndicator("name")}
+                {s.name}{renderSortIndicator("name")}
               </TableHead>
               <TableHead onClick={() => handleSort("cropType")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Cultura{renderSortIndicator("cropType")}
+                {s.cropType}{renderSortIndicator("cropType")}
               </TableHead>
               <TableHead onClick={() => handleSort("startDate")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Data de Início{renderSortIndicator("startDate")}
+                {s.startDate}{renderSortIndicator("startDate")}
               </TableHead>
               <TableHead onClick={() => handleSort("endDate")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Data de Término{renderSortIndicator("endDate")}
+                {s.endDate}{renderSortIndicator("endDate")}
               </TableHead>
               <TableHead onClick={() => handleSort("status")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status{renderSortIndicator("status")}
+                {s.status}{renderSortIndicator("status")}
               </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-right">{s.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  Nenhuma safra cadastrada ou encontrada.
+                  {s.empty}
                 </TableCell>
               </TableRow>
             ) : (
