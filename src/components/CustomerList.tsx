@@ -6,8 +6,42 @@ import { Badge } from "@/components/ui/badge";
 import { CustomerSheet } from "@/components/CustomerSheet";
 import type { Customer } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    searchPlaceholder: "Buscar por Nome, Documento ou E-mail...",
+    name: "Nome",
+    document: "Documento",
+    email: "E-mail",
+    category: "Categoria",
+    status: "Status",
+    actions: "Ações",
+    empty: "Nenhum cliente cadastrado ou encontrado.",
+    fisica: "Física",
+    juridica: "Jurídica",
+    active: "Ativo",
+    inactive: "Inativo",
+  },
+  es: {
+    searchPlaceholder: "Buscar por Nombre, Documento o E-mail...",
+    name: "Nombre",
+    document: "Documento",
+    email: "E-mail",
+    category: "Categoría",
+    status: "Estado",
+    actions: "Acciones",
+    empty: "Ningún cliente registrado o encontrado.",
+    fisica: "Física",
+    juridica: "Jurídica",
+    active: "Activo",
+    inactive: "Inactivo",
+  },
+} as const;
 
 export function CustomerList({ customers, tenantId }: { customers: Customer[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<"name" | "document" | "email" | "category" | "isActive" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -58,7 +92,7 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <Input
-          placeholder="Buscar por Nome, Documento ou E-mail..."
+          placeholder={s.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md h-[38px] rounded-lg border-border bg-card"
@@ -71,28 +105,28 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => handleSort("name")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Nome{renderSortIndicator("name")}
+                {s.name}{renderSortIndicator("name")}
               </TableHead>
               <TableHead onClick={() => handleSort("document")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Documento{renderSortIndicator("document")}
+                {s.document}{renderSortIndicator("document")}
               </TableHead>
               <TableHead onClick={() => handleSort("email")} className="cursor-pointer hover:bg-muted/50 select-none">
-                E-mail{renderSortIndicator("email")}
+                {s.email}{renderSortIndicator("email")}
               </TableHead>
               <TableHead onClick={() => handleSort("category")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Categoria{renderSortIndicator("category")}
+                {s.category}{renderSortIndicator("category")}
               </TableHead>
               <TableHead onClick={() => handleSort("isActive")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status{renderSortIndicator("isActive")}
+                {s.status}{renderSortIndicator("isActive")}
               </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-right">{s.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedCustomers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  Nenhum cliente cadastrado ou encontrado.
+                  {s.empty}
                 </TableCell>
               </TableRow>
             ) : (
@@ -103,12 +137,12 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
                   <TableCell>{customer.email ?? "-"}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className="capitalize">
-                      {customer.category === "fisica" ? "Física" : customer.category === "juridica" ? "Jurídica" : customer.category}
+                      {customer.category === "fisica" ? s.fisica : customer.category === "juridica" ? s.juridica : customer.category}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant={customer.isActive ? "default" : "secondary"}>
-                      {customer.isActive ? "Ativo" : "Inativo"}
+                      {customer.isActive ? s.active : s.inactive}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

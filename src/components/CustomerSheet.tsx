@@ -8,6 +8,86 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 import { createCustomer, updateCustomer, deleteCustomer } from "@/app/actions/customer";
 import type { Customer } from "@prisma/client";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    edit: "Editar",
+    newTrigger: "Novo Cliente",
+    editTitle: "Editar Cliente",
+    editDesc: "Atualize os dados do cliente",
+    newDesc: "Cadastre um novo cliente no sistema.",
+    deleteConfirm: "Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita se houver faturas vinculadas.",
+    deleteErr: "Erro ao excluir cliente",
+    saveErr: "Erro ao salvar cliente",
+    name: "Nome",
+    namePlaceholder: "Ex: Juan Pérez",
+    document: "Documento (RUC/CI)",
+    documentPlaceholder: "Ex: 123456-8",
+    documentType: "Tipo de Documento",
+    documentTypePlaceholder: "Selecione tipo",
+    category: "Categoria",
+    categoryPlaceholder: "Selecione categoria",
+    fisica: "Física",
+    juridica: "Jurídica",
+    email: "E-mail",
+    emailPlaceholder: "cliente@exemplo.com",
+    phone: "Telefone",
+    phonePlaceholder: "+595 991 234 567",
+    address: "Endereço",
+    addressPlaceholder: "Rua Principal 123",
+    city: "Cidade",
+    cityPlaceholder: "Asunción",
+    country: "País",
+    countryPlaceholder: "Selecione país",
+    paraguai: "Paraguai (PY)",
+    brasil: "Brasil (BR)",
+    active: "Ativo",
+    delete: "Excluir",
+    cancel: "Cancelar",
+    saving: "Salvando...",
+    update: "Atualizar",
+    register: "Registrar Cliente",
+  },
+  es: {
+    edit: "Editar",
+    newTrigger: "Nuevo Cliente",
+    editTitle: "Editar Cliente",
+    editDesc: "Actualice los datos del cliente",
+    newDesc: "Registre un nuevo cliente en el sistema.",
+    deleteConfirm: "¿Está seguro de que desea eliminar este cliente? Esta acción no se puede deshacer si hay facturas vinculadas.",
+    deleteErr: "Error al eliminar cliente",
+    saveErr: "Error al guardar cliente",
+    name: "Nombre",
+    namePlaceholder: "Ej: Juan Pérez",
+    document: "Documento (RUC/CI)",
+    documentPlaceholder: "Ej: 123456-8",
+    documentType: "Tipo de Documento",
+    documentTypePlaceholder: "Seleccione tipo",
+    category: "Categoría",
+    categoryPlaceholder: "Seleccione categoría",
+    fisica: "Física",
+    juridica: "Jurídica",
+    email: "E-mail",
+    emailPlaceholder: "cliente@ejemplo.com",
+    phone: "Teléfono",
+    phonePlaceholder: "+595 991 234 567",
+    address: "Dirección",
+    addressPlaceholder: "Calle Principal 123",
+    city: "Ciudad",
+    cityPlaceholder: "Asunción",
+    country: "País",
+    countryPlaceholder: "Seleccione país",
+    paraguai: "Paraguay (PY)",
+    brasil: "Brasil (BR)",
+    active: "Activo",
+    delete: "Eliminar",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    update: "Actualizar",
+    register: "Registrar Cliente",
+  },
+} as const;
 
 export function CustomerSheet({
   tenantId,
@@ -18,6 +98,8 @@ export function CustomerSheet({
   customer?: Customer;
   onSuccess?: () => void;
 }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const isEdit = !!customer;
@@ -35,7 +117,7 @@ export function CustomerSheet({
 
   async function handleDelete() {
     if (!customer) return;
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita se houver faturas vinculadas.");
+    const confirmDelete = window.confirm(s.deleteConfirm);
     if (!confirmDelete) return;
 
     setLoading(true);
@@ -44,7 +126,7 @@ export function CustomerSheet({
       setOpen(false);
       onSuccess?.();
     } catch (err: any) {
-      alert(err.message || "Erro ao excluir cliente");
+      alert(err.message || s.deleteErr);
     } finally {
       setLoading(false);
     }
@@ -85,7 +167,7 @@ export function CustomerSheet({
       setOpen(false);
       onSuccess?.();
     } catch (err: any) {
-      alert(err.message || "Erro ao salvar cliente");
+      alert(err.message || s.saveErr);
     } finally {
       setLoading(false);
     }
@@ -95,37 +177,37 @@ export function CustomerSheet({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="axis-btn-primary min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] flex items-center justify-center font-bold shadow-md cursor-pointer">
-          {isEdit ? "Editar" : "Novo Cliente"}
+          {isEdit ? s.edit : s.newTrigger}
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[75vw] w-[95vw] glass-pop-up p-0 overflow-hidden">
         <DialogHeader className="text-left space-y-1 p-6 border-b border-border bg-muted/30">
           <DialogTitle className="text-[18px] font-bold tracking-tight text-foreground">
-            {isEdit ? "Editar Cliente" : "Novo Cliente"}
+            {isEdit ? s.editTitle : s.newTrigger}
           </DialogTitle>
           <DialogDescription className="text-[12px] text-muted-foreground font-medium">
-            {isEdit ? "Atualize os dados do cliente" : "Cadastre um novo cliente no sistema."}
+            {isEdit ? s.editDesc : s.newDesc}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Nome</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.name}</Label>
               <Input
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Juan Pérez"
+                placeholder={s.namePlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Documento (RUC/CI)</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.document}</Label>
               <Input
                 value={document}
                 onChange={(e) => setDocument(e.target.value)}
-                placeholder="Ex: 123456-8"
+                placeholder={s.documentPlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
@@ -133,10 +215,10 @@ export function CustomerSheet({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Tipo de Documento</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.documentType}</Label>
               <Select value={documentType} onValueChange={setDocumentType}>
                 <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                  <SelectValue placeholder="Selecione tipo" />
+                  <SelectValue placeholder={s.documentTypePlaceholder} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground">
                   <SelectItem value="RUC" className="text-[12px]">RUC</SelectItem>
@@ -147,14 +229,14 @@ export function CustomerSheet({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Categoria</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.category}</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                  <SelectValue placeholder="Selecione categoria" />
+                  <SelectValue placeholder={s.categoryPlaceholder} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground">
-                  <SelectItem value="fisica" className="text-[12px]">Física</SelectItem>
-                  <SelectItem value="juridica" className="text-[12px]">Jurídica</SelectItem>
+                  <SelectItem value="fisica" className="text-[12px]">{s.fisica}</SelectItem>
+                  <SelectItem value="juridica" className="text-[12px]">{s.juridica}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -162,21 +244,21 @@ export function CustomerSheet({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">E-mail</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.email}</Label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="cliente@exemplo.com"
+                placeholder={s.emailPlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Telefone</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.phone}</Label>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+595 991 234 567"
+                placeholder={s.phonePlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
@@ -184,20 +266,20 @@ export function CustomerSheet({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Endereço</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.address}</Label>
               <Input
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Calle Principal 123"
+                placeholder={s.addressPlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Cidade</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.city}</Label>
               <Input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder="Asunción"
+                placeholder={s.cityPlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
@@ -205,14 +287,14 @@ export function CustomerSheet({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">País</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.country}</Label>
               <Select value={country} onValueChange={setCountry}>
                 <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                  <SelectValue placeholder="Selecione país" />
+                  <SelectValue placeholder={s.countryPlaceholder} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground">
-                  <SelectItem value="PY" className="text-[12px]">Paraguai (PY)</SelectItem>
-                  <SelectItem value="BR" className="text-[12px]">Brasil (BR)</SelectItem>
+                  <SelectItem value="PY" className="text-[12px]">{s.paraguai}</SelectItem>
+                  <SelectItem value="BR" className="text-[12px]">{s.brasil}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -223,7 +305,7 @@ export function CustomerSheet({
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="w-4 h-4"
               />
-              <Label className="text-[13px]">Ativo</Label>
+              <Label className="text-[13px]">{s.active}</Label>
             </div>
           </div>
 
@@ -236,7 +318,7 @@ export function CustomerSheet({
                   disabled={loading}
                   className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 h-[40px] rounded-[8px] text-[14px] font-bold disabled:opacity-50 shadow-md active:scale-95 transition-all"
                 >
-                  Excluir
+                  {s.delete}
                 </button>
               )}
             </div>
@@ -246,7 +328,7 @@ export function CustomerSheet({
                 onClick={() => setOpen(false)}
                 className="px-4 h-[40px] rounded-[8px] text-[14px] font-semibold text-muted-foreground hover:bg-muted transition-all"
               >
-                Cancelar
+                {s.cancel}
               </button>
               <button
                 type="submit"
@@ -254,7 +336,7 @@ export function CustomerSheet({
                 className="bg-primary text-primary-foreground px-6 h-[40px] rounded-[8px] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 text-[14px] font-bold disabled:opacity-50 shadow-md active:scale-95"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin text-secondary" />}
-                {loading ? "Salvando..." : isEdit ? "Atualizar" : "Registrar Cliente"}
+                {loading ? s.saving : isEdit ? s.update : s.register}
               </button>
             </div>
           </div>
