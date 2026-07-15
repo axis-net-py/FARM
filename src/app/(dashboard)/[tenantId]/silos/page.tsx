@@ -3,11 +3,25 @@ import { SiloSheet } from "@/components/SiloSheet";
 import { SiloList } from "@/components/SiloList";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { getLocale } from "@/lib/get-locale";
+
+const HEADER = {
+  pt: {
+    title: "Silos",
+    subtitle: "Estoque de grão armazenado na fazenda",
+  },
+  es: {
+    title: "Silos",
+    subtitle: "Stock de granos almacenado en la finca",
+  },
+} as const;
 
 export default async function SilosPage() {
   const session = await auth();
   if (!session?.user?.tenantId) redirect("/login");
   const tenantId = session.user.tenantId;
+  const locale = await getLocale();
+  const t = HEADER[locale];
 
   const silos = await getSilos();
 
@@ -15,8 +29,8 @@ export default async function SilosPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Silos</h1>
-          <p className="text-muted-foreground text-sm">Estoque de grão armazenado na fazenda</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t.title}</h1>
+          <p className="text-muted-foreground text-sm">{t.subtitle}</p>
         </div>
         <div className="self-start sm:self-auto">
           <SiloSheet />

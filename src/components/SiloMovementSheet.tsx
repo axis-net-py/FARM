@@ -11,6 +11,54 @@ import { createSiloMovement } from "@/app/actions/siloMovement";
 import type { Harvest, Contract, SiloMovementType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    trigger: "Novo Movimento",
+    title: "Novo Movimento de Silo",
+    description: "Registre entrada de safra ou saída de embarque do silo.",
+    in: "Entrada",
+    out: "Saída",
+    quantity: "Quantidade",
+    date: "Data",
+    harvest: "Safra",
+    selectOptional: "Selecione (opcional)",
+    notInformed: "Não informado",
+    moisture: "Umidade (%)",
+    qualityGrade: "Grau/Classificação",
+    qualityGradePlaceholder: "Ex: Tipo 1",
+    contract: "Contrato",
+    notLinked: "Não vinculado",
+    notes: "Observações",
+    cancel: "Cancelar",
+    saving: "Salvando...",
+    register: "Registrar",
+    saveErr: "Erro ao registrar movimento",
+  },
+  es: {
+    trigger: "Nuevo Movimiento",
+    title: "Nuevo Movimiento de Silo",
+    description: "Registre entrada de cosecha o salida de embarque del silo.",
+    in: "Entrada",
+    out: "Salida",
+    quantity: "Cantidad",
+    date: "Fecha",
+    harvest: "Cosecha",
+    selectOptional: "Seleccione (opcional)",
+    notInformed: "No informado",
+    moisture: "Humedad (%)",
+    qualityGrade: "Grado/Clasificación",
+    qualityGradePlaceholder: "Ej: Tipo 1",
+    contract: "Contrato",
+    notLinked: "No vinculado",
+    notes: "Observaciones",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    register: "Registrar",
+    saveErr: "Error al registrar movimiento",
+  },
+} as const;
 
 export function SiloMovementSheet({
   siloId,
@@ -22,6 +70,8 @@ export function SiloMovementSheet({
   contracts: Contract[];
 }) {
   const router = useRouter();
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -56,7 +106,7 @@ export function SiloMovementSheet({
       setNotes("");
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Erro ao registrar movimento");
+      alert(err.message || s.saveErr);
     } finally {
       setLoading(false);
     }
@@ -66,14 +116,14 @@ export function SiloMovementSheet({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="axis-btn-primary min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] flex items-center justify-center font-bold shadow-md cursor-pointer">
-          Novo Movimento
+          {s.trigger}
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[50vw] w-[95vw] glass-pop-up p-0 overflow-hidden">
         <DialogHeader className="text-left space-y-1 p-6 border-b border-border bg-muted/30">
-          <DialogTitle className="text-[18px] font-bold tracking-tight text-foreground">Novo Movimento de Silo</DialogTitle>
+          <DialogTitle className="text-[18px] font-bold tracking-tight text-foreground">{s.title}</DialogTitle>
           <DialogDescription className="text-[12px] text-muted-foreground font-medium">
-            Registre entrada de safra ou saída de embarque do silo.
+            {s.description}
           </DialogDescription>
         </DialogHeader>
 
@@ -87,7 +137,7 @@ export function SiloMovementSheet({
                 type === "IN" ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground"
               )}
             >
-              <ArrowDownToLine className="w-4 h-4" /> Entrada
+              <ArrowDownToLine className="w-4 h-4" /> {s.in}
             </button>
             <button
               type="button"
@@ -97,13 +147,13 @@ export function SiloMovementSheet({
                 type === "OUT" ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground"
               )}
             >
-              <ArrowUpFromLine className="w-4 h-4" /> Saída
+              <ArrowUpFromLine className="w-4 h-4" /> {s.out}
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Quantidade</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.quantity}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -114,7 +164,7 @@ export function SiloMovementSheet({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Data</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.date}</Label>
               <Input
                 type="date"
                 required
@@ -129,13 +179,13 @@ export function SiloMovementSheet({
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Safra</Label>
+                  <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.harvest}</Label>
                   <Select value={harvestId || "none"} onValueChange={(v) => setHarvestId(v === "none" ? "" : v)}>
                     <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                      <SelectValue placeholder="Selecione (opcional)" />
+                      <SelectValue placeholder={s.selectOptional} />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border text-popover-foreground">
-                      <SelectItem value="none" className="text-[12px]">Não informado</SelectItem>
+                      <SelectItem value="none" className="text-[12px]">{s.notInformed}</SelectItem>
                       {harvests.map((h) => (
                         <SelectItem key={h.id} value={h.id} className="text-[12px]">{h.name}</SelectItem>
                       ))}
@@ -143,7 +193,7 @@ export function SiloMovementSheet({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Umidade (%)</Label>
+                  <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.moisture}</Label>
                   <Input
                     type="number"
                     step="0.1"
@@ -154,24 +204,24 @@ export function SiloMovementSheet({
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Grau/Classificação</Label>
+                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.qualityGrade}</Label>
                 <Input
                   value={qualityGrade}
                   onChange={(e) => setQualityGrade(e.target.value)}
-                  placeholder="Ex: Tipo 1"
+                  placeholder={s.qualityGradePlaceholder}
                   className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
                 />
               </div>
             </>
           ) : (
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Contrato</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.contract}</Label>
               <Select value={contractId || "none"} onValueChange={(v) => setContractId(v === "none" ? "" : v)}>
                 <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                  <SelectValue placeholder="Selecione (opcional)" />
+                  <SelectValue placeholder={s.selectOptional} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground">
-                  <SelectItem value="none" className="text-[12px]">Não vinculado</SelectItem>
+                  <SelectItem value="none" className="text-[12px]">{s.notLinked}</SelectItem>
                   {contracts.map((c) => (
                     <SelectItem key={c.id} value={c.id} className="text-[12px]">{c.contractNumber}</SelectItem>
                   ))}
@@ -181,7 +231,7 @@ export function SiloMovementSheet({
           )}
 
           <div className="space-y-2">
-            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Observações</Label>
+            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.notes}</Label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -196,7 +246,7 @@ export function SiloMovementSheet({
               onClick={() => setOpen(false)}
               className="px-4 h-[40px] rounded-[8px] text-[14px] font-semibold text-muted-foreground hover:bg-muted transition-all"
             >
-              Cancelar
+              {s.cancel}
             </button>
             <button
               type="submit"
@@ -204,7 +254,7 @@ export function SiloMovementSheet({
               className="bg-primary text-primary-foreground px-6 h-[40px] rounded-[8px] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 text-[14px] font-bold disabled:opacity-50 shadow-md active:scale-95"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin text-secondary" />}
-              {loading ? "Salvando..." : "Registrar"}
+              {loading ? s.saving : s.register}
             </button>
           </div>
         </form>

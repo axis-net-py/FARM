@@ -4,25 +4,47 @@ import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SiloSheet } from "@/components/SiloSheet";
 import type { Silo } from "@prisma/client";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    name: "Nome",
+    capacity: "Capacidade",
+    currentStock: "Estoque Atual",
+    occupancy: "Ocupação",
+    actions: "Ações",
+    empty: "Nenhum silo cadastrado.",
+  },
+  es: {
+    name: "Nombre",
+    capacity: "Capacidad",
+    currentStock: "Stock Actual",
+    occupancy: "Ocupación",
+    actions: "Acciones",
+    empty: "Ningún silo registrado.",
+  },
+} as const;
 
 export function SiloList({ silos, tenantId }: { silos: Silo[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   return (
     <div className="rounded-lg border border-border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Capacidade</TableHead>
-            <TableHead>Estoque Atual</TableHead>
-            <TableHead>Ocupação</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
+            <TableHead>{s.name}</TableHead>
+            <TableHead>{s.capacity}</TableHead>
+            <TableHead>{s.currentStock}</TableHead>
+            <TableHead>{s.occupancy}</TableHead>
+            <TableHead className="text-right">{s.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {silos.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                Nenhum silo cadastrado.
+                {s.empty}
               </TableCell>
             </TableRow>
           ) : (
