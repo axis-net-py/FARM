@@ -6,8 +6,42 @@ import { Badge } from "@/components/ui/badge";
 import { SupplierSheet } from "@/components/SupplierSheet";
 import type { Supplier } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    searchPlaceholder: "Buscar por Nome Fantasia, Razão Social, Documento...",
+    tradeName: "Nome Fantasia",
+    businessName: "Razão Social",
+    document: "Documento",
+    email: "E-mail",
+    paymentTerms: "Condição Pagto",
+    status: "Status",
+    actions: "Ações",
+    noSuppliers: "Nenhum fornecedor cadastrado ou encontrado.",
+    cash: "Contado",
+    active: "Ativo",
+    inactive: "Inativo",
+  },
+  es: {
+    searchPlaceholder: "Buscar por Nombre Fantasía, Razón Social, Documento...",
+    tradeName: "Nombre Fantasía",
+    businessName: "Razón Social",
+    document: "Documento",
+    email: "E-mail",
+    paymentTerms: "Condición Pago",
+    status: "Estado",
+    actions: "Acciones",
+    noSuppliers: "Ningún proveedor registrado o encontrado.",
+    cash: "Contado",
+    active: "Activo",
+    inactive: "Inactivo",
+  },
+} as const;
 
 export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<"name" | "businessName" | "document" | "email" | "paymentTerms" | "isActive" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -59,7 +93,7 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <Input
-          placeholder="Buscar por Nome Fantasia, Razão Social, Documento..."
+          placeholder={s.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md h-[38px] rounded-lg border-border bg-card"
@@ -72,31 +106,31 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => handleSort("name")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Nome Fantasia{renderSortIndicator("name")}
+                {s.tradeName}{renderSortIndicator("name")}
               </TableHead>
               <TableHead onClick={() => handleSort("businessName")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Razão Social{renderSortIndicator("businessName")}
+                {s.businessName}{renderSortIndicator("businessName")}
               </TableHead>
               <TableHead onClick={() => handleSort("document")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Documento{renderSortIndicator("document")}
+                {s.document}{renderSortIndicator("document")}
               </TableHead>
               <TableHead onClick={() => handleSort("email")} className="cursor-pointer hover:bg-muted/50 select-none">
-                E-mail{renderSortIndicator("email")}
+                {s.email}{renderSortIndicator("email")}
               </TableHead>
               <TableHead onClick={() => handleSort("paymentTerms")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Condição Pagto{renderSortIndicator("paymentTerms")}
+                {s.paymentTerms}{renderSortIndicator("paymentTerms")}
               </TableHead>
               <TableHead onClick={() => handleSort("isActive")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status{renderSortIndicator("isActive")}
+                {s.status}{renderSortIndicator("isActive")}
               </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-right">{s.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedSuppliers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                  Nenhum fornecedor cadastrado ou encontrado.
+                  {s.noSuppliers}
                 </TableCell>
               </TableRow>
             ) : (
@@ -107,11 +141,11 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
                   <TableCell>{supplier.document ? `${supplier.documentType ?? "DOC"}: ${supplier.document}` : "-"}</TableCell>
                   <TableCell>{supplier.email ?? "-"}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{supplier.paymentTerms ?? "Contado"}</Badge>
+                    <Badge variant="outline">{supplier.paymentTerms ?? s.cash}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant={supplier.isActive ? "default" : "secondary"}>
-                      {supplier.isActive ? "Ativo" : "Inativo"}
+                      {supplier.isActive ? s.active : s.inactive}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
