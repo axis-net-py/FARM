@@ -8,15 +8,65 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, TrendingUp, TrendingDown } from "lucide-react";
+import { getLocale } from "@/lib/get-locale";
 
-function getStatusBadge(status: string) {
+const HEADER = {
+  pt: {
+    back: "Safras",
+    active: "Ativa",
+    planned: "Planejada",
+    completed: "Concluída",
+    margin: "Margem",
+    revenue: "Receita",
+    cost: "Custo",
+    noRevenueContract: "Sem contrato de venda nesta moeda ainda",
+    noCostOrContract: "Nenhum custo de insumo ou contrato registrado para esta safra ainda.",
+    plotCostTitle: "Custo de Insumo por Talhão",
+    contractsTitle: "Contratos de Venda",
+    plot: "Talhão",
+    area: "Área",
+    totalCost: "Custo Total",
+    noPlot: "Nenhum talhão vinculado a esta safra.",
+    contractNumber: "Nº Contrato",
+    grain: "Grão",
+    quantity: "Quantidade",
+    status: "Status",
+    value: "Valor",
+    noContract: "Nenhum contrato vinculado a esta safra.",
+  },
+  es: {
+    back: "Cosechas",
+    active: "Activa",
+    planned: "Planificada",
+    completed: "Concluida",
+    margin: "Margen",
+    revenue: "Ingreso",
+    cost: "Costo",
+    noRevenueContract: "Aún sin contrato de venta en esta moneda",
+    noCostOrContract: "Aún no hay costo de insumo ni contrato registrado para esta cosecha.",
+    plotCostTitle: "Costo de Insumo por Parcela",
+    contractsTitle: "Contratos de Venta",
+    plot: "Parcela",
+    area: "Área",
+    totalCost: "Costo Total",
+    noPlot: "Ninguna parcela vinculada a esta cosecha.",
+    contractNumber: "Nº Contrato",
+    grain: "Grano",
+    quantity: "Cantidad",
+    status: "Estado",
+    value: "Valor",
+    noContract: "Ningún contrato vinculado a esta cosecha.",
+  },
+} as const;
+
+function getStatusBadge(status: string, t: (typeof HEADER)["pt" | "es"]) {
   switch (status) {
     case "ACTIVE":
-      return <Badge className="bg-emerald-600 hover:bg-emerald-600/90 text-white border-none">Ativa</Badge>;
+      return <Badge className="bg-emerald-600 hover:bg-emerald-600/90 text-white border-none">{t.active}</Badge>;
     case "PLANNED":
-      return <Badge className="bg-sky-600 hover:bg-sky-600/90 text-white border-none">Planejada</Badge>;
+      return <Badge className="bg-sky-600 hover:bg-sky-600/90 text-white border-none">{t.planned}</Badge>;
     case "COMPLETED":
-      return <Badge variant="secondary">Concluída</Badge>;
+      return <Badge variant="secondary">{t.completed}</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
   }
@@ -30,6 +80,8 @@ export default async function HarvestProfilePage({
   const { tenantId, id } = await params;
   const session = await auth();
   if (!session?.user?.tenantId) redirect("/login");
+  const locale = await getLocale();
+  const t = HEADER[locale];
 
   const harvest = await getHarvestById(id);
   if (!harvest) notFound();
@@ -57,14 +109,14 @@ export default async function HarvestProfilePage({
           href={`/${tenantId}/safra`}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
         >
-          <ChevronLeft className="w-4 h-4" /> Safras
+          <ChevronLeft className="w-4 h-4" /> {t.back}
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{harvest.name}</h1>
             <p className="text-muted-foreground text-sm capitalize">{harvest.cropType}</p>
           </div>
-          <div>{getStatusBadge(harvest.status)}</div>
+          <div>{getStatusBadge(harvest.status, t)}</div>
         </div>
       </div>
 
@@ -74,47 +126,47 @@ export default async function HarvestProfilePage({
           <div key={m.currency} className="rounded-lg border border-border bg-card p-4">
             <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold flex items-center gap-1">
               {m.margin >= 0 ? <TrendingUp className="w-3.5 h-3.5 text-emerald-600" /> : <TrendingDown className="w-3.5 h-3.5 text-destructive" />}
-              Margem ({m.currency})
+              {t.margin} ({m.currency})
             </div>
             <div className={`text-lg font-bold mt-1 ${m.margin >= 0 ? "text-emerald-600" : "text-destructive"}`}>
               {formatCurrency(m.margin, m.currency)}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              Receita: {formatCurrency(m.revenue, m.currency)} · Custo: {formatCurrency(m.cost, m.currency)}
+              {t.revenue}: {formatCurrency(m.revenue, m.currency)} · {t.cost}: {formatCurrency(m.cost, m.currency)}
             </div>
           </div>
         ))}
         {costCurrenciesWithoutRevenue.map((c) => (
           <div key={c.currency} className="rounded-lg border border-border bg-card p-4">
-            <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold">Custo ({c.currency})</div>
+            <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold">{t.cost} ({c.currency})</div>
             <div className="text-lg font-bold text-foreground mt-1">{formatCurrency(c.total, c.currency)}</div>
-            <div className="text-xs text-muted-foreground mt-1">Sem contrato de venda nesta moeda ainda</div>
+            <div className="text-xs text-muted-foreground mt-1">{t.noRevenueContract}</div>
           </div>
         ))}
         {margins.length === 0 && costCurrenciesWithoutRevenue.length === 0 && (
           <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground sm:col-span-2 lg:col-span-3">
-            Nenhum custo de insumo ou contrato registrado para esta safra ainda.
+            {t.noCostOrContract}
           </div>
         )}
       </div>
 
       {/* Custo por talhão */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Custo de Insumo por Talhão</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-3">{t.plotCostTitle}</h2>
         <div className="rounded-lg border border-border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Talhão</TableHead>
-                <TableHead>Área</TableHead>
-                <TableHead className="text-right">Custo Total</TableHead>
+                <TableHead>{t.plot}</TableHead>
+                <TableHead>{t.area}</TableHead>
+                <TableHead className="text-right">{t.totalCost}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {profitability.plotCosts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                    Nenhum talhão vinculado a esta safra.
+                    {t.noPlot}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -137,23 +189,23 @@ export default async function HarvestProfilePage({
 
       {/* Contratos de venda */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Contratos de Venda</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-3">{t.contractsTitle}</h2>
         <div className="rounded-lg border border-border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nº Contrato</TableHead>
-                <TableHead>Grão</TableHead>
-                <TableHead>Quantidade</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
+                <TableHead>{t.contractNumber}</TableHead>
+                <TableHead>{t.grain}</TableHead>
+                <TableHead>{t.quantity}</TableHead>
+                <TableHead>{t.status}</TableHead>
+                <TableHead className="text-right">{t.value}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {contracts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    Nenhum contrato vinculado a esta safra.
+                    {t.noContract}
                   </TableCell>
                 </TableRow>
               ) : (
