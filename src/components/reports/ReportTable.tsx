@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Geist_Mono } from 'next/font/google';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useLanguage } from '@/components/language-provider';
 
 const geistMono = Geist_Mono({ subsets: ['latin'] });
 
@@ -15,6 +16,7 @@ const mockData = [
 
 export function ReportTable() {
   const t = useTranslations('reports.table');
+  const { language } = useLanguage();
 
   return (
     <div className="bg-card border shadow-sm">
@@ -38,7 +40,7 @@ export function ReportTable() {
               >
                 <td className="p-3 text-foreground">{row.date}</td>
                 <td className={`p-3 text-right ${geistMono.className} text-foreground`}>
-                  {row.total.toLocaleString('es-PY')} PYG
+                  {row.total.toLocaleString(language === 'pt' ? 'pt-BR' : 'es-PY')} PYG
                 </td>
               </tr>
             ))}
