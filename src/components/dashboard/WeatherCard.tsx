@@ -15,6 +15,62 @@ import {
   Calendar,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    loading: "Buscando dados climáticos (GPS)...",
+    errorLoad: "Não foi possível carregar a previsão.",
+    yourLocation: "Sua Localização (GPS)",
+    humidity: "Umidade",
+    wind: "Ventos",
+    rain: "Chuva",
+    rain30d: "Chuva (30d)",
+    weatherClear: "Céu Limpo",
+    weatherPartlyCloudy: "Parcialmente Nublado",
+    weatherFog: "Nevoeiro",
+    weatherDrizzle: "Chuvisco",
+    weatherRain: "Chuva",
+    weatherShowers: "Pancadas de Chuva",
+    weatherStorm: "Tempestade",
+    weatherCloudy: "Nublado",
+    adviceRainTitle: "Alerta de Chuva",
+    adviceRainMsg: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
+    adviceWindTitle: "Vento Forte Detectado",
+    adviceWindMsg: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
+    adviceHeatTitle: "Calor Extremo",
+    adviceHeatMsg: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
+    adviceIdealTitle: "Condições Ideais",
+    adviceIdealMsg: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
+    weekdayLocale: "pt-BR",
+  },
+  es: {
+    loading: "Buscando datos climáticos (GPS)...",
+    errorLoad: "No fue posible cargar el pronóstico.",
+    yourLocation: "Su Ubicación (GPS)",
+    humidity: "Humedad",
+    wind: "Vientos",
+    rain: "Lluvia",
+    rain30d: "Lluvia (30d)",
+    weatherClear: "Cielo Despejado",
+    weatherPartlyCloudy: "Parcialmente Nublado",
+    weatherFog: "Neblina",
+    weatherDrizzle: "Llovizna",
+    weatherRain: "Lluvia",
+    weatherShowers: "Chubascos",
+    weatherStorm: "Tormenta",
+    weatherCloudy: "Nublado",
+    adviceRainTitle: "Alerta de Lluvia",
+    adviceRainMsg: "Se recomienda suspender la cosecha y la pulverización. Evite compactar el suelo con maquinaria pesada.",
+    adviceWindTitle: "Viento Fuerte Detectado",
+    adviceWindMsg: "Condición inadecuada para la aplicación de agroquímicos por el alto riesgo de deriva. Posponga la actividad.",
+    adviceHeatTitle: "Calor Extremo",
+    adviceHeatMsg: "Evite pulverizar bajo sol fuerte y baja humedad. El producto se evapora antes de penetrar en el cultivo.",
+    adviceIdealTitle: "Condiciones Ideales",
+    adviceIdealMsg: "Período favorable para la cosecha, las labores culturales y la pulverización. Aproveche las condiciones climáticas.",
+    weekdayLocale: "es-PY",
+  },
+} as const;
 
 interface WeatherData {
   temp: number;
@@ -34,6 +90,8 @@ interface ForecastDay {
 }
 
 export function WeatherCard() {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -118,7 +176,7 @@ export function WeatherCard() {
         }
 
         // Reverse geocoding using Nominatim (OpenStreetMap)
-        let locationName = lat === defaultLat ? "Alto Paraná" : "Sua Localização (GPS)";
+        let locationName = lat === defaultLat ? "Alto Paraná" : s.yourLocation;
         try {
           const geoRes = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=pt,es,en`
@@ -162,22 +220,22 @@ export function WeatherCard() {
   };
 
   const getWeatherDescription = (code: number) => {
-    if (code === 0) return "Céu Limpo";
-    if (code >= 1 && code <= 3) return "Parcialmente Nublado";
-    if (code >= 45 && code <= 48) return "Nevoeiro";
-    if (code >= 51 && code <= 55) return "Chuvisco";
-    if (code >= 61 && code <= 65) return "Chuva";
-    if (code >= 80 && code <= 82) return "Pancadas de Chuva";
-    if (code >= 95 && code <= 99) return "Tempestade";
-    return "Nublado";
+    if (code === 0) return s.weatherClear;
+    if (code >= 1 && code <= 3) return s.weatherPartlyCloudy;
+    if (code >= 45 && code <= 48) return s.weatherFog;
+    if (code >= 51 && code <= 55) return s.weatherDrizzle;
+    if (code >= 61 && code <= 65) return s.weatherRain;
+    if (code >= 80 && code <= 82) return s.weatherShowers;
+    if (code >= 95 && code <= 99) return s.weatherStorm;
+    return s.weatherCloudy;
   };
 
   const getAgriculturalAdvice = (temp: number, wind: number, humidity: number, rain: number) => {
     if (rain > 0) {
       return {
         status: "critical",
-        title: "Alerta de Chuva",
-        message: "Suspensão de colheita e pulverização recomendada. Evite compactação do solo com maquinário pesado.",
+        title: s.adviceRainTitle,
+        message: s.adviceRainMsg,
         icon: <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 animate-pulse" />,
         bgColor: "bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 border-l-4 border-l-rose-500",
         textColor: "text-rose-900 dark:text-rose-300",
@@ -186,8 +244,8 @@ export function WeatherCard() {
     if (wind > 20) {
       return {
         status: "warning",
-        title: "Vento Forte Detectado",
-        message: "Condição imprópria para aplicação de defensivos agrícolas devido ao alto risco de deriva. Adie a atividade.",
+        title: s.adviceWindTitle,
+        message: s.adviceWindMsg,
         icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
         bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
         textColor: "text-amber-900 dark:text-amber-300",
@@ -196,8 +254,8 @@ export function WeatherCard() {
     if (temp > 35) {
       return {
         status: "warning",
-        title: "Calor Extremo",
-        message: "Evite pulverizar sob sol forte e baixa umidade. O produto evapora antes de penetrar na cultura.",
+        title: s.adviceHeatTitle,
+        message: s.adviceHeatMsg,
         icon: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
         bgColor: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500",
         textColor: "text-amber-900 dark:text-amber-300",
@@ -205,8 +263,8 @@ export function WeatherCard() {
     }
     return {
       status: "ideal",
-      title: "Condições Ideais",
-      message: "Período favorável para colheita, tratos culturais e pulverização. Aproveite as condições climáticas.",
+      title: s.adviceIdealTitle,
+      message: s.adviceIdealMsg,
       icon: <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
       bgColor: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 border-l-4 border-l-emerald-500",
       textColor: "text-emerald-900 dark:text-emerald-300",
@@ -217,7 +275,7 @@ export function WeatherCard() {
     return (
       <div className="border border-border rounded-xl p-6 bg-card flex items-center justify-center h-[180px]">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        <span className="ml-2 text-sm text-muted-foreground font-medium">Buscando dados climáticos (GPS)...</span>
+        <span className="ml-2 text-sm text-muted-foreground font-medium">{s.loading}</span>
       </div>
     );
   }
@@ -226,7 +284,7 @@ export function WeatherCard() {
     return (
       <div className="border border-border rounded-xl p-6 bg-card flex items-center justify-center h-[180px]">
         <AlertTriangle className="w-6 h-6 text-rose-500 mr-2" />
-        <span className="text-sm text-rose-500 font-medium">Não foi possível carregar a previsão.</span>
+        <span className="text-sm text-rose-500 font-medium">{s.errorLoad}</span>
       </div>
     );
   }
@@ -262,17 +320,17 @@ export function WeatherCard() {
         <div className="grid grid-cols-3 gap-4 md:border-r border-border/50 md:pr-4">
           <div className="flex flex-col items-center justify-center text-center">
             <Droplets className="w-5 h-5 text-sky-600 dark:text-sky-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Umidade</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">{s.humidity}</span>
             <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.humidity}%</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
             <Wind className="w-5 h-5 text-teal-600 dark:text-teal-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Ventos</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">{s.wind}</span>
             <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.windSpeed.toFixed(0)} km/h</span>
           </div>
           <div className="flex flex-col items-center justify-center text-center">
             <CloudRain className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mb-1" />
-            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">Chuva</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-widest">{s.rain}</span>
             <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">{weather.precipitation.toFixed(1)} mm</span>
           </div>
         </div>
@@ -292,7 +350,7 @@ export function WeatherCard() {
           {forecast.length > 0 && (
             <div className="flex-1 grid grid-cols-5 gap-2">
               {forecast.map((day) => {
-                const weekday = new Date(day.date + "T00:00:00").toLocaleDateString("pt-BR", { weekday: "short" });
+                const weekday = new Date(day.date + "T00:00:00").toLocaleDateString(s.weekdayLocale, { weekday: "short" });
                 return (
                   <div key={day.date} className="flex flex-col items-center text-center gap-0.5">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">{weekday}</span>
@@ -312,7 +370,7 @@ export function WeatherCard() {
             <div className="flex items-center gap-2 sm:border-l border-border/50 sm:pl-4 shrink-0">
               <Calendar className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <div>
-                <div className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-widest">Chuva (30d)</div>
+                <div className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-widest">{s.rain30d}</div>
                 <div className="text-sm font-extrabold text-foreground">{rain30d.toFixed(0)} mm</div>
               </div>
             </div>

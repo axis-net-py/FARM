@@ -13,11 +13,23 @@ import { useQuery } from '@tanstack/react-query';
 import { getTrendData } from '@/lib/dashboard';
 import { formatCurrency, formatCurrencyCompact } from '@/lib/format';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useLanguage } from '@/components/language-provider';
 
 interface SalesChartProps {
   dateRange: { from: Date; to: Date };
   currency: 'PYG' | 'USD' | 'BRL';
 }
+
+const STRINGS = {
+  pt: {
+    error: 'Erro ao carregar grafico',
+    title: 'Vendas — 30 dias',
+  },
+  es: {
+    error: 'Error al cargar el gráfico',
+    title: 'Ventas — 30 días',
+  },
+} as const;
 
 function CustomTooltip({ active, payload, label, currency }: any) {
   if (!active || !payload?.length) return null;
@@ -32,6 +44,8 @@ function CustomTooltip({ active, payload, label, currency }: any) {
 }
 
 export function SalesChart({ dateRange, currency }: SalesChartProps) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const { data, isLoading, error } = useQuery({
     queryKey: ['trendData', dateRange, currency],
     queryFn: () => getTrendData({ start: dateRange.from, end: dateRange.to }),
@@ -48,7 +62,7 @@ export function SalesChart({ dateRange, currency }: SalesChartProps) {
   if (error) {
     return (
       <div className="bg-card border shadow-sm p-6 text-destructive text-sm">
-        Erro ao carregar grafico
+        {s.error}
       </div>
     );
   }
@@ -59,7 +73,7 @@ export function SalesChart({ dateRange, currency }: SalesChartProps) {
     <div className="bg-card border shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          Vendas — 30 dias
+          {s.title}
         </h3>
         <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
           {currency}
