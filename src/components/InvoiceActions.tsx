@@ -4,6 +4,16 @@ import { Printer, Receipt, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { CommercialInvoiceSheet } from "@/components/CommercialInvoiceSheet";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    edit: "Editar",
+  },
+  es: {
+    edit: "Editar",
+  },
+} as const;
 
 interface InvoiceActionsProps {
   invoice: any;
@@ -11,6 +21,8 @@ interface InvoiceActionsProps {
 }
 
 export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [printingA4, setPrintingA4] = useState(false);
   const [printingReceipt, setPrintingReceipt] = useState(false);
 
@@ -72,7 +84,7 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
             className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
           >
             <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-            <span>Editar</span>
+            <span>{s.edit}</span>
           </Button>
         }
       />

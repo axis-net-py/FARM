@@ -8,17 +8,78 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Paperclip } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ptBR, es as esLocale } from "date-fns/locale";
+import { useLanguage } from "@/components/language-provider";
 
-const sifenStatusLabels: Record<string, string> = {
-  PENDING: "Pendente Sifen",
-  APPROVED: "Aprovado Sifen",
-  REJECTED: "Rejeitado Sifen",
-  CANCELLED: "Cancelado Sifen",
-  RECIBO_COMUN: "Recibo Comum",
-};
+const STRINGS = {
+  pt: {
+    sifenStatus: {
+      PENDING: "Pendente Sifen",
+      APPROVED: "Aprovado Sifen",
+      REJECTED: "Rejeitado Sifen",
+      CANCELLED: "Cancelado Sifen",
+      RECIBO_COMUN: "Recibo Comum",
+    } as Record<string, string>,
+    searchPlaceholder: "Buscar por cliente ou número...",
+    type: "Tipo",
+    allTypes: "Todos os Tipos",
+    sales: "Venda",
+    purchase: "Compra",
+    status: "Status",
+    allStatus: "Todos Status",
+    pending: "Pendente",
+    approved: "Aprovada",
+    cancelled: "Cancelada",
+    sifenStatusLabel: "Status SET (Sifen)",
+    allSifen: "Todos Sifen",
+    notSent: "Não enviado",
+    colCustomer: "Cliente",
+    colInvoice: "Fatura",
+    colDate: "Data",
+    colSifenStatus: "Status SET",
+    colTotal: "Total",
+    colActions: "Ações",
+    empty: "Nenhuma fatura encontrada.",
+    viewOriginalDoc: "Visualizar documento original",
+    na: "N/A",
+  },
+  es: {
+    sifenStatus: {
+      PENDING: "Pendiente Sifen",
+      APPROVED: "Aprobado Sifen",
+      REJECTED: "Rechazado Sifen",
+      CANCELLED: "Cancelado Sifen",
+      RECIBO_COMUN: "Recibo Común",
+    } as Record<string, string>,
+    searchPlaceholder: "Buscar por cliente o número...",
+    type: "Tipo",
+    allTypes: "Todos los Tipos",
+    sales: "Venta",
+    purchase: "Compra",
+    status: "Estado",
+    allStatus: "Todos los Estados",
+    pending: "Pendiente",
+    approved: "Aprobada",
+    cancelled: "Cancelada",
+    sifenStatusLabel: "Estado SET (Sifen)",
+    allSifen: "Todos Sifen",
+    notSent: "No enviado",
+    colCustomer: "Cliente",
+    colInvoice: "Factura",
+    colDate: "Fecha",
+    colSifenStatus: "Estado SET",
+    colTotal: "Total",
+    colActions: "Acciones",
+    empty: "No se encontraron facturas.",
+    viewOriginalDoc: "Ver documento original",
+    na: "N/A",
+  },
+} as const;
 
 export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId: string }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
+  const dateLocale = language === "pt" ? ptBR : esLocale;
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -100,43 +161,43 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Input
-            placeholder="Buscar por cliente ou número..."
+            placeholder={s.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs h-[38px] rounded-lg border-border bg-card"
           />
           <Select value={selectedType} onValueChange={setSelectedType}>
             <SelectTrigger className="w-[140px] h-[38px] rounded-lg bg-card">
-              <SelectValue placeholder="Tipo" />
+              <SelectValue placeholder={s.type} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
-              <SelectItem value="all">Todos os Tipos</SelectItem>
-              <SelectItem value="SALES">Venda</SelectItem>
-              <SelectItem value="PURCHASE">Compra</SelectItem>
+              <SelectItem value="all">{s.allTypes}</SelectItem>
+              <SelectItem value="SALES">{s.sales}</SelectItem>
+              <SelectItem value="PURCHASE">{s.purchase}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="w-[140px] h-[38px] rounded-lg bg-card">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={s.status} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
-              <SelectItem value="all">Todos Status</SelectItem>
-              <SelectItem value="PENDING">Pendente</SelectItem>
-              <SelectItem value="APPROVED">Aprovada</SelectItem>
-              <SelectItem value="CANCELLED">Cancelada</SelectItem>
+              <SelectItem value="all">{s.allStatus}</SelectItem>
+              <SelectItem value="PENDING">{s.pending}</SelectItem>
+              <SelectItem value="APPROVED">{s.approved}</SelectItem>
+              <SelectItem value="CANCELLED">{s.cancelled}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={selectedSifenStatus} onValueChange={setSelectedSifenStatus}>
             <SelectTrigger className="w-[160px] h-[38px] rounded-lg bg-card">
-              <SelectValue placeholder="Status SET (Sifen)" />
+              <SelectValue placeholder={s.sifenStatusLabel} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
-              <SelectItem value="all">Todos Sifen</SelectItem>
-              <SelectItem value="none">Não enviado</SelectItem>
-              <SelectItem value="RECIBO_COMUN">Recibo Comum</SelectItem>
-              <SelectItem value="PENDING">Pendente Sifen</SelectItem>
-              <SelectItem value="APPROVED">Aprovado Sifen</SelectItem>
-              <SelectItem value="REJECTED">Rejeitado Sifen</SelectItem>
+              <SelectItem value="all">{s.allSifen}</SelectItem>
+              <SelectItem value="none">{s.notSent}</SelectItem>
+              <SelectItem value="RECIBO_COMUN">{s.sifenStatus.RECIBO_COMUN}</SelectItem>
+              <SelectItem value="PENDING">{s.sifenStatus.PENDING}</SelectItem>
+              <SelectItem value="APPROVED">{s.sifenStatus.APPROVED}</SelectItem>
+              <SelectItem value="REJECTED">{s.sifenStatus.REJECTED}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -148,34 +209,34 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => handleSort("type")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Tipo{renderSortIndicator("type")}
+                {s.type}{renderSortIndicator("type")}
               </TableHead>
               <TableHead onClick={() => handleSort("customer")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Cliente{renderSortIndicator("customer")}
+                {s.colCustomer}{renderSortIndicator("customer")}
               </TableHead>
               <TableHead onClick={() => handleSort("documentNumber")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Fatura{renderSortIndicator("documentNumber")}
+                {s.colInvoice}{renderSortIndicator("documentNumber")}
               </TableHead>
               <TableHead onClick={() => handleSort("issuedAt")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Data{renderSortIndicator("issuedAt")}
+                {s.colDate}{renderSortIndicator("issuedAt")}
               </TableHead>
               <TableHead onClick={() => handleSort("status")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status{renderSortIndicator("status")}
+                {s.status}{renderSortIndicator("status")}
               </TableHead>
               <TableHead onClick={() => handleSort("sifenStatus")} className="cursor-pointer hover:bg-muted/50 select-none">
-                Status SET{renderSortIndicator("sifenStatus")}
+                {s.colSifenStatus}{renderSortIndicator("sifenStatus")}
               </TableHead>
               <TableHead onClick={() => handleSort("totalAmount")} className="text-right cursor-pointer hover:bg-muted/50 select-none">
-                Total{renderSortIndicator("totalAmount")}
+                {s.colTotal}{renderSortIndicator("totalAmount")}
               </TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-right">{s.colActions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedInvoices.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                  Nenhuma fatura encontrada.
+                  {s.empty}
                 </TableCell>
               </TableRow>
             ) : (
@@ -183,11 +244,11 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
                 <TableRow key={inv.id}>
                   <TableCell>
                     <Badge variant={inv.type === "PURCHASE" ? "default" : "secondary"}>
-                      {inv.type === "PURCHASE" ? "Compra" : "Venda"}
+                      {inv.type === "PURCHASE" ? s.purchase : s.sales}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {inv.customer?.name || inv.supplier?.name || "N/A"}
+                    {inv.customer?.name || inv.supplier?.name || s.na}
                   </TableCell>
                   <TableCell className="font-mono text-xs">
                     <div className="flex items-center gap-1.5">
@@ -197,7 +258,7 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
                           href={inv.attachmentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="Visualizar documento original"
+                          title={s.viewOriginalDoc}
                           className="inline-flex text-muted-foreground hover:text-primary transition-colors"
                         >
                           <Paperclip className="h-3.5 w-3.5" />
@@ -207,7 +268,7 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
                   </TableCell>
                   <TableCell>
                     {format(new Date(inv.issuedAt), "dd/MM/yyyy", {
-                      locale: ptBR,
+                      locale: dateLocale,
                     })}
                   </TableCell>
                   <TableCell>
@@ -221,10 +282,10 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
                       }
                     >
                       {inv.status === "APPROVED"
-                        ? "Aprovada"
+                        ? s.approved
                         : inv.status === "CANCELLED"
-                        ? "Cancelada"
-                        : "Pendente"}
+                        ? s.cancelled
+                        : s.pending}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -237,7 +298,7 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
                           : "outline"
                       }
                     >
-                      {sifenStatusLabels[inv.sifenStatus] || inv.sifenStatus || "Não enviado"}
+                      {s.sifenStatus[inv.sifenStatus] || inv.sifenStatus || s.notSent}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right font-mono">

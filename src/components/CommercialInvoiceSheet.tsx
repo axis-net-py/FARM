@@ -17,8 +17,132 @@ import type { Customer, Supplier, Product } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/format";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/components/language-provider";
 
 const geistMono = Geist_Mono({ subsets: ["latin"] });
+
+const STRINGS = {
+  pt: {
+    loadErr: "Erro ao carregar dados do faturamento:",
+    uploadErr: "Erro ao fazer upload do anexo: ",
+    createErr: "Erro ao criar fatura",
+    newInvoiceTrigger: "Faturar Venda / Compra",
+    editTitle: "Editar Fatura",
+    newTitle: "Painel de Faturamento Global",
+    description: "Lançamento integrado com controle cambial, conciliação e SIFEN",
+    sales: "Venda",
+    purchase: "Compra",
+    commercialParams: "Parâmetros Comerciais",
+    saleTypeLabel: "Tipo de Venda / Emissão",
+    legalSifen: "Legal (SIFEN)",
+    legalSifenSub: "Validação Tributária PY",
+    commonReceipt: "Recibo Comum",
+    commonReceiptSub: "Documento Interno",
+    customer: "Cliente",
+    supplier: "Fornecedor",
+    selectCustomer: "cliente",
+    selectSupplier: "fornecedor",
+    selectPlaceholder: "Selecione o",
+    invoiceNumber: "Nº Fatura",
+    timbradoNumber: "Nº Timbrado",
+    originalDocument: "Documento Original (PDF ou Imagem)",
+    viewAttachment: "Visualizar Anexo",
+    billingCondition: "Condição de Faturamento",
+    cash: "À Vista",
+    credit: "A Prazo",
+    conditionLabel: "Condição",
+    exchangeLabel: "Câmbio",
+    dueDate: "Data de Vencimento",
+    transactionCurrency: "Moeda da Transação",
+    currencyPYG: "PYG - Guarani Paraguai (Gs)",
+    currencyUSD: "USD - Dólar Americano ($)",
+    currencyBRL: "BRL - Real Brasileiro (R$)",
+    manualRate: "Câmbio Manual",
+    officialRef: "Ref. Oficial: 1",
+    itemLines: "Linhas de Itens",
+    product: "Produto",
+    quantity: "Qtd",
+    price: "Preço",
+    tax: "IVA",
+    exempt: "Exento",
+    service: "(Serviço)",
+    stock: "Estoque",
+    addItem: "Adicionar Item",
+    totalIn: "Total em",
+    pygEquivalent: "Equivalente PYG",
+    usdEquivalent: "Equivalente USD",
+    cancel: "Cancelar",
+    saving: "Gravando...",
+    saveChanges: "Salvar Alterações",
+    confirmInvoicing: "Confirmar Faturamento",
+    confirmPurchase: "Confirmar Compra",
+    invoiceComplete: "Faturamento Concluído!",
+    invoiceCompleteDesc: "A venda foi registrada com sucesso. Como deseja imprimir o documento?",
+    printA4: "Imprimir A4",
+    print80mm: "Imprimir 80mm",
+    closeNoPrint: "Fechar sem Imprimir",
+  },
+  es: {
+    loadErr: "Error al cargar datos de facturación:",
+    uploadErr: "Error al subir el adjunto: ",
+    createErr: "Error al crear la factura",
+    newInvoiceTrigger: "Facturar Venta / Compra",
+    editTitle: "Editar Factura",
+    newTitle: "Panel de Facturación Global",
+    description: "Registro integrado con control cambiario, conciliación y SIFEN",
+    sales: "Venta",
+    purchase: "Compra",
+    commercialParams: "Parámetros Comerciales",
+    saleTypeLabel: "Tipo de Venta / Emisión",
+    legalSifen: "Legal (SIFEN)",
+    legalSifenSub: "Validación Tributaria PY",
+    commonReceipt: "Recibo Común",
+    commonReceiptSub: "Documento Interno",
+    customer: "Cliente",
+    supplier: "Proveedor",
+    selectCustomer: "cliente",
+    selectSupplier: "proveedor",
+    selectPlaceholder: "Seleccione el",
+    invoiceNumber: "Nº Factura",
+    timbradoNumber: "Nº Timbrado",
+    originalDocument: "Documento Original (PDF o Imagen)",
+    viewAttachment: "Ver Adjunto",
+    billingCondition: "Condición de Facturación",
+    cash: "Al Contado",
+    credit: "A Crédito",
+    conditionLabel: "Condición",
+    exchangeLabel: "Cambio",
+    dueDate: "Fecha de Vencimiento",
+    transactionCurrency: "Moneda de la Transacción",
+    currencyPYG: "PYG - Guaraní Paraguayo (Gs)",
+    currencyUSD: "USD - Dólar Americano ($)",
+    currencyBRL: "BRL - Real Brasileño (R$)",
+    manualRate: "Cambio Manual",
+    officialRef: "Ref. Oficial: 1",
+    itemLines: "Líneas de Ítems",
+    product: "Producto",
+    quantity: "Cant",
+    price: "Precio",
+    tax: "IVA",
+    exempt: "Exento",
+    service: "(Servicio)",
+    stock: "Stock",
+    addItem: "Agregar Ítem",
+    totalIn: "Total en",
+    pygEquivalent: "Equivalente PYG",
+    usdEquivalent: "Equivalente USD",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    saveChanges: "Guardar Cambios",
+    confirmInvoicing: "Confirmar Facturación",
+    confirmPurchase: "Confirmar Compra",
+    invoiceComplete: "¡Facturación Completada!",
+    invoiceCompleteDesc: "La venta fue registrada con éxito. ¿Cómo desea imprimir el documento?",
+    printA4: "Imprimir A4",
+    print80mm: "Imprimir 80mm",
+    closeNoPrint: "Cerrar sin Imprimir",
+  },
+} as const;
 
 export function CommercialInvoiceSheet({
   tenantId,
@@ -29,6 +153,8 @@ export function CommercialInvoiceSheet({
   invoice?: any;
   trigger?: React.ReactNode;
 }) {
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<"PURCHASE" | "SALES">(invoice?.type ?? "SALES");
@@ -115,7 +241,7 @@ export function CommercialInvoiceSheet({
         }
       }
     } catch (err) {
-      console.error("Erro ao carregar dados do faturamento:", err);
+      console.error(s.loadErr, err);
     } finally {
       setLoading(false);
     }
@@ -323,7 +449,7 @@ export function CommercialInvoiceSheet({
 
       setAttachmentUrl(data.publicUrl);
     } catch (err: any) {
-      alert("Erro ao fazer upload do anexo: " + err.message);
+      alert(s.uploadErr + err.message);
     } finally {
       setUploading(false);
     }
@@ -354,7 +480,7 @@ export function CommercialInvoiceSheet({
         documentNumber: type === "PURCHASE" ? documentNumber : undefined,
         timbrado: type === "PURCHASE" ? timbrado : undefined,
         attachmentUrl: type === "PURCHASE" ? attachmentUrl : undefined,
-        notes: `Condição: ${paymentMethod === "A_VISTA" ? "À Vista" : "A Prazo"}. Câmbio: 1 ${currency} = ${customRate} PYG.`,
+        notes: `${s.conditionLabel}: ${paymentMethod === "A_VISTA" ? s.cash : s.credit}. ${s.exchangeLabel}: 1 ${currency} = ${customRate} PYG.`,
         items: items.map((i) => {
           // Convert price to PYG anchor for prisma storage consistency
           const unitPriceInPYG = currency === "PYG" ? i.unitPrice : i.unitPrice * customRate;
@@ -394,7 +520,7 @@ export function CommercialInvoiceSheet({
         router.refresh();
       }
     } catch (err: any) {
-      alert(err.message || "Erro ao criar fatura");
+      alert(err.message || s.createErr);
     } finally {
       setLoading(false);
     }
@@ -412,7 +538,7 @@ export function CommercialInvoiceSheet({
               className="bg-primary hover:bg-primary/95 text-primary-foreground font-bold min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] rounded-lg shadow-sm flex items-center gap-2 active:scale-98 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4 shrink-0" />
-              Faturar Venda / Compra
+              {s.newInvoiceTrigger}
             </button>
           )}
         </DialogTrigger>
@@ -425,13 +551,13 @@ export function CommercialInvoiceSheet({
             <div>
               <DialogTitle className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
                 <Landmark className="w-5 h-5 text-primary" />
-                {invoice ? "Editar Fatura" : "Painel de Faturamento Global"}
+                {invoice ? s.editTitle : s.newTitle}
               </DialogTitle>
               <DialogDescription className="text-[12px] text-muted-foreground font-medium pt-1">
-                Lançamento integrado com controle cambial, conciliação e SIFEN
+                {s.description}
               </DialogDescription>
             </div>
-            
+
             {/* Purchase / Sales Switcher */}
             <div className="flex gap-1 p-1 bg-muted rounded-xl border border-border">
               <button
@@ -443,7 +569,7 @@ export function CommercialInvoiceSheet({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Venda
+                {s.sales}
               </button>
               <button
                 type="button"
@@ -454,7 +580,7 @@ export function CommercialInvoiceSheet({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Compra
+                {s.purchase}
               </button>
             </div>
           </div>
@@ -466,13 +592,13 @@ export function CommercialInvoiceSheet({
             
             {/* Left Column: Config Panel */}
             <div className="space-y-5 bg-muted/20 p-5 rounded-2xl border border-border/50">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-primary">Parâmetros Comerciais</h3>
-              
+              <h3 className="text-xs font-bold uppercase tracking-wider text-primary">{s.commercialParams}</h3>
+
               {/* Sifen Option (Sales Only) */}
               {type === "SALES" && (
                 <div className="space-y-2">
                   <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                    <FileCheck2 className="w-3.5 h-3.5" /> Tipo de Venda / Emissão
+                    <FileCheck2 className="w-3.5 h-3.5" /> {s.saleTypeLabel}
                   </Label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -484,8 +610,8 @@ export function CommercialInvoiceSheet({
                           : "border-border bg-card text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <span className="text-[12px]">Legal (SIFEN)</span>
-                      <span className="text-[9px] opacity-70">Validação Tributária PY</span>
+                      <span className="text-[12px]">{s.legalSifen}</span>
+                      <span className="text-[9px] opacity-70">{s.legalSifenSub}</span>
                     </button>
                     <button
                       type="button"
@@ -496,8 +622,8 @@ export function CommercialInvoiceSheet({
                           : "border-border bg-card text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <span className="text-[12px]">Recibo Comum</span>
-                      <span className="text-[9px] opacity-70">Documento Interno</span>
+                      <span className="text-[12px]">{s.commonReceipt}</span>
+                      <span className="text-[9px] opacity-70">{s.commonReceiptSub}</span>
                     </button>
                   </div>
                 </div>
@@ -506,11 +632,11 @@ export function CommercialInvoiceSheet({
               {/* Client Selection */}
               <div className="space-y-2">
                 <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                  {type === "SALES" ? "Cliente" : "Fornecedor"}
+                  {type === "SALES" ? s.customer : s.supplier}
                 </Label>
                 <Select value={selectedCustomer} onValueChange={handleCustomerChange} required>
                   <SelectTrigger className="bg-card border-border text-[13px] h-[42px] rounded-xl shadow-sm">
-                    <SelectValue placeholder={`Selecione o ${type === "SALES" ? "cliente" : "fornecedor"}`} />
+                    <SelectValue placeholder={`${s.selectPlaceholder} ${type === "SALES" ? s.selectCustomer : s.selectSupplier}`} />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
                     {type === "SALES" ? (
@@ -535,7 +661,7 @@ export function CommercialInvoiceSheet({
                 <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
                   <div className="space-y-2">
                     <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                      Nº Fatura
+                      {s.invoiceNumber}
                     </Label>
                     <Input
                       type="text"
@@ -548,7 +674,7 @@ export function CommercialInvoiceSheet({
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                      Nº Timbrado
+                      {s.timbradoNumber}
                     </Label>
                     <Input
                       type="text"
@@ -565,7 +691,7 @@ export function CommercialInvoiceSheet({
               {type === "PURCHASE" && (
                 <div className="space-y-2 mt-2">
                   <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-                    Documento Original (PDF ou Imagem)
+                    {s.originalDocument}
                   </Label>
                   <div className="flex gap-2 items-center">
                     <div className="relative flex-1">
@@ -588,7 +714,7 @@ export function CommercialInvoiceSheet({
                         rel="noopener noreferrer"
                         className="text-xs text-primary font-bold hover:underline truncate max-w-[280px]"
                       >
-                        Visualizar Anexo
+                        {s.viewAttachment}
                       </a>
                     </div>
                   )}
@@ -598,7 +724,7 @@ export function CommercialInvoiceSheet({
               {/* Payment Condition */}
               <div className="space-y-2">
                 <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                  <CalendarRange className="w-3.5 h-3.5" /> Condição de Faturamento
+                  <CalendarRange className="w-3.5 h-3.5" /> {s.billingCondition}
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -610,7 +736,7 @@ export function CommercialInvoiceSheet({
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    À Vista
+                    {s.cash}
                   </button>
                   <button
                     type="button"
@@ -621,7 +747,7 @@ export function CommercialInvoiceSheet({
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    A Prazo
+                    {s.credit}
                   </button>
                 </div>
               </div>
@@ -630,7 +756,7 @@ export function CommercialInvoiceSheet({
               {paymentMethod === "A_PRAZO" && (
                 <div className="space-y-2">
                   <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                    Data de Vencimento
+                    {s.dueDate}
                   </Label>
                   <Input
                     type="date"
@@ -646,25 +772,25 @@ export function CommercialInvoiceSheet({
               <div className="space-y-3">
                 <div className="space-y-2">
                   <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                    <Coins className="w-3.5 h-3.5" /> Moeda da Transação
+                    <Coins className="w-3.5 h-3.5" /> {s.transactionCurrency}
                   </Label>
                   <Select value={currency} onValueChange={handleCurrencyChange}>
                     <SelectTrigger className="bg-card border-border text-[13px] h-[42px] rounded-xl shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="PYG">PYG - Guarani Paraguai (Gs)</SelectItem>
-                      <SelectItem value="USD">USD - Dólar Americano ($)</SelectItem>
-                      <SelectItem value="BRL">BRL - Real Brasileiro (R$)</SelectItem>
+                      <SelectItem value="PYG">{s.currencyPYG}</SelectItem>
+                      <SelectItem value="USD">{s.currencyUSD}</SelectItem>
+                      <SelectItem value="BRL">{s.currencyBRL}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 {/* Manual Rate Input */}
                 {currency !== "PYG" && (
                   <div className="space-y-1.5 bg-card border border-border p-3.5 rounded-xl">
                     <Label className="text-[11px] font-bold uppercase tracking-widest text-primary flex items-center justify-between">
-                      <span>Câmbio Manual</span>
+                      <span>{s.manualRate}</span>
                       <span className="text-[9px] text-muted-foreground">({currency} → PYG)</span>
                     </Label>
                     <Input
@@ -676,7 +802,7 @@ export function CommercialInvoiceSheet({
                       className="bg-background border-border text-[13px] h-[38px] rounded-lg shadow-sm"
                     />
                     <div className="text-[9px] text-amber-500 font-semibold bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
-                      Ref. Oficial: 1 {currency} = {currency === "USD" ? exchangeRates.ratePYGtoUSD : exchangeRates.ratePYGtoBRL} PYG
+                      {s.officialRef} {currency} = {currency === "USD" ? exchangeRates.ratePYGtoUSD : exchangeRates.ratePYGtoBRL} PYG
                     </div>
                   </div>
                 )}
@@ -686,27 +812,27 @@ export function CommercialInvoiceSheet({
             {/* Right Column: Items and Subtotals */}
             <div className="space-y-4 flex flex-col justify-between">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">Linhas de Itens</h3>
-                
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">{s.itemLines}</h3>
+
                 {/* Items Container */}
                 <div className="space-y-2 max-h-[35vh] overflow-y-auto pr-1">
                   {items.map((item, index) => (
                     <div key={index} className="grid grid-cols-[1fr_80px_130px_100px_40px] gap-2 items-center bg-card p-3 rounded-xl border border-border">
                       {/* Product Selector */}
                       <div>
-                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">Produto</Label>
+                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">{s.product}</Label>
                         <Select
                           value={item.productId}
                           onValueChange={(v) => updateItem(index, "productId", v)}
                           required
                         >
                           <SelectTrigger className="bg-background border-border text-[13px] h-[36px] rounded-lg">
-                            <SelectValue placeholder="Produto" />
+                            <SelectValue placeholder={s.product} />
                           </SelectTrigger>
                           <SelectContent className="rounded-lg">
                             {products.map((p) => (
                               <SelectItem key={p.id} value={p.id} className="text-[12px]">
-                                {p.sku} - {p.name} {p.isService ? "(Serviço)" : `(Estoque: ${Number(p.currentStock)})`}
+                                {p.sku} - {p.name} {p.isService ? s.service : `(${s.stock}: ${Number(p.currentStock)})`}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -715,7 +841,7 @@ export function CommercialInvoiceSheet({
 
                       {/* Quantity */}
                       <div>
-                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">Qtd</Label>
+                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">{s.quantity}</Label>
                         <Input
                           type="number"
                           required
@@ -724,14 +850,14 @@ export function CommercialInvoiceSheet({
                           onChange={(e) =>
                             updateItem(index, "quantity", Number(e.target.value))
                           }
-                          placeholder="Qtd"
+                          placeholder={s.quantity}
                           className="bg-background border-border text-[13px] h-[36px] rounded-lg"
                         />
                       </div>
 
                       {/* Price (In selected currency) */}
                       <div>
-                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">Preço ({currency})</Label>
+                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">{s.price} ({currency})</Label>
                         <Input
                           type="number"
                           required
@@ -740,26 +866,26 @@ export function CommercialInvoiceSheet({
                           onChange={(e) =>
                             updateItem(index, "unitPrice", Number(e.target.value))
                           }
-                          placeholder="Preço"
+                          placeholder={s.price}
                           className="bg-background border-border text-[13px] h-[36px] rounded-lg"
                         />
                       </div>
 
                       {/* Tax Type */}
                       <div>
-                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">IVA</Label>
+                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">{s.tax}</Label>
                         <Select
                           value={item.taxType}
                           onValueChange={(v) => updateItem(index, "taxType", v)}
                           required
                         >
                           <SelectTrigger className="bg-background border-border text-[13px] h-[36px] rounded-lg">
-                            <SelectValue placeholder="IVA" />
+                            <SelectValue placeholder={s.tax} />
                           </SelectTrigger>
                           <SelectContent className="rounded-lg">
                             <SelectItem value="IVA_10">10%</SelectItem>
                             <SelectItem value="IVA_5">5%</SelectItem>
-                            <SelectItem value="EXENTO">Exento</SelectItem>
+                            <SelectItem value="EXENTO">{s.exempt}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -785,31 +911,31 @@ export function CommercialInvoiceSheet({
                   className="mt-3 flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-bold bg-primary/5 hover:bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-lg transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Adicionar Item
+                  {s.addItem}
                 </button>
               </div>
 
               {/* Dynamic Totals Panel */}
               <div className="bg-muted/30 border border-border p-4 rounded-2xl grid grid-cols-3 gap-4 items-center">
                 <div className="space-y-0.5">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Total em {currency}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{s.totalIn} {currency}</span>
                   <div className={`${geistMono.className} text-xl font-bold text-foreground`}>
                     {formatCurrency(totalSelectedCurrency, currency)}
                   </div>
                 </div>
-                
+
                 {currency !== "PYG" && (
                   <div className="space-y-0.5 border-l border-border pl-4">
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Equivalente PYG</span>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{s.pygEquivalent}</span>
                     <div className={`${geistMono.className} text-sm font-bold text-foreground/80`}>
                       {formatCurrency(totalPYG, "PYG")}
                     </div>
                   </div>
                 )}
-                
+
                 {currency !== "USD" && (
                   <div className="space-y-0.5 border-l border-border pl-4">
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Equivalente USD</span>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{s.usdEquivalent}</span>
                     <div className={`${geistMono.className} text-sm font-bold text-foreground/80`}>
                       {formatCurrency(totalUSD, "USD")}
                     </div>
@@ -827,7 +953,7 @@ export function CommercialInvoiceSheet({
               onClick={() => setOpen(false)}
               className="px-5 h-[42px] rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted/80 hover:text-foreground active:scale-98 transition-all"
             >
-              Cancelar
+              {s.cancel}
             </button>
             <button
               type="submit"
@@ -835,7 +961,7 @@ export function CommercialInvoiceSheet({
               className="bg-primary text-primary-foreground font-bold px-7 h-[42px] rounded-xl hover:bg-primary/95 transition-all flex items-center justify-center gap-2 text-xs shadow-md active:scale-98 disabled:opacity-50"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin text-secondary" />}
-              {loading ? "Gravando..." : invoice ? "Salvar Alterações" : `Confirmar ${type === "SALES" ? "Faturamento" : "Compra"}`}
+              {loading ? s.saving : invoice ? s.saveChanges : type === "SALES" ? s.confirmInvoicing : s.confirmPurchase}
             </button>
           </div>
 
@@ -851,10 +977,10 @@ export function CommercialInvoiceSheet({
           <DialogHeader className="text-center space-y-2">
             <DialogTitle className="text-lg font-bold flex items-center justify-center gap-2">
               <Printer className="w-5 h-5 text-primary animate-pulse" />
-              Faturamento Concluído!
+              {s.invoiceComplete}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              A venda foi registrada com sucesso. Como deseja imprimir o documento?
+              {s.invoiceCompleteDesc}
             </DialogDescription>
           </DialogHeader>
 
@@ -869,7 +995,7 @@ export function CommercialInvoiceSheet({
               ) : (
                 <Printer className="w-6 h-6 text-primary" />
               )}
-              <span className="text-xs font-bold">Imprimir A4</span>
+              <span className="text-xs font-bold">{s.printA4}</span>
             </button>
 
             <button
@@ -882,7 +1008,7 @@ export function CommercialInvoiceSheet({
               ) : (
                 <Receipt className="w-6 h-6 text-primary" />
               )}
-              <span className="text-xs font-bold">Imprimir 80mm</span>
+              <span className="text-xs font-bold">{s.print80mm}</span>
             </button>
           </div>
 
@@ -891,7 +1017,7 @@ export function CommercialInvoiceSheet({
               onClick={handleClosePrompt}
               className="w-full py-2.5 rounded-xl text-xs font-bold bg-muted hover:bg-muted/80 text-muted-foreground transition-all active:scale-98"
             >
-              Fechar sem Imprimir
+              {s.closeNoPrint}
             </button>
           </div>
         </DialogContent>
