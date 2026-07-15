@@ -11,6 +11,66 @@ import { createVehicleLog, updateVehicleLog, deleteVehicleLog } from "@/app/acti
 import type { VehicleLog, Employee, VehicleLogType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    editTitle: "Editar Registro",
+    newTitle: "Novo Registro",
+    newTrigger: "Novo Registro",
+    description: "Registre manutenção ou abastecimento do veículo/máquina.",
+    maintenance: "Manutenção",
+    fuel: "Abastecimento",
+    date: "Data",
+    odometer: "Horímetro / Odômetro",
+    odometerPlaceholder: "Ex: 1250.5",
+    liters: "Litros",
+    fuelCost: "Custo do Combustível",
+    desc: "Descrição",
+    descPlaceholder: "Ex: Troca de óleo e filtro",
+    maintenanceCost: "Custo da Manutenção",
+    employee: "Funcionário",
+    employeePlaceholder: "Selecione (opcional)",
+    notInformed: "Não informado",
+    notes: "Observações",
+    deleteConfirm: "Excluir este registro? Esta ação não pode ser desfeita.",
+    deleteErr: "Erro ao excluir registro",
+    saveErr: "Erro ao salvar registro",
+    delete: "Excluir",
+    cancel: "Cancelar",
+    saving: "Salvando...",
+    update: "Atualizar",
+    register: "Registrar",
+  },
+  es: {
+    editTitle: "Editar Registro",
+    newTitle: "Nuevo Registro",
+    newTrigger: "Nuevo Registro",
+    description: "Registre mantenimiento o abastecimiento del vehículo/máquina.",
+    maintenance: "Mantenimiento",
+    fuel: "Abastecimiento",
+    date: "Fecha",
+    odometer: "Horómetro / Odómetro",
+    odometerPlaceholder: "Ej: 1250.5",
+    liters: "Litros",
+    fuelCost: "Costo del Combustible",
+    desc: "Descripción",
+    descPlaceholder: "Ej: Cambio de aceite y filtro",
+    maintenanceCost: "Costo del Mantenimiento",
+    employee: "Empleado",
+    employeePlaceholder: "Seleccione (opcional)",
+    notInformed: "No informado",
+    notes: "Observaciones",
+    deleteConfirm: "¿Eliminar este registro? Esta acción no se puede deshacer.",
+    deleteErr: "Error al eliminar registro",
+    saveErr: "Error al guardar registro",
+    delete: "Eliminar",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    update: "Actualizar",
+    register: "Registrar",
+  },
+} as const;
 
 export function VehicleLogSheet({
   vehicleId,
@@ -24,6 +84,8 @@ export function VehicleLogSheet({
   trigger?: React.ReactNode;
 }) {
   const router = useRouter();
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const isEdit = !!log;
@@ -42,7 +104,7 @@ export function VehicleLogSheet({
 
   async function handleDelete() {
     if (!log) return;
-    const confirmDelete = window.confirm("Excluir este registro? Esta ação não pode ser desfeita.");
+    const confirmDelete = window.confirm(s.deleteConfirm);
     if (!confirmDelete) return;
 
     setLoading(true);
@@ -51,7 +113,7 @@ export function VehicleLogSheet({
       setOpen(false);
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Erro ao excluir registro");
+      alert(err.message || s.deleteErr);
     } finally {
       setLoading(false);
     }
@@ -84,7 +146,7 @@ export function VehicleLogSheet({
       setOpen(false);
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Erro ao salvar registro");
+      alert(err.message || s.saveErr);
     } finally {
       setLoading(false);
     }
@@ -95,17 +157,17 @@ export function VehicleLogSheet({
       <DialogTrigger asChild>
         {trigger ?? (
           <button className="axis-btn-primary min-h-[44px] md:h-[32px] px-6 md:px-4 text-[14px] md:text-[13px] flex items-center justify-center font-bold shadow-md cursor-pointer">
-            Novo Registro
+            {s.newTrigger}
           </button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[50vw] w-[95vw] glass-pop-up p-0 overflow-hidden">
         <DialogHeader className="text-left space-y-1 p-6 border-b border-border bg-muted/30">
           <DialogTitle className="text-[18px] font-bold tracking-tight text-foreground">
-            {isEdit ? "Editar Registro" : "Novo Registro"}
+            {isEdit ? s.editTitle : s.newTitle}
           </DialogTitle>
           <DialogDescription className="text-[12px] text-muted-foreground font-medium">
-            Registre manutenção ou abastecimento do veículo/máquina.
+            {s.description}
           </DialogDescription>
         </DialogHeader>
 
@@ -121,7 +183,7 @@ export function VehicleLogSheet({
                   : "bg-background border-border text-muted-foreground"
               )}
             >
-              <Wrench className="w-4 h-4" /> Manutenção
+              <Wrench className="w-4 h-4" /> {s.maintenance}
             </button>
             <button
               type="button"
@@ -133,13 +195,13 @@ export function VehicleLogSheet({
                   : "bg-background border-border text-muted-foreground"
               )}
             >
-              <Fuel className="w-4 h-4" /> Abastecimento
+              <Fuel className="w-4 h-4" /> {s.fuel}
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Data</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.date}</Label>
               <Input
                 type="date"
                 required
@@ -149,13 +211,13 @@ export function VehicleLogSheet({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Horímetro / Odômetro</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.odometer}</Label>
               <Input
                 type="number"
                 step="0.01"
                 value={odometerOrHours}
                 onChange={(e) => setOdometerOrHours(e.target.value)}
-                placeholder="Ex: 1250.5"
+                placeholder={s.odometerPlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
@@ -164,7 +226,7 @@ export function VehicleLogSheet({
           {type === "FUEL" ? (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Litros</Label>
+                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.liters}</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -174,7 +236,7 @@ export function VehicleLogSheet({
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Custo do Combustível</Label>
+                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.fuelCost}</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -187,16 +249,16 @@ export function VehicleLogSheet({
           ) : (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Descrição</Label>
+                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.desc}</Label>
                 <Input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ex: Troca de óleo e filtro"
+                  placeholder={s.descPlaceholder}
                   className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Custo da Manutenção</Label>
+                <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.maintenanceCost}</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -210,13 +272,13 @@ export function VehicleLogSheet({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Funcionário</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.employee}</Label>
               <Select value={employeeId || "none"} onValueChange={(v) => setEmployeeId(v === "none" ? "" : v)}>
                 <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                  <SelectValue placeholder="Selecione (opcional)" />
+                  <SelectValue placeholder={s.employeePlaceholder} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground">
-                  <SelectItem value="none" className="text-[12px]">Não informado</SelectItem>
+                  <SelectItem value="none" className="text-[12px]">{s.notInformed}</SelectItem>
                   {employees.map((e) => (
                     <SelectItem key={e.id} value={e.id} className="text-[12px]">{e.name}</SelectItem>
                   ))}
@@ -226,7 +288,7 @@ export function VehicleLogSheet({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Observações</Label>
+            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.notes}</Label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -244,7 +306,7 @@ export function VehicleLogSheet({
                   disabled={loading}
                   className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 h-[40px] rounded-[8px] text-[14px] font-bold disabled:opacity-50 shadow-md active:scale-95 transition-all"
                 >
-                  Excluir
+                  {s.delete}
                 </button>
               )}
             </div>
@@ -254,7 +316,7 @@ export function VehicleLogSheet({
                 onClick={() => setOpen(false)}
                 className="px-4 h-[40px] rounded-[8px] text-[14px] font-semibold text-muted-foreground hover:bg-muted transition-all"
               >
-                Cancelar
+                {s.cancel}
               </button>
               <button
                 type="submit"
@@ -262,7 +324,7 @@ export function VehicleLogSheet({
                 className="bg-primary text-primary-foreground px-6 h-[40px] rounded-[8px] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 text-[14px] font-bold disabled:opacity-50 shadow-md active:scale-95"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin text-secondary" />}
-                {loading ? "Salvando..." : isEdit ? "Atualizar" : "Registrar"}
+                {loading ? s.saving : isEdit ? s.update : s.register}
               </button>
             </div>
           </div>
