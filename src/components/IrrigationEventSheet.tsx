@@ -10,9 +10,61 @@ import { Loader2 } from "lucide-react";
 import { createIrrigationEvent } from "@/app/actions/irrigationEvent";
 import type { Employee } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/components/language-provider";
+
+const STRINGS = {
+  pt: {
+    newTrigger: "Novo Turno de Irrigação",
+    description: "Registre um turno de irrigação deste talhão.",
+    date: "Data",
+    method: "Método",
+    pivo: "Pivô Central",
+    gotejamento: "Gotejamento",
+    aspersao: "Aspersão",
+    sulco: "Sulco",
+    outro: "Outro",
+    duration: "Duração (h)",
+    flowRate: "Vazão",
+    volumeApplied: "Volume Aplicado",
+    volumePlaceholder: "mm ou m³",
+    employee: "Funcionário",
+    employeePlaceholder: "Selecione (opcional)",
+    notInformed: "Não informado",
+    notes: "Observações",
+    saveErr: "Erro ao registrar turno de irrigação",
+    cancel: "Cancelar",
+    saving: "Salvando...",
+    register: "Registrar",
+  },
+  es: {
+    newTrigger: "Nuevo Turno de Riego",
+    description: "Registre un turno de riego de esta parcela.",
+    date: "Fecha",
+    method: "Método",
+    pivo: "Pivote Central",
+    gotejamento: "Goteo",
+    aspersao: "Aspersión",
+    sulco: "Surco",
+    outro: "Otro",
+    duration: "Duración (h)",
+    flowRate: "Caudal",
+    volumeApplied: "Volumen Aplicado",
+    volumePlaceholder: "mm o m³",
+    employee: "Empleado",
+    employeePlaceholder: "Seleccione (opcional)",
+    notInformed: "No informado",
+    notes: "Observaciones",
+    saveErr: "Error al registrar el turno de riego",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    register: "Registrar",
+  },
+} as const;
 
 export function IrrigationEventSheet({ plotId, employees }: { plotId: string; employees: Employee[] }) {
   const router = useRouter();
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -47,7 +99,7 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
       setNotes("");
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Erro ao registrar turno de irrigação");
+      alert(err.message || s.saveErr);
     } finally {
       setLoading(false);
     }
@@ -57,21 +109,21 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="px-4 h-[32px] rounded-[8px] text-[13px] font-bold border border-border bg-background hover:bg-muted transition-all">
-          Novo Turno de Irrigação
+          {s.newTrigger}
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[50vw] w-[95vw] glass-pop-up p-0 overflow-hidden">
         <DialogHeader className="text-left space-y-1 p-6 border-b border-border bg-muted/30">
-          <DialogTitle className="text-[18px] font-bold tracking-tight text-foreground">Novo Turno de Irrigação</DialogTitle>
+          <DialogTitle className="text-[18px] font-bold tracking-tight text-foreground">{s.newTrigger}</DialogTitle>
           <DialogDescription className="text-[12px] text-muted-foreground font-medium">
-            Registre um turno de irrigação deste talhão.
+            {s.description}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Data</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.date}</Label>
               <Input
                 type="date"
                 required
@@ -81,17 +133,17 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Método</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.method}</Label>
               <Select value={method} onValueChange={setMethod}>
                 <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground">
-                  <SelectItem value="pivo" className="text-[12px]">Pivô Central</SelectItem>
-                  <SelectItem value="gotejamento" className="text-[12px]">Gotejamento</SelectItem>
-                  <SelectItem value="aspersao" className="text-[12px]">Aspersão</SelectItem>
-                  <SelectItem value="sulco" className="text-[12px]">Sulco</SelectItem>
-                  <SelectItem value="outro" className="text-[12px]">Outro</SelectItem>
+                  <SelectItem value="pivo" className="text-[12px]">{s.pivo}</SelectItem>
+                  <SelectItem value="gotejamento" className="text-[12px]">{s.gotejamento}</SelectItem>
+                  <SelectItem value="aspersao" className="text-[12px]">{s.aspersao}</SelectItem>
+                  <SelectItem value="sulco" className="text-[12px]">{s.sulco}</SelectItem>
+                  <SelectItem value="outro" className="text-[12px]">{s.outro}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -99,7 +151,7 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Duração (h)</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.duration}</Label>
               <Input
                 type="number"
                 step="0.1"
@@ -109,7 +161,7 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Vazão</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.flowRate}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -119,26 +171,26 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Volume Aplicado</Label>
+              <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.volumeApplied}</Label>
               <Input
                 type="number"
                 step="0.01"
                 value={volumeApplied}
                 onChange={(e) => setVolumeApplied(e.target.value)}
-                placeholder="mm ou m³"
+                placeholder={s.volumePlaceholder}
                 className="bg-background border-border text-[13px] h-[40px] rounded-[8px] font-medium shadow-sm focus:ring-primary/20"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Funcionário</Label>
+            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.employee}</Label>
             <Select value={employeeId || "none"} onValueChange={(v) => setEmployeeId(v === "none" ? "" : v)}>
               <SelectTrigger className="bg-background border-border text-[13px] h-[40px] rounded-[8px] focus:ring-primary/20">
-                <SelectValue placeholder="Selecione (opcional)" />
+                <SelectValue placeholder={s.employeePlaceholder} />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border text-popover-foreground">
-                <SelectItem value="none" className="text-[12px]">Não informado</SelectItem>
+                <SelectItem value="none" className="text-[12px]">{s.notInformed}</SelectItem>
                 {employees.map((e) => (
                   <SelectItem key={e.id} value={e.id} className="text-[12px]">{e.name}</SelectItem>
                 ))}
@@ -147,7 +199,7 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">Observações</Label>
+            <Label className="text-[11px] text-primary uppercase tracking-widest font-bold">{s.notes}</Label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -162,7 +214,7 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
               onClick={() => setOpen(false)}
               className="px-4 h-[40px] rounded-[8px] text-[14px] font-semibold text-muted-foreground hover:bg-muted transition-all"
             >
-              Cancelar
+              {s.cancel}
             </button>
             <button
               type="submit"
@@ -170,7 +222,7 @@ export function IrrigationEventSheet({ plotId, employees }: { plotId: string; em
               className="bg-primary text-primary-foreground px-6 h-[40px] rounded-[8px] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 text-[14px] font-bold disabled:opacity-50 shadow-md active:scale-95"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin text-secondary" />}
-              {loading ? "Salvando..." : "Registrar"}
+              {loading ? s.saving : s.register}
             </button>
           </div>
         </form>

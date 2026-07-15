@@ -5,27 +5,59 @@ import { deleteIrrigationEvent } from "@/app/actions/irrigationEvent";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { IrrigationEvent } from "@prisma/client";
+import { useLanguage } from "@/components/language-provider";
 
 type EventWithEmployee = IrrigationEvent & { employee: { id: string; name: string } | null };
 
-function formatDate(date: Date | string) {
-  return new Date(date).toLocaleDateString("pt-BR", { timeZone: "UTC" });
-}
+const STRINGS = {
+  pt: {
+    deleteConfirm: "Excluir este turno de irrigação? Esta ação não pode ser desfeita.",
+    deleteErr: "Erro ao excluir turno",
+    empty: "Nenhum turno de irrigação registrado ainda.",
+    irrigation: "Irrigação",
+    flowRate: "Vazão",
+    volume: "Volume",
+    by: "Por",
+    delete: "Excluir",
+    methodLabels: {
+      pivo: "Pivô Central",
+      gotejamento: "Gotejamento",
+      aspersao: "Aspersão",
+      sulco: "Sulco",
+      outro: "Outro",
+    } as Record<string, string>,
+  },
+  es: {
+    deleteConfirm: "¿Eliminar este turno de riego? Esta acción no se puede deshacer.",
+    deleteErr: "Error al eliminar el turno",
+    empty: "Aún no hay turnos de riego registrados.",
+    irrigation: "Riego",
+    flowRate: "Caudal",
+    volume: "Volumen",
+    by: "Por",
+    delete: "Eliminar",
+    methodLabels: {
+      pivo: "Pivote Central",
+      gotejamento: "Goteo",
+      aspersao: "Aspersión",
+      sulco: "Surco",
+      outro: "Otro",
+    } as Record<string, string>,
+  },
+} as const;
 
-const methodLabels: Record<string, string> = {
-  pivo: "Pivô Central",
-  gotejamento: "Gotejamento",
-  aspersao: "Aspersão",
-  sulco: "Sulco",
-  outro: "Outro",
-};
+function formatDate(date: Date | string, language: "pt" | "es") {
+  return new Date(date).toLocaleDateString(language === "es" ? "es-PY" : "pt-BR", { timeZone: "UTC" });
+}
 
 export function IrrigationEventTimeline({ events }: { events: EventWithEmployee[] }) {
   const router = useRouter();
+  const { language } = useLanguage();
+  const s = STRINGS[language];
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
-    const confirmed = window.confirm("Excluir este turno de irrigação? Esta ação não pode ser desfeita.");
+    const confirmed = window.confirm(s.deleteConfirm);
     if (!confirmed) return;
 
     setDeletingId(id);
@@ -33,7 +65,7 @@ export function IrrigationEventTimeline({ events }: { events: EventWithEmployee[
       await deleteIrrigationEvent(id);
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Erro ao excluir turno");
+      alert(err.message || s.deleteErr);
     } finally {
       setDeletingId(null);
     }
@@ -42,7 +74,7 @@ export function IrrigationEventTimeline({ events }: { events: EventWithEmployee[
   if (events.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground text-sm">
-        Nenhum turno de irrigação registrado ainda.
+        {s.empty}
       </div>
     );
   }
@@ -57,15 +89,15 @@ export function IrrigationEventTimeline({ events }: { events: EventWithEmployee[
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <span className="font-semibold text-foreground text-sm">
-                {event.method ? methodLabels[event.method] ?? event.method : "Irrigação"}
+                {event.method ? s.methodLabels[event.method] ?? event.method : s.irrigation}
               </span>
-              <span className="text-xs text-muted-foreground shrink-0">{formatDate(event.date)}</span>
+              <span className="text-xs text-muted-foreground shrink-0">{formatDate(event.date, language)}</span>
             </div>
             <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-x-3">
               {event.durationHours != null && <span>{Number(event.durationHours).toLocaleString()} h</span>}
-              {event.flowRate != null && <span>Vazão: {Number(event.flowRate).toLocaleString()}</span>}
-              {event.volumeApplied != null && <span>Volume: {Number(event.volumeApplied).toLocaleString()}</span>}
-              {event.employee && <span>Por: {event.employee.name}</span>}
+              {event.flowRate != null && <span>{s.flowRate}: {Number(event.flowRate).toLocaleString()}</span>}
+              {event.volumeApplied != null && <span>{s.volume}: {Number(event.volumeApplied).toLocaleString()}</span>}
+              {event.employee && <span>{s.by}: {event.employee.name}</span>}
             </div>
             {event.notes && <div className="text-xs text-muted-foreground mt-1 italic">{event.notes}</div>}
           </div>
@@ -74,7 +106,7 @@ export function IrrigationEventTimeline({ events }: { events: EventWithEmployee[
             onClick={() => handleDelete(event.id)}
             disabled={deletingId === event.id}
             className="shrink-0 p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
-            title="Excluir"
+            title={s.delete}
           >
             <Trash2 className="w-4 h-4" />
           </button>
