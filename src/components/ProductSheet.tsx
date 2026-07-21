@@ -48,8 +48,9 @@ const STRINGS = {
     saving: "Salvando...",
     update: "Atualizar",
     register: "Registrar Produto",
-    deleteConfirm: "Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita se houver movimentações ou faturas vinculadas.",
+    deleteConfirm: "Tem certeza que deseja excluir este produto? Se ele já tiver faturas ou movimentações de estoque, será arquivado em vez de apagado (o histórico fiscal é preservado).",
     deleteErr: "Erro ao excluir produto",
+    archivedMsg: "Produto arquivado: ele tem faturas ou movimentações vinculadas, então o cadastro foi desativado para preservar o histórico fiscal.",
     saveErr: "Erro ao salvar produto",
   },
   es: {
@@ -82,8 +83,9 @@ const STRINGS = {
     saving: "Guardando...",
     update: "Actualizar",
     register: "Registrar Producto",
-    deleteConfirm: "¿Está seguro que desea eliminar este producto? Esta acción no se puede deshacer si hay movimientos o facturas vinculadas.",
+    deleteConfirm: "¿Está seguro que desea eliminar este producto? Si ya tiene facturas o movimientos de stock, será archivado en lugar de eliminado (el historial fiscal se preserva).",
     deleteErr: "Error al eliminar producto",
+    archivedMsg: "Producto archivado: tiene facturas o movimientos vinculados, por eso el registro fue desactivado para preservar el historial fiscal.",
     saveErr: "Error al guardar producto",
   },
 } as const;
@@ -121,7 +123,8 @@ export function ProductSheet({
 
     setLoading(true);
     try {
-      await deleteProduct(product.id);
+      const res = await deleteProduct(product.id);
+      if (res?.archived) alert(s.archivedMsg);
       setOpen(false);
       onSuccess?.();
     } catch (err: any) {
