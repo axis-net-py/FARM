@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProductSheet } from "@/components/ProductSheet";
+import { ProductDeleteButton } from "@/components/ProductDeleteButton";
 import type { Product } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -238,10 +239,13 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <ProductSheet
-                      tenantId={tenantId}
-                      product={product}
-                    />
+                    <div className="flex items-center justify-end gap-2">
+                      <ProductSheet
+                        tenantId={tenantId}
+                        product={product}
+                      />
+                      <ProductDeleteButton product={product} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
