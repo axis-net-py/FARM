@@ -5,20 +5,20 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CommercialInvoiceSheet } from "@/components/CommercialInvoiceSheet";
-import { cancelInvoice } from "@/app/actions/invoice";
+import { deletePurchaseInvoice } from "@/app/actions/invoice";
 import { useLanguage } from "@/components/language-provider";
 
 const STRINGS = {
   pt: {
     edit: "Editar",
     del: "Excluir",
-    confirm: "Excluir esta fatura? O estoque e os lançamentos contábeis serão revertidos. Esta ação não pode ser desfeita.",
+    confirm: "Excluir definitivamente esta fatura de compra? O estoque e os lançamentos contábeis serão revertidos. Esta ação não pode ser desfeita.",
     err: "Erro ao excluir a fatura.",
   },
   es: {
     edit: "Editar",
     del: "Eliminar",
-    confirm: "¿Eliminar esta factura? El stock y los asientos contables se revertirán. Esta acción no se puede deshacer.",
+    confirm: "¿Eliminar definitivamente esta factura de compra? El stock y los asientos contables se revertirán. Esta acción no se puede deshacer.",
     err: "Error al eliminar la factura.",
   },
 } as const;
@@ -36,14 +36,16 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
   const [cancelling, setCancelling] = useState(false);
   const router = useRouter();
 
-  const isCancelled = invoice.status === "CANCELLED";
+  // Exclusão definitiva só para faturas de COMPRA.
+  // Faturas de venda são documentos fiscais de saída — não se apagam.
+  const canDelete = invoice.type === "PURCHASE";
 
-  const handleCancel = async () => {
-    if (isCancelled || cancelling) return;
+  const handleDelete = async () => {
+    if (!canDelete || cancelling) return;
     if (!window.confirm(s.confirm)) return;
     setCancelling(true);
     try {
-      await cancelInvoice(invoice.id);
+      await deletePurchaseInvoice(invoice.id);
       router.refresh();
     } catch (err: any) {
       alert(err.message || s.err);
@@ -141,12 +143,12 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
         </>
       )}
 
-      {!isCancelled && (
+      {canDelete && (
         <Button
           variant="outline"
           size="sm"
           disabled={cancelling}
-          onClick={handleCancel}
+          onClick={handleDelete}
           className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-destructive/10 hover:text-destructive border-border"
         >
           {cancelling ? (

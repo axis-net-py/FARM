@@ -388,6 +388,81 @@ export async function cancelInvoice(id: string) {
   revalidatePath(`/${tenantId}/products`)
 }
 
+/**
+ * Exclusão definitiva (hard delete) — SOMENTE faturas de COMPRA.
+ *
+ * Faturas de VENDA nunca são apagadas: são documentos fiscais de saída
+ * (e podem estar no SIFEN). Para essas, use cancelInvoice.
+ */
+export async function deletePurchaseInvoice(id: string) {
+  const session = await auth()
+  if (!session?.user?.tenantId) throw new Error('Tenant não encontrado')
+  const tenantId = session.user.tenantId
+  const userId = session.user.id as string | undefined
+
+  const invoice = await prisma.commercialInvoice.findFirst({
+    where: { id, tenantId },
+    include: { items: true, movements: true },
+  })
+  if (!invoice) throw new Error('Fatura não encontrada')
+
+  if (invoice.type !== 'PURCHASE') {
+    throw new Error('Somente faturas de compra podem ser excluídas. Faturas de venda devem ser canceladas.')
+  }
+  if (invoice.sifenCdc || invoice.sifenStatus) {
+    throw new Error('Fatura com registro no SIFEN não pode ser excluída.')
+  }
+
+  await prisma.$transaction(async (tx: any) => {
+    // 1. Reverter estoque — só se a fatura ainda estava ativa
+    // (se já foi cancelada, o estoque já voltou em cancelInvoice)
+    if (invoice.status !== 'CANCELLED') {
+      for (const movement of invoice.movements) {
+        const reverseType = movement.type === 'ENTRADA' ? 'SAIDA' : 'ENTRADA'
+        await tx.product.updateMany({
+          where: { id: movement.productId, tenantId },
+          data: {
+            currentStock: {
+              [reverseType === 'ENTRADA' ? 'increment' : 'decrement']: movement.quantity,
+            },
+          },
+        })
+      }
+    }
+
+    // 2. Apagar lançamentos contábeis vinculados
+    const entries = await tx.journalEntry.findMany({
+      where: { tenantId, referenceType: 'invoice', referenceId: id },
+      select: { id: true },
+    })
+    const entryIds = entries.map((e: any) => e.id)
+    if (entryIds.length > 0) {
+      await tx.journalLine.deleteMany({ where: { journalEntryId: { in: entryIds } } })
+      await tx.journalEntry.deleteMany({ where: { id: { in: entryIds }, tenantId } })
+    }
+
+    // 3. Apagar dependências diretas (sem cascade no schema)
+    await tx.inventoryMovement.deleteMany({ where: { commercialInvoiceId: id } })
+    await tx.invoiceItem.deleteMany({ where: { commercialInvoiceId: id } })
+
+    // 4. Apagar a fatura
+    await tx.commercialInvoice.delete({ where: { id } })
+
+    await tx.auditLog.create({
+      data: {
+        tenantId,
+        userId,
+        action: 'DELETE_PURCHASE_INVOICE',
+        entity: 'CommercialInvoice',
+        entityId: id,
+      },
+    })
+  }, { timeout: 30000 })
+
+  revalidatePath(`/${tenantId}/invoices`)
+  revalidatePath(`/${tenantId}/products`)
+}
+
 import { getOrFetchExchangeRate } from '@/lib/exchange'
 
 // Obter última taxa de câmbio (com atualização automática)

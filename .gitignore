@@ -50,3 +50,5 @@ drizzle/
 .tmp.driveupload/
 
 .worktrees/
+
+.env*
