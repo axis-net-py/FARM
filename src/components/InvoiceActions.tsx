@@ -1,17 +1,25 @@
 "use client";
 
-import { Printer, Receipt, Pencil } from "lucide-react";
+import { Printer, Receipt, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CommercialInvoiceSheet } from "@/components/CommercialInvoiceSheet";
+import { cancelInvoice } from "@/app/actions/invoice";
 import { useLanguage } from "@/components/language-provider";
 
 const STRINGS = {
   pt: {
     edit: "Editar",
+    del: "Excluir",
+    confirm: "Excluir esta fatura? O estoque e os lançamentos contábeis serão revertidos. Esta ação não pode ser desfeita.",
+    err: "Erro ao excluir a fatura.",
   },
   es: {
     edit: "Editar",
+    del: "Eliminar",
+    confirm: "¿Eliminar esta factura? El stock y los asientos contables se revertirán. Esta acción no se puede deshacer.",
+    err: "Error al eliminar la factura.",
   },
 } as const;
 
@@ -25,6 +33,24 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
   const s = STRINGS[language];
   const [printingA4, setPrintingA4] = useState(false);
   const [printingReceipt, setPrintingReceipt] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const router = useRouter();
+
+  const isCancelled = invoice.status === "CANCELLED";
+
+  const handleCancel = async () => {
+    if (isCancelled || cancelling) return;
+    if (!window.confirm(s.confirm)) return;
+    setCancelling(true);
+    try {
+      await cancelInvoice(invoice.id);
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message || s.err);
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const isSifen = !!invoice.sifenStatus;
   const a4Url = isSifen 
@@ -113,6 +139,23 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
             <span>80mm</span>
           </Button>
         </>
+      )}
+
+      {!isCancelled && (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={cancelling}
+          onClick={handleCancel}
+          className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-destructive/10 hover:text-destructive border-border"
+        >
+          {cancelling ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+          )}
+          <span>{s.del}</span>
+        </Button>
       )}
     </div>
   );
