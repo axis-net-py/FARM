@@ -698,7 +698,7 @@ Se a intenção do usuário corresponder a um cadastro, retorne um objeto JSON p
 Se for apenas conversa ou dúvida, retorne:
 {
   "action": "chat",
-  "message": "Sua resposta amigável sobre o sistema AURELIUS ERP agrícola"
+  "message": "Sua resposta amigável sobre o sistema AXIS Farm ERP agrícola"
 }`;
 
       const geminiResponse = await callGemini(prompt);

@@ -10,7 +10,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader2, Sparkles, FileText, CheckCircle2, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 export function AIInvoiceImporter() {
   const router = useRouter();
@@ -34,24 +33,20 @@ export function AIInvoiceImporter() {
     setMessage("Preparando arquivo e enviando para o armazenamento...");
 
     try {
-      // 1. Upload to Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}_original_invoice.${fileExt}`;
-      const filePath = `purchases/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("attachments")
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw new Error("Erro no upload do anexo: " + uploadError.message);
+      // Upload best-effort para o Vercel Blob (anexo e so referencia).
+      let attachmentUrl: string | undefined = undefined;
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const up = await fetch("/api/upload", { method: "POST", body: fd });
+        if (up.ok) {
+          attachmentUrl = (await up.json()).url || undefined;
+        } else {
+          console.warn("Upload do anexo ignorado:", (await up.json()).error);
+        }
+      } catch (upErr) {
+        console.warn("Upload do anexo falhou, seguindo sem anexo:", upErr);
       }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("attachments")
-        .getPublicUrl(filePath);
-
-      const attachmentUrl = publicUrlData?.publicUrl || undefined;
 
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -162,7 +157,7 @@ export function AIInvoiceImporter() {
               )}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground pt-1">
-              {status === "processing" ? "O Aurelius ERP está extraindo os dados comerciais por IA." : "Resultado da operação"}
+              {status === "processing" ? "O AXIS Farm ERP está extraindo os dados comerciais por IA." : "Resultado da operação"}
             </DialogDescription>
           </DialogHeader>
 

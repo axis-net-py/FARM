@@ -15,7 +15,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 interface Message {
   sender: "user" | "bot";
@@ -32,7 +31,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "bot",
-      text: "Olá! Sou o Assistente AURELIUS IA. Diga comandos como:\n• 'cadastrar safra Soja 2026'\n• 'adicionar talhão Leste de 25 hectares'\n• 'cadastrar contrato 104 de soja para silo Lar de 200 toneladas'\n\nOu envie fotos de folhas de plantio para diagnosticar doenças, ou PDFs/Imagens de faturas de compra para cadastrá-las automaticamente.",
+      text: "Olá! Sou o Assistente AXIS Farm IA. Diga comandos como:\n• 'cadastrar safra Soja 2026'\n• 'adicionar talhão Leste de 25 hectares'\n• 'cadastrar contrato 104 de soja para silo Lar de 200 toneladas'\n\nOu envie fotos de folhas de plantio para diagnosticar doenças, ou PDFs/Imagens de faturas de compra para cadastrá-las automaticamente.",
     },
   ]);
   const [inputText, setInputText] = useState("");
@@ -140,24 +139,20 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
     setLoading(true);
 
     try {
-      // 1. Upload to Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileNameUnique = `${Date.now()}_original_invoice.${fileExt}`;
-      const filePath = `purchases/${fileNameUnique}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("attachments")
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw new Error("Erro no upload do anexo: " + uploadError.message);
+      // Upload best-effort para o Vercel Blob (anexo e so referencia).
+      let attachmentUrl: string | undefined = undefined;
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const up = await fetch("/api/upload", { method: "POST", body: fd });
+        if (up.ok) {
+          attachmentUrl = (await up.json()).url || undefined;
+        } else {
+          console.warn("Upload do anexo ignorado:", (await up.json()).error);
+        }
+      } catch (upErr) {
+        console.warn("Upload do anexo falhou, seguindo sem anexo:", upErr);
       }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("attachments")
-        .getPublicUrl(filePath);
-
-      const attachmentUrl = publicUrlData?.publicUrl || undefined;
 
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -260,7 +255,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary animate-pulse" />
               <div>
-                <h3 className="text-sm font-bold text-foreground">AURELIUS IA</h3>
+                <h3 className="text-sm font-bold text-foreground">AXIS Farm IA</h3>
                 <span className="text-[9px] font-semibold text-emerald-500 uppercase tracking-widest">Online</span>
               </div>
             </div>
@@ -336,7 +331,7 @@ export function AIAssistant({ tenantId }: { tenantId: string }) {
             {/* Hidden File Input */}
             <input
               type="file"
-              accept="image/*,application/pdf"
+              accept="application/pdf,.pdf,image/*,.jpg,.jpeg,.png"
               className="hidden"
               ref={fileInputRef}
               onChange={handleFileUpload}
