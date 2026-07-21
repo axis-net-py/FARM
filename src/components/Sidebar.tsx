@@ -27,6 +27,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { LanguageFlag } from "@/components/FlagIcon";
 
 interface SidebarProps {
   tenantId: string;
@@ -184,7 +185,7 @@ export function Sidebar({ tenantId, collapsed = false }: SidebarProps) {
               className="flex-1 flex items-center justify-center gap-1.5 h-8 px-2 rounded-lg border border-border bg-background hover:bg-accent text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all"
               title={language === "pt" ? "Cambiar a Español" : "Mudar para Português"}
             >
-              <span className="text-sm leading-none">{language === "pt" ? "🇧🇷" : "🇵🇾"}</span>
+              <LanguageFlag language={language} className="w-4 h-3 rounded-[2px] shrink-0" />
               <span>{language === "pt" ? "PT" : "ES"}</span>
             </button>
 

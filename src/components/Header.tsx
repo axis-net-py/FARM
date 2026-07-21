@@ -3,6 +3,7 @@ import { Bell, LogOut, User, Menu, Sun, Moon, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/components/language-provider";
+import { LanguageFlag } from "@/components/FlagIcon";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +50,7 @@ export function Header({ tenantId, onToggleSidebar }: HeaderProps) {
           onClick={() => setLanguage(language === "pt" ? "es" : "pt")}
           title={language === "pt" ? "Cambiar a Español" : "Mudar para Português"}
         >
-          <span className="text-sm leading-none">{language === "pt" ? "🇧🇷" : "🇵🇾"}</span>
+          <LanguageFlag language={language} className="w-4 h-3 rounded-[2px] shrink-0" />
           <span>{language.toUpperCase()}</span>
         </Button>
 
