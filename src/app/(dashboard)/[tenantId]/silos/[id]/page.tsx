@@ -50,7 +50,7 @@ export default async function SiloProfilePage({
   const pct = capacity > 0 ? Math.min(100, Math.round((stock / capacity) * 100)) : 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
         <Link
           href={`/${tenantId}/silos`}

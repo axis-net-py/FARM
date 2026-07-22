@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { InvoiceActions } from "@/components/InvoiceActions";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FilterBar, FilterField } from "@/components/ui/filter-bar";
 import { Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR, es as esLocale } from "date-fns/locale";
@@ -39,6 +40,7 @@ const STRINGS = {
     colSifenStatus: "Status SET",
     colTotal: "Total",
     colActions: "Ações",
+    searchLabel: "Buscar",
     empty: "Nenhuma fatura encontrada.",
     viewOriginalDoc: "Visualizar documento original",
     na: "N/A",
@@ -70,6 +72,7 @@ const STRINGS = {
     colSifenStatus: "Estado SET",
     colTotal: "Total",
     colActions: "Acciones",
+    searchLabel: "Buscar",
     empty: "No se encontraron facturas.",
     viewOriginalDoc: "Ver documento original",
     na: "N/A",
@@ -158,16 +161,18 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
   return (
     <div className="space-y-4">
       {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+      <FilterBar>
+        <FilterField label={s.searchLabel} grow>
           <Input
             placeholder={s.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs h-[38px] rounded-lg border-border bg-card"
+            className="h-10 sm:h-9 rounded-lg border-border bg-card text-[13px]"
           />
+        </FilterField>
+        <FilterField label={s.type}>
           <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-[140px] h-[38px] rounded-lg bg-card">
+            <SelectTrigger className="w-full sm:w-[160px] h-10 sm:h-9 rounded-lg bg-card">
               <SelectValue placeholder={s.type} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
@@ -176,8 +181,10 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
               <SelectItem value="PURCHASE">{s.purchase}</SelectItem>
             </SelectContent>
           </Select>
+        </FilterField>
+        <FilterField label={s.status}>
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-[140px] h-[38px] rounded-lg bg-card">
+            <SelectTrigger className="w-full sm:w-[160px] h-10 sm:h-9 rounded-lg bg-card">
               <SelectValue placeholder={s.status} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
@@ -187,8 +194,10 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
               <SelectItem value="CANCELLED">{s.cancelled}</SelectItem>
             </SelectContent>
           </Select>
+        </FilterField>
+        <FilterField label={s.sifenStatusLabel}>
           <Select value={selectedSifenStatus} onValueChange={setSelectedSifenStatus}>
-            <SelectTrigger className="w-[160px] h-[38px] rounded-lg bg-card">
+            <SelectTrigger className="w-full sm:w-[190px] h-10 sm:h-9 rounded-lg bg-card">
               <SelectValue placeholder={s.sifenStatusLabel} />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
@@ -200,8 +209,8 @@ export function InvoiceList({ invoices, tenantId }: { invoices: any[]; tenantId:
               <SelectItem value="REJECTED">{s.sifenStatus.REJECTED}</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-      </div>
+        </FilterField>
+      </FilterBar>
 
       {/* Table */}
       <div className="rounded-lg border border-border bg-card">

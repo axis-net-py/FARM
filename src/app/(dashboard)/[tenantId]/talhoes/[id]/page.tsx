@@ -82,7 +82,7 @@ export default async function PlotProfilePage({
   const activeProducts = products.filter((p: any) => p.isActive && !p.isService);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
         <Link
           href={`/${tenantId}/talhoes`}
