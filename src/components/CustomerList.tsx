@@ -7,6 +7,7 @@ import { CustomerSheet } from "@/components/CustomerSheet";
 import { CustomerDeleteButton } from "@/components/CustomerDeleteButton";
 import type { Customer } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/components/language-provider";
 
 const STRINGS = {
@@ -23,6 +24,7 @@ const STRINGS = {
     juridica: "Jurídica",
     active: "Ativo",
     inactive: "Inativo",
+    showInactive: "Mostrar Inativos",
   },
   es: {
     searchPlaceholder: "Buscar por Nombre, Documento o E-mail...",
@@ -37,6 +39,7 @@ const STRINGS = {
     juridica: "Jurídica",
     active: "Activo",
     inactive: "Inactivo",
+    showInactive: "Mostrar Inactivos",
   },
 } as const;
 
@@ -44,6 +47,7 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
   const { language } = useLanguage();
   const s = STRINGS[language];
   const [search, setSearch] = useState("");
+  const [showInactive, setShowInactive] = useState(false);
   const [sortField, setSortField] = useState<"name" | "document" | "email" | "category" | "isActive" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -58,11 +62,11 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
 
   const filteredCustomers = customers.filter((c) => {
     const term = search.toLowerCase();
-    return (
+    const matchesSearch =
       c.name.toLowerCase().includes(term) ||
       (c.document && c.document.toLowerCase().includes(term)) ||
-      (c.email && c.email.toLowerCase().includes(term))
-    );
+      (c.email && c.email.toLowerCase().includes(term));
+    return matchesSearch && (showInactive || c.isActive);
   });
 
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
@@ -98,6 +102,10 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md h-[38px] rounded-lg border-border bg-card"
         />
+        <div className="h-[38px] flex items-center gap-2 px-1">
+          <Switch checked={showInactive} onCheckedChange={setShowInactive} />
+          <span className="text-sm text-muted-foreground whitespace-nowrap">{s.showInactive}</span>
+        </div>
       </div>
 
       {/* Table */}

@@ -7,6 +7,7 @@ import { SupplierSheet } from "@/components/SupplierSheet";
 import { SupplierDeleteButton } from "@/components/SupplierDeleteButton";
 import type { Supplier } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/components/language-provider";
 
 const STRINGS = {
@@ -23,6 +24,7 @@ const STRINGS = {
     cash: "Contado",
     active: "Ativo",
     inactive: "Inativo",
+    showInactive: "Mostrar Inativos",
   },
   es: {
     searchPlaceholder: "Buscar por Nombre Fantasía, Razón Social, Documento...",
@@ -37,6 +39,7 @@ const STRINGS = {
     cash: "Contado",
     active: "Activo",
     inactive: "Inactivo",
+    showInactive: "Mostrar Inactivos",
   },
 } as const;
 
@@ -44,6 +47,7 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
   const { language } = useLanguage();
   const s = STRINGS[language];
   const [search, setSearch] = useState("");
+  const [showInactive, setShowInactive] = useState(false);
   const [sortField, setSortField] = useState<"name" | "businessName" | "document" | "email" | "paymentTerms" | "isActive" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -56,14 +60,14 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
     }
   };
 
-  const filteredSuppliers = suppliers.filter((s) => {
+  const filteredSuppliers = suppliers.filter((sup) => {
     const term = search.toLowerCase();
-    return (
-      s.name.toLowerCase().includes(term) ||
-      (s.businessName && s.businessName.toLowerCase().includes(term)) ||
-      (s.document && s.document.toLowerCase().includes(term)) ||
-      (s.email && s.email.toLowerCase().includes(term))
-    );
+    const matchesSearch =
+      sup.name.toLowerCase().includes(term) ||
+      (sup.businessName && sup.businessName.toLowerCase().includes(term)) ||
+      (sup.document && sup.document.toLowerCase().includes(term)) ||
+      (sup.email && sup.email.toLowerCase().includes(term));
+    return matchesSearch && (showInactive || sup.isActive);
   });
 
   const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
@@ -99,6 +103,10 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md h-[38px] rounded-lg border-border bg-card"
         />
+        <div className="h-[38px] flex items-center gap-2 px-1">
+          <Switch checked={showInactive} onCheckedChange={setShowInactive} />
+          <span className="text-sm text-muted-foreground whitespace-nowrap">{s.showInactive}</span>
+        </div>
       </div>
 
       {/* Table */}

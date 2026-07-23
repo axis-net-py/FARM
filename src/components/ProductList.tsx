@@ -8,6 +8,7 @@ import { ProductDeleteButton } from "@/components/ProductDeleteButton";
 import type { Product } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Tag } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
@@ -31,6 +32,7 @@ const STRINGS = {
     serviceLabel: "Serviço",
     active: "Ativo",
     inactive: "Inativo",
+    showInactive: "Mostrar Inativos",
   },
   es: {
     searchPlaceholder: "Buscar por SKU o Nombre...",
@@ -51,6 +53,7 @@ const STRINGS = {
     serviceLabel: "Servicio",
     active: "Activo",
     inactive: "Inactivo",
+    showInactive: "Mostrar Inactivos",
   },
 } as const;
 
@@ -60,6 +63,7 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
+  const [showInactive, setShowInactive] = useState(false);
   const [sortField, setSortField] = useState<"sku" | "name" | "price" | "currentStock" | "isActive" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -100,7 +104,9 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
       (selectedType === "service" && p.isService) ||
       (selectedType === "product" && !p.isService);
 
-    return matchesSearch && matchesTag && matchesType;
+    const matchesActive = showInactive || p.isActive;
+
+    return matchesSearch && matchesTag && matchesType && matchesActive;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -163,6 +169,10 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
               <SelectItem value="service">{s.service}</SelectItem>
             </SelectContent>
           </Select>
+          <div className="h-[38px] flex items-center gap-2 px-1">
+            <Switch checked={showInactive} onCheckedChange={setShowInactive} />
+            <span className="text-sm text-muted-foreground whitespace-nowrap">{s.showInactive}</span>
+          </div>
         </div>
       </div>
 
