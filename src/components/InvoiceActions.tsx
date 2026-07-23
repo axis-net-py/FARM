@@ -1,7 +1,13 @@
 "use client";
 
-import { Printer, Receipt, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Printer, Pencil, Trash2, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CommercialInvoiceSheet } from "@/components/CommercialInvoiceSheet";
@@ -11,13 +17,17 @@ import { useLanguage } from "@/components/language-provider";
 const STRINGS = {
   pt: {
     edit: "Editar",
+    print: "Imprimir",
     del: "Excluir",
+    delDisabled: "Faturas de venda são documentos fiscais e não podem ser excluídas",
     confirm: "Excluir definitivamente esta fatura de compra? O estoque e os lançamentos contábeis serão revertidos. Esta ação não pode ser desfeita.",
     err: "Erro ao excluir a fatura.",
   },
   es: {
     edit: "Editar",
+    print: "Imprimir",
     del: "Eliminar",
+    delDisabled: "Las facturas de venta son documentos fiscales y no pueden eliminarse",
     confirm: "¿Eliminar definitivamente esta factura de compra? El stock y los asientos contables se revertirán. Esta acción no se puede deshacer.",
     err: "Error al eliminar la factura.",
   },
@@ -31,8 +41,7 @@ interface InvoiceActionsProps {
 export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
   const { language } = useLanguage();
   const s = STRINGS[language];
-  const [printingA4, setPrintingA4] = useState(false);
-  const [printingReceipt, setPrintingReceipt] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const router = useRouter();
 
@@ -55,12 +64,12 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
   };
 
   const isSifen = !!invoice.sifenStatus;
-  const a4Url = isSifen 
-    ? `/api/v1/invoices/${invoice.id}/generate` 
+  const a4Url = isSifen
+    ? `/api/v1/invoices/${invoice.id}/generate`
     : `/api/invoices/${invoice.id}/pdf`;
   const receiptUrl = `/api/invoices/${invoice.id}/receipt`;
 
-  const handlePrint = (url: string, setPrinting: (v: boolean) => void) => {
+  const handlePrint = (url: string) => {
     setPrinting(true);
     // Create hidden iframe
     const iframe = document.createElement("iframe");
@@ -81,7 +90,6 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
         window.open(url, "_blank");
       } finally {
         setPrinting(false);
-        // Remove iframe after print dialog opens
         setTimeout(() => {
           if (iframe.parentNode) {
             document.body.removeChild(iframe);
@@ -117,48 +125,44 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
         }
       />
 
-      {invoice.type !== "PURCHASE" && (
-        <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="sm"
-            disabled={printingA4}
-            onClick={() => handlePrint(a4Url, setPrintingA4)}
+            disabled={printing}
             className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
           >
-            <Printer className="w-3.5 h-3.5 text-muted-foreground" />
-            <span>A4</span>
+            {printing ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+            ) : (
+              <Printer className="w-3.5 h-3.5 text-muted-foreground" />
+            )}
+            <span>{s.print}</span>
+            <ChevronDown className="w-3 h-3 text-muted-foreground" />
           </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => handlePrint(a4Url)}>A4</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handlePrint(receiptUrl)}>80mm</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={printingReceipt}
-            onClick={() => handlePrint(receiptUrl, setPrintingReceipt)}
-            className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-accent border-border"
-          >
-            <Receipt className="w-3.5 h-3.5 text-muted-foreground" />
-            <span>80mm</span>
-          </Button>
-        </>
-      )}
-
-      {canDelete && (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={cancelling}
-          onClick={handleDelete}
-          className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-destructive/10 hover:text-destructive border-border"
-        >
-          {cancelling ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
-          )}
-          <span>{s.del}</span>
-        </Button>
-      )}
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={!canDelete || cancelling}
+        onClick={handleDelete}
+        title={!canDelete ? s.delDisabled : undefined}
+        className="h-8 px-2.5 text-xs flex items-center gap-1.5 bg-card hover:bg-destructive/10 hover:text-destructive border-border disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-inherit"
+      >
+        {cancelling ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+        )}
+        <span>{s.del}</span>
+      </Button>
     </div>
   );
 }
