@@ -19,16 +19,16 @@ const STRINGS = {
     edit: "Editar",
     print: "Imprimir",
     del: "Excluir",
-    delDisabled: "Faturas de venda são documentos fiscais e não podem ser excluídas",
-    confirm: "Excluir definitivamente esta fatura de compra? O estoque e os lançamentos contábeis serão revertidos. Esta ação não pode ser desfeita.",
+    delDisabled: "Fatura com registro no SIFEN não pode ser excluída",
+    confirm: "Excluir definitivamente esta fatura? O estoque e os lançamentos contábeis serão revertidos. Esta ação não pode ser desfeita.",
     err: "Erro ao excluir a fatura.",
   },
   es: {
     edit: "Editar",
     print: "Imprimir",
     del: "Eliminar",
-    delDisabled: "Las facturas de venta son documentos fiscales y no pueden eliminarse",
-    confirm: "¿Eliminar definitivamente esta factura de compra? El stock y los asientos contables se revertirán. Esta acción no se puede deshacer.",
+    delDisabled: "Factura con registro en el SIFEN no puede eliminarse",
+    confirm: "¿Eliminar definitivamente esta factura? El stock y los asientos contables se revertirán. Esta acción no se puede deshacer.",
     err: "Error al eliminar la factura.",
   },
 } as const;
@@ -45,9 +45,10 @@ export function InvoiceActions({ invoice, tenantId }: InvoiceActionsProps) {
   const [cancelling, setCancelling] = useState(false);
   const router = useRouter();
 
-  // Exclusão definitiva só para faturas de COMPRA.
-  // Faturas de venda são documentos fiscais de saída — não se apagam.
-  const canDelete = invoice.type === "PURCHASE";
+  // Exclusão definitiva: sempre para COMPRA; para VENDA só quando não for
+  // documento fiscal real no SIFEN (Recibo Comum não conta como SIFEN).
+  const isRealSifenDoc = !!invoice.sifenCdc || (!!invoice.sifenStatus && invoice.sifenStatus !== "RECIBO_COMUN");
+  const canDelete = invoice.type === "PURCHASE" || !isRealSifenDoc;
 
   const handleDelete = async () => {
     if (!canDelete || cancelling) return;

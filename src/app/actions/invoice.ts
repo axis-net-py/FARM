@@ -406,10 +406,8 @@ export async function deletePurchaseInvoice(id: string) {
   })
   if (!invoice) throw new Error('Fatura não encontrada')
 
-  if (invoice.type !== 'PURCHASE') {
-    throw new Error('Somente faturas de compra podem ser excluídas. Faturas de venda devem ser canceladas.')
-  }
-  if (invoice.sifenCdc || invoice.sifenStatus) {
+  const isRealSifenDoc = !!invoice.sifenCdc || (!!invoice.sifenStatus && invoice.sifenStatus !== 'RECIBO_COMUN')
+  if (isRealSifenDoc) {
     throw new Error('Fatura com registro no SIFEN não pode ser excluída.')
   }
 
