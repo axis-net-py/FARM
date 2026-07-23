@@ -5,6 +5,7 @@ import { PlotBreakdown } from '@/components/dashboard/PlotBreakdown';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,12 +20,8 @@ const defaultCurrency = 'PYG' as const;
 
 export default function DashboardPage() {
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold uppercase tracking-widest text-foreground">
-          Dashboard
-        </h1>
-      </div>
+    <div className="space-y-4 md:space-y-6">
+      <PageHeader title="Dashboard" subtitle="Visão geral da fazenda" />
 
       {/* GPS Weather Card */}
       <WeatherCard />
@@ -32,7 +29,7 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <Suspense
         fallback={
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-32 w-full" />
             ))}

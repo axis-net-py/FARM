@@ -68,7 +68,7 @@ export function StatsCards({ dateRange, currency }: StatsCardsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {[1, 2, 3, 4].map((i) => (
           <Skeleton key={i} className="h-32 w-full rounded-xl" />
         ))}
@@ -83,7 +83,7 @@ export function StatsCards({ dateRange, currency }: StatsCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
       {/* Safras Ativas */}
       <Card className="border border-border bg-card/45 backdrop-blur-md shadow-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-md cursor-default border-l-4 border-l-emerald-500/80 group animate-fade-up" style={{ animationDelay: '0ms' }}>
         <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
