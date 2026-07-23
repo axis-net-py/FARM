@@ -92,14 +92,23 @@ export async function updateCustomer(id: string, data: Partial<CustomerFormData>
 }
 
 // Excluir cliente (soft delete ou hard delete)
-export async function deleteCustomer(id: string) {
+export async function deleteCustomer(id: string): Promise<{ archived: boolean }> {
   const session = await auth()
   if (!session?.user?.tenantId) throw new Error('Tenant não encontrado')
   const tenantId = session.user.tenantId
 
-  await prisma.customer.deleteMany({
-    where: { id, tenantId },
-  })
+  const customer = await prisma.customer.findFirst({ where: { id, tenantId }, select: { id: true } })
+  if (!customer) throw new Error('Cliente não encontrado')
 
+  const invoices = await prisma.commercialInvoice.count({ where: { customerId: id } })
+
+  if (invoices > 0) {
+    await prisma.customer.update({ where: { id }, data: { isActive: false } })
+    revalidatePath(`/${tenantId}/customers`)
+    return { archived: true }
+  }
+
+  await prisma.customer.deleteMany({ where: { id, tenantId } })
   revalidatePath(`/${tenantId}/customers`)
+  return { archived: false }
 }
