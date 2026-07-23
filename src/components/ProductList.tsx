@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { ProductSheet } from "@/components/ProductSheet";
 import { ProductDeleteButton } from "@/components/ProductDeleteButton";
-import { PrintRecordButton } from "@/components/ui/print-record-button";
 import type { Product } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,8 +31,6 @@ const STRINGS = {
     serviceLabel: "Serviço",
     active: "Ativo",
     inactive: "Inativo",
-    printSubtitle: "Ficha do Produto",
-    print: "Imprimir",
   },
   es: {
     searchPlaceholder: "Buscar por SKU o Nombre...",
@@ -54,8 +51,6 @@ const STRINGS = {
     serviceLabel: "Servicio",
     active: "Activo",
     inactive: "Inactivo",
-    printSubtitle: "Ficha del Producto",
-    print: "Imprimir",
   },
 } as const;
 
@@ -133,22 +128,6 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
     if (sortField !== field) return null;
     return sortOrder === "asc" ? " ▴" : " ▾";
   };
-
-  const printFields = (product: Product) => [
-    { label: s.sku, value: product.sku || "-" },
-    {
-      label: s.price,
-      value: new Intl.NumberFormat((product as any).currency === "PYG" ? "pt-BR" : "en-US", {
-        style: "currency",
-        currency: (product as any).currency || "PYG",
-        minimumFractionDigits: (product as any).currency === "PYG" ? 0 : 2,
-        maximumFractionDigits: (product as any).currency === "PYG" ? 0 : 2,
-      }).format(Number(product.price)),
-    },
-    { label: s.stock, value: product.isService ? s.serviceLabel : `${Number(product.currentStock)} ${product.unit}` },
-    { label: s.tags, value: product.tags || "-" },
-    { label: s.status, value: product.isActive ? s.active : s.inactive },
-  ];
 
   return (
     <div className="space-y-4">
@@ -265,7 +244,6 @@ export function ProductList({ products, tenantId }: { products: Product[]; tenan
                         tenantId={tenantId}
                         product={product}
                       />
-                      <PrintRecordButton title={product.name} subtitle={s.printSubtitle} fields={printFields(product)} label={s.print} />
                       <ProductDeleteButton product={product} />
                     </div>
                   </TableCell>

@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { CustomerSheet } from "@/components/CustomerSheet";
 import { CustomerDeleteButton } from "@/components/CustomerDeleteButton";
-import { PrintRecordButton } from "@/components/ui/print-record-button";
 import type { Customer } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/components/language-provider";
@@ -24,8 +23,6 @@ const STRINGS = {
     juridica: "Jurídica",
     active: "Ativo",
     inactive: "Inativo",
-    printSubtitle: "Ficha do Cliente",
-    print: "Imprimir",
   },
   es: {
     searchPlaceholder: "Buscar por Nombre, Documento o E-mail...",
@@ -40,8 +37,6 @@ const STRINGS = {
     juridica: "Jurídica",
     active: "Activo",
     inactive: "Inactivo",
-    printSubtitle: "Ficha del Cliente",
-    print: "Imprimir",
   },
 } as const;
 
@@ -92,13 +87,6 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
     if (sortField !== field) return null;
     return sortOrder === "asc" ? " ▴" : " ▾";
   };
-
-  const printFields = (customer: Customer) => [
-    { label: s.document, value: customer.document || "-" },
-    { label: s.email, value: customer.email || "-" },
-    { label: s.category, value: customer.category === "fisica" ? s.fisica : customer.category === "juridica" ? s.juridica : customer.category || "-" },
-    { label: s.status, value: customer.isActive ? s.active : s.inactive },
-  ];
 
   return (
     <div className="space-y-4">
@@ -161,7 +149,6 @@ export function CustomerList({ customers, tenantId }: { customers: Customer[]; t
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <CustomerSheet tenantId={tenantId} customer={customer} />
-                      <PrintRecordButton title={customer.name} subtitle={s.printSubtitle} fields={printFields(customer)} label={s.print} />
                       <CustomerDeleteButton customer={customer} />
                     </div>
                   </TableCell>

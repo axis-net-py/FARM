@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { SupplierSheet } from "@/components/SupplierSheet";
 import { SupplierDeleteButton } from "@/components/SupplierDeleteButton";
-import { PrintRecordButton } from "@/components/ui/print-record-button";
 import type { Supplier } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/components/language-provider";
@@ -24,8 +23,6 @@ const STRINGS = {
     cash: "Contado",
     active: "Ativo",
     inactive: "Inativo",
-    printSubtitle: "Ficha do Fornecedor",
-    print: "Imprimir",
   },
   es: {
     searchPlaceholder: "Buscar por Nombre Fantasía, Razón Social, Documento...",
@@ -40,8 +37,6 @@ const STRINGS = {
     cash: "Contado",
     active: "Activo",
     inactive: "Inactivo",
-    printSubtitle: "Ficha del Proveedor",
-    print: "Imprimir",
   },
 } as const;
 
@@ -93,14 +88,6 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
     if (sortField !== field) return null;
     return sortOrder === "asc" ? " ▴" : " ▾";
   };
-
-  const printFields = (supplier: Supplier) => [
-    { label: s.businessName, value: supplier.businessName || "-" },
-    { label: s.document, value: supplier.document ? `${supplier.documentType ?? "DOC"}: ${supplier.document}` : "-" },
-    { label: s.email, value: supplier.email || "-" },
-    { label: s.paymentTerms, value: supplier.paymentTerms || s.cash },
-    { label: s.status, value: supplier.isActive ? s.active : s.inactive },
-  ];
 
   return (
     <div className="space-y-4">
@@ -165,7 +152,6 @@ export function SupplierList({ suppliers, tenantId }: { suppliers: Supplier[]; t
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <SupplierSheet tenantId={tenantId} supplier={supplier} />
-                      <PrintRecordButton title={supplier.businessName || supplier.name} subtitle={s.printSubtitle} fields={printFields(supplier)} label={s.print} />
                       <SupplierDeleteButton supplier={{ id: supplier.id, name: supplier.businessName || supplier.name }} />
                     </div>
                   </TableCell>
