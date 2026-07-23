@@ -24,7 +24,7 @@ export function Header({ tenantId, onToggleSidebar }: HeaderProps) {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4">
+    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 sticky top-0 z-30">
       {/* Left */}
       <div className="flex items-center gap-3">
         <Button
@@ -46,7 +46,7 @@ export function Header({ tenantId, onToggleSidebar }: HeaderProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-2 font-sans text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1"
+          className="h-8 px-2.5 font-sans text-[11px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5"
           onClick={() => setLanguage(language === "pt" ? "es" : "pt")}
           title={language === "pt" ? "Cambiar a Español" : "Mudar para Português"}
         >
